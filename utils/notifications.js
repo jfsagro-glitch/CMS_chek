@@ -2,7 +2,7 @@ const nodemailer = require('nodemailer');
 const twilio = require('twilio');
 
 // Настройка email
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: process.env.EMAIL_PORT,
   secure: false,
@@ -13,15 +13,19 @@ const transporter = nodemailer.createTransporter({
 });
 
 // Настройка SMS
-const twilioClient = twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
+let twilioClient = null;
+if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_ACCOUNT_SID.startsWith('AC') && process.env.TWILIO_AUTH_TOKEN) {
+  try {
+    twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+  } catch (error) {
+    console.log('Twilio не настроен:', error.message);
+  }
+}
 
 // Отправка SMS
 const sendSMS = async (phone, message) => {
   try {
-    if (!process.env.TWILIO_ACCOUNT_SID) {
+    if (!twilioClient || !process.env.TWILIO_ACCOUNT_SID) {
       console.log('SMS не настроен. Сообщение:', message);
       return;
     }
