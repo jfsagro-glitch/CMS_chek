@@ -5,10 +5,12 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 require('dotenv').config();
 
-const authRoutes = require('./routes/auth');
-const inspectionRoutes = require('./routes/inspections');
-const userRoutes = require('./routes/users');
-const uploadRoutes = require('./routes/upload');
+// Используем упрощенные маршруты без базы данных для быстрого тестирования
+const authRoutes = require('./routes/auth-simple');
+const inspectionRoutes = require('./routes/inspections-simple');
+// Временно отключаем маршруты, требующие БД
+// const userRoutes = require('./routes/users');
+// const uploadRoutes = require('./routes/upload');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -33,8 +35,9 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/inspections', inspectionRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/upload', uploadRoutes);
+// Временно отключаем маршруты, требующие БД
+// app.use('/api/users', userRoutes);
+// app.use('/api/upload', uploadRoutes);
 
 // Serve static files from React build
 if (process.env.NODE_ENV === 'production') {
