@@ -169,6 +169,7 @@ const Layout: React.FC = () => {
           <button 
             className="collapse-btn"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            title={sidebarCollapsed ? 'Развернуть' : 'Свернуть'}
           >
             {sidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
             {!sidebarCollapsed && <span>Свернуть</span>}

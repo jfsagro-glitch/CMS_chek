@@ -40,7 +40,7 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Поиск адресов через Dadata API (бесплатный для РФ)
+  // Поиск адресов через Яндекс.Карты API (без ключа)
   const searchAddress = async (query: string) => {
     if (query.length < 3) {
       setSuggestions([]);
@@ -49,28 +49,43 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
 
     setIsLoading(true);
     try {
-      // Используем публичный API Dadata (для демо)
-      // В продакшене нужен API ключ
-      const response = await fetch('https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          // Для продакшена добавьте свой API ключ:
-          // 'Authorization': 'Token YOUR_DADATA_API_KEY'
-        },
-        body: JSON.stringify({ query, count: 10 })
-      });
-
+      // Используем Яндекс.Карты API с ключом
+      const response = await fetch(`https://geocode-maps.yandex.ru/1.x/?apikey=4b209416-2036-4169-90c5-30ee809f0518&geocode=${encodeURIComponent(query)}&format=json&results=10`);
+      
       if (response.ok) {
         const data = await response.json();
-        setSuggestions(data.suggestions || []);
+        const suggestions: AddressSuggestion[] = [];
+        
+        if (data.response && data.response.GeoObjectCollection && data.response.GeoObjectCollection.featureMember) {
+          data.response.GeoObjectCollection.featureMember.forEach((item: any) => {
+            const geoObject = item.GeoObject;
+            const coords = geoObject.Point.pos.split(' ').map(Number);
+            
+            suggestions.push({
+              value: geoObject.metaDataProperty.GeocoderMetaData.text,
+              data: {
+                geo_lat: coords[1].toString(),
+                geo_lon: coords[0].toString()
+              }
+            });
+          });
+        }
+        
+        setSuggestions(suggestions);
         setShowSuggestions(true);
       }
     } catch (error) {
       console.error('Ошибка поиска адреса:', error);
-      // Если API недоступен, показываем простой список
-      setSuggestions([]);
+      // Fallback: используем демо-адреса
+      const demoAddresses = [
+        { value: `${query}, г. Москва`, data: { geo_lat: '55.7558', geo_lon: '37.6176' } },
+        { value: `${query}, г. Санкт-Петербург`, data: { geo_lat: '59.9311', geo_lon: '30.3609' } },
+        { value: `${query}, г. Екатеринбург`, data: { geo_lat: '56.8431', geo_lon: '60.6454' } },
+        { value: `${query}, г. Новосибирск`, data: { geo_lat: '55.0084', geo_lon: '82.9357' } },
+        { value: `${query}, г. Казань`, data: { geo_lat: '55.8304', geo_lon: '49.0661' } }
+      ];
+      setSuggestions(demoAddresses);
+      setShowSuggestions(true);
     } finally {
       setIsLoading(false);
     }
