@@ -30,6 +30,54 @@
   --table-row-alt: #1a2332;
 }
 
+/* Gray Theme */
+:root[data-theme="gray"] {
+  --bg-primary: #f5f5f5;
+  --bg-secondary: #e5e5e5;
+  --bg-tertiary: #d4d4d4;
+  --text-primary: #404040;
+  --text-secondary: #737373;
+  --text-muted: #a3a3a3;
+  --border-color: #d4d4d4;
+  --sidebar-bg: #525252;
+  --header-bg: #e5e5e5;
+  --table-header-bg: #525252;
+  --table-row-hover: #f0f0f0;
+  --table-row-alt: #fafafa;
+}
+
+/* Monochrome Theme */
+:root[data-theme="monochrome"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f8f8;
+  --bg-tertiary: #f0f0f0;
+  --text-primary: #000000;
+  --text-secondary: #333333;
+  --text-muted: #666666;
+  --border-color: #cccccc;
+  --sidebar-bg: #000000;
+  --header-bg: #ffffff;
+  --table-header-bg: #000000;
+  --table-row-hover: #f5f5f5;
+  --table-row-alt: #fafafa;
+}
+
+/* Windows 97 Theme */
+:root[data-theme="windows97"] {
+  --bg-primary: #c0c0c0;
+  --bg-secondary: #d4d0c8;
+  --bg-tertiary: #e0e0e0;
+  --text-primary: #000000;
+  --text-secondary: #404040;
+  --text-muted: #808080;
+  --border-color: #808080;
+  --sidebar-bg: #000080;
+  --header-bg: #d4d0c8;
+  --table-header-bg: #000080;
+  --table-row-hover: #e8e8e8;
+  --table-row-alt: #f0f0f0;
+}
+
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);

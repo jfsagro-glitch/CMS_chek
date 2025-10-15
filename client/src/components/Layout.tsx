@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { 
   FileText, 
   Plus, 
@@ -8,15 +9,25 @@ import {
   X,
   BarChart3,
   Users,
-  Settings
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  Palette,
+  Sun,
+  Moon,
+  Monitor,
+  Zap
 } from 'lucide-react';
 import './Layout.css';
 
 const Layout: React.FC = () => {
   const { user, logout } = useAuth();
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
+  const [showThemeSelector, setShowThemeSelector] = React.useState(false);
 
   const handleLogout = () => {
     logout();
@@ -30,9 +41,12 @@ const Layout: React.FC = () => {
       {/* Мобильное меню - убрано */}
 
       {/* Боковая панель */}
-      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+      <aside className={`sidebar ${sidebarOpen ? 'open' : ''} ${sidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
-          {/* Логотип убран */}
+          <div className="sidebar-logo">
+            <div className="logo-icon">CMS</div>
+            {!sidebarCollapsed && <span className="logo-text">Check</span>}
+          </div>
           <button 
             className="sidebar-close"
             onClick={() => setSidebarOpen(false)}
@@ -100,18 +114,80 @@ const Layout: React.FC = () => {
         </nav>
 
         <div className="sidebar-footer">
+          {/* Селектор тем */}
+          <div className="theme-selector">
+            <button 
+              className="theme-toggle-btn"
+              onClick={() => setShowThemeSelector(!showThemeSelector)}
+            >
+              <Palette size={16} />
+              {!sidebarCollapsed && <span>Темы</span>}
+            </button>
+            
+            {showThemeSelector && (
+              <div className="theme-options">
+                <button 
+                  className={`theme-option ${theme === 'light' ? 'active' : ''}`}
+                  onClick={() => setTheme('light')}
+                >
+                  <Sun size={14} />
+                  {!sidebarCollapsed && <span>Светлая</span>}
+                </button>
+                <button 
+                  className={`theme-option ${theme === 'dark' ? 'active' : ''}`}
+                  onClick={() => setTheme('dark')}
+                >
+                  <Moon size={14} />
+                  {!sidebarCollapsed && <span>Темная</span>}
+                </button>
+                <button 
+                  className={`theme-option ${theme === 'gray' ? 'active' : ''}`}
+                  onClick={() => setTheme('gray')}
+                >
+                  <Monitor size={14} />
+                  {!sidebarCollapsed && <span>Серая</span>}
+                </button>
+                <button 
+                  className={`theme-option ${theme === 'monochrome' ? 'active' : ''}`}
+                  onClick={() => setTheme('monochrome')}
+                >
+                  <Zap size={14} />
+                  {!sidebarCollapsed && <span>Монохром</span>}
+                </button>
+                <button 
+                  className={`theme-option ${theme === 'windows97' ? 'active' : ''}`}
+                  onClick={() => setTheme('windows97')}
+                >
+                  <Monitor size={14} />
+                  {!sidebarCollapsed && <span>Windows 97</span>}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Кнопка сворачивания */}
+          <button 
+            className="collapse-btn"
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          >
+            {sidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+            {!sidebarCollapsed && <span>Свернуть</span>}
+          </button>
+
           <div className="user-info">
             <div className="user-avatar">
               {user?.fullName?.charAt(0) || 'U'}
             </div>
-            <div className="user-details">
-              <div className="user-name">{user?.fullName}</div>
-              <div className="user-role">{user?.role}</div>
-            </div>
+            {!sidebarCollapsed && (
+              <div className="user-details">
+                <div className="user-name">{user?.fullName}</div>
+                <div className="user-role">{user?.role}</div>
+              </div>
+            )}
           </div>
           <button className="logout-btn" onClick={handleLogout}>
             <LogOut size={16} />
-            Выйти
+            {!sidebarCollapsed && <span>Выйти</span>}
           </button>
         </div>
       </aside>
