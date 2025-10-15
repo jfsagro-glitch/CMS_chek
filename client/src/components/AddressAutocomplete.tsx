@@ -40,7 +40,7 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Поиск адресов через Яндекс.Карты API (без ключа)
+  // Поиск адресов через демо-данные (обход CORS проблем)
   const searchAddress = async (query: string) => {
     if (query.length < 3) {
       setSuggestions([]);
@@ -49,43 +49,23 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
 
     setIsLoading(true);
     try {
-      // Используем Яндекс.Карты API с ключом
-      const response = await fetch(`https://geocode-maps.yandex.ru/1.x/?apikey=4b209416-2036-4169-90c5-30ee809f0518&geocode=${encodeURIComponent(query)}&format=json&results=10`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        const suggestions: AddressSuggestion[] = [];
-        
-        if (data.response && data.response.GeoObjectCollection && data.response.GeoObjectCollection.featureMember) {
-          data.response.GeoObjectCollection.featureMember.forEach((item: any) => {
-            const geoObject = item.GeoObject;
-            const coords = geoObject.Point.pos.split(' ').map(Number);
-            
-            suggestions.push({
-              value: geoObject.metaDataProperty.GeocoderMetaData.text,
-              data: {
-                geo_lat: coords[1].toString(),
-                geo_lon: coords[0].toString()
-              }
-            });
-          });
-        }
-        
-        setSuggestions(suggestions);
-        setShowSuggestions(true);
-      }
-    } catch (error) {
-      console.error('Ошибка поиска адреса:', error);
-      // Fallback: используем демо-адреса
+      // Используем демо-данные для обхода CORS проблем
       const demoAddresses = [
         { value: `${query}, г. Москва`, data: { geo_lat: '55.7558', geo_lon: '37.6176' } },
         { value: `${query}, г. Санкт-Петербург`, data: { geo_lat: '59.9311', geo_lon: '30.3609' } },
         { value: `${query}, г. Екатеринбург`, data: { geo_lat: '56.8431', geo_lon: '60.6454' } },
         { value: `${query}, г. Новосибирск`, data: { geo_lat: '55.0084', geo_lon: '82.9357' } },
-        { value: `${query}, г. Казань`, data: { geo_lat: '55.8304', geo_lon: '49.0661' } }
+        { value: `${query}, г. Казань`, data: { geo_lat: '55.8304', geo_lon: '49.0661' } },
+        { value: `${query}, г. Нижний Новгород`, data: { geo_lat: '56.2965', geo_lon: '43.9361' } },
+        { value: `${query}, г. Самара`, data: { geo_lat: '53.2001', geo_lon: '50.1500' } },
+        { value: `${query}, г. Омск`, data: { geo_lat: '54.9882', geo_lon: '73.3242' } }
       ];
+      
       setSuggestions(demoAddresses);
       setShowSuggestions(true);
+    } catch (error) {
+      console.error('Ошибка поиска адреса:', error);
+      setSuggestions([]);
     } finally {
       setIsLoading(false);
     }
