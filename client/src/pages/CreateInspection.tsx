@@ -122,9 +122,46 @@ const CreateInspection: React.FC = () => {
     }
   };
 
-  const handleImportFromExcel = () => {
-    // Здесь будет логика импорта из Excel
-    toast('Функция импорта будет реализована');
+  const handleImportFromExcel = async () => {
+    try {
+      // Читаем данные из буфера обмена
+      const text = await navigator.clipboard.readText();
+      
+      if (!text) {
+        toast.error('Буфер обмена пуст');
+        return;
+      }
+
+      // Парсим данные из Excel (разделенные табуляцией)
+      const rows = text.trim().split('\n');
+      const importedObjects = rows.map(row => {
+        const cols = row.split('\t');
+        return {
+          vin: cols[0]?.trim() || '',
+          registrationNumber: cols[1]?.trim() || '',
+          category: cols[2]?.trim() || '',
+          type: cols[3]?.trim() || '',
+          make: cols[4]?.trim() || '',
+          model: cols[5]?.trim() || ''
+        };
+      }).filter(obj => obj.make || obj.model); // Фильтруем пустые строки
+
+      if (importedObjects.length === 0) {
+        toast.error('Не удалось распознать данные. Скопируйте ячейки из Excel');
+        return;
+      }
+
+      if (importedObjects.length > 150) {
+        toast.error('Максимальное количество объектов - 150');
+        return;
+      }
+
+      // Заменяем текущие объекты импортированными
+      setValue('objects', importedObjects);
+      toast.success(`Импортировано объектов: ${importedObjects.length}`);
+    } catch (error) {
+      toast.error('Ошибка импорта. Убедитесь, что данные скопированы в буфер обмена');
+    }
   };
 
 
@@ -326,10 +363,17 @@ const CreateInspection: React.FC = () => {
                   <button
                     type="button"
                     className="btn btn-primary btn-sm"
-                    onClick={() => append({ category: '', type: '', make: '', model: '', vin: '', registrationNumber: '' })}
+                    onClick={() => {
+                      if (fields.length >= 150) {
+                        toast.error('Максимальное количество объектов - 150');
+                        return;
+                      }
+                      append({ category: '', type: '', make: '', model: '', vin: '', registrationNumber: '' });
+                    }}
+                    disabled={fields.length >= 150}
                   >
                     <Plus size={16} />
-                    Добавить объект
+                    Добавить объект ({fields.length}/150)
                   </button>
                 </div>
               </div>
