@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { 
   FileText, 
   Plus, 
@@ -14,12 +15,15 @@ import {
   Settings,
   Building,
   Car,
-  Home
+  Home,
+  Sun,
+  Moon
 } from 'lucide-react';
 import './Layout.css';
 
 const Layout: React.FC = () => {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
@@ -43,6 +47,13 @@ const Layout: React.FC = () => {
         </button>
         <h1 className="mobile-title">CMS Check</h1>
         <div className="mobile-actions">
+          <button 
+            className="theme-toggle"
+            onClick={toggleTheme}
+            title={theme === 'light' ? 'Темная тема' : 'Светлая тема'}
+          >
+            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+          </button>
           <button 
             className="btn btn-primary btn-sm"
             onClick={() => navigate('/inspections/create')}

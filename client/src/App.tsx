@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import Login from './pages/Login';
@@ -11,6 +12,7 @@ import CreateInspection from './pages/CreateInspection';
 import InspectionDetail from './pages/InspectionDetail';
 import MobileInspection from './pages/MobileInspection';
 import './App.css';
+import './theme.css';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,8 +26,9 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Router basename="/CMS_chek">
+      <ThemeProvider>
+        <AuthProvider>
+          <Router basename="/CMS_chek">
           <div className="App">
             <Routes>
               <Route path="/login" element={<Login />} />
@@ -55,8 +58,9 @@ function App() {
               }}
             />
           </div>
-        </Router>
-      </AuthProvider>
+          </Router>
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
