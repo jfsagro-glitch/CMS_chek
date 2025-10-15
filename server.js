@@ -48,13 +48,16 @@ app.use('/api/inspections', inspectionRoutes);
 // app.use('/api/users', userRoutes);
 // app.use('/api/upload', uploadRoutes);
 
-// Serve static files from React build
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'client/build')));
-  
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
-  });
+// Serve static files from React build (only if build exists)
+// Frontend is hosted on GitHub Pages, so this is not needed on Render
+if (process.env.NODE_ENV === 'production' && process.env.SERVE_STATIC === 'true') {
+  const buildPath = path.join(__dirname, 'client/build');
+  if (require('fs').existsSync(buildPath)) {
+    app.use(express.static(buildPath));
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(buildPath, 'index.html'));
+    });
+  }
 }
 
 // Error handling middleware
