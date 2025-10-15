@@ -25,7 +25,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Router>
+        <Router basename="/CMS_chek">
           <div className="App">
             <Routes>
               <Route path="/login" element={<Login />} />
