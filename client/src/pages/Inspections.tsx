@@ -582,7 +582,11 @@ const Inspections: React.FC = () => {
               </thead>
               <tbody>
                       {getFilteredInspections().map((inspection: Inspection) => (
-                  <tr key={inspection.id}>
+                  <tr 
+                    key={inspection.id}
+                    onClick={() => navigate(`/inspections/${inspection.id}`)}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <td className="date-cell">
                       {formatDateTime(inspection.created_at)}
                     </td>

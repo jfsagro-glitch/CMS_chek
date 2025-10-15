@@ -24,11 +24,73 @@ const InspectionDetail: React.FC = () => {
   const [newStatus, setNewStatus] = useState('');
   const [statusComment, setStatusComment] = useState('');
 
-  const { data: inspection, isLoading, error } = useQuery({
-    queryKey: ['inspection', id],
-    queryFn: () => inspectionsApi.getInspection(Number(id)),
-    enabled: !!id,
-  });
+  // Демо-данные для детального осмотра
+  const getDemoInspectionDetail = (inspectionId: string) => {
+    return {
+      id: Number(inspectionId),
+      internal_number: '220525-1626',
+      status: 'готово',
+      property_type: 'Автотранспорт',
+      address: 'г. Москва, ул. Ленина, 1',
+      latitude: 55.751244,
+      longitude: 37.618423,
+      inspector_name: 'Иванов Иван Иванович',
+      inspector_phone: '+79991234567',
+      inspector_email: 'ivanov@example.com',
+      recipient_name: 'Петров Петр Петрович',
+      created_at: '2022-05-25T03:37:00Z',
+      sent_at: '2022-05-25T04:00:00Z',
+      completed_at: '2022-05-25T10:30:00Z',
+      comment: 'Провести полный осмотр технического состояния',
+      created_by_name: 'Администратор',
+      objects: [
+        {
+          id: 1,
+          vin: 'JF1SH58F77G123456',
+          registration_number: 'А123БВ777',
+          category: 'Легковой автомобиль',
+          type: 'Кроссовер',
+          make: 'Subaru',
+          model: 'FORESTER',
+          photos_count: 25
+        }
+      ],
+      status_history: [
+        {
+          id: 1,
+          status: 'создан',
+          comment: 'Осмотр создан',
+          created_at: '2022-05-25T03:37:00Z',
+          created_by: 'Администратор'
+        },
+        {
+          id: 2,
+          status: 'в работе',
+          comment: 'Отправлено СМС исполнителю',
+          created_at: '2022-05-25T04:00:00Z',
+          created_by: 'Система'
+        },
+        {
+          id: 3,
+          status: 'проверка',
+          comment: 'Осмотр выполнен, отправлен на проверку',
+          created_at: '2022-05-25T09:15:00Z',
+          created_by: 'Иванов И.И.'
+        },
+        {
+          id: 4,
+          status: 'готово',
+          comment: 'Осмотр принят',
+          created_at: '2022-05-25T10:30:00Z',
+          created_by: 'Администратор'
+        }
+      ]
+    };
+  };
+
+  const inspection = getDemoInspectionDetail(id || '1');
+  const isLoading = false;
+  const error = null;
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ status, comment }: { status: string; comment?: string }) =>
@@ -47,11 +109,13 @@ const InspectionDetail: React.FC = () => {
   });
 
   const duplicateMutation = useMutation({
-    mutationFn: () => inspectionsApi.duplicateInspection(Number(id)),
+    mutationFn: () => {
+      // Демо-режим: просто показываем успех
+      return Promise.resolve({ data: { message: 'Осмотр дублирован' } });
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['inspections'] });
-      toast.success('Осмотр дублирован');
-      navigate('/inspections');
+      toast.success('Осмотр дублирован (демо)');
+      setTimeout(() => navigate('/inspections'), 1000);
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Ошибка дублирования');
@@ -108,10 +172,10 @@ const InspectionDetail: React.FC = () => {
     );
   }
 
-  const inspectionData = inspection.data.inspection;
-  const objects = inspection.data.objects;
-  const photos = inspection.data.photos;
-  const statusHistory = inspection.data.statusHistory;
+  const inspectionData = inspection;
+  const objects = inspection.objects || [];
+  const photos: any[] = [];
+  const statusHistory = inspection.status_history || [];
 
   return (
     <div className="inspection-detail">
@@ -279,21 +343,27 @@ const InspectionDetail: React.FC = () => {
           <div className="status-history">
             <h2>История изменений</h2>
             <div className="timeline">
-              {statusHistory.map((entry: any, index: number) => (
+              {statusHistory.map((entry: any) => (
                 <div key={entry.id} className="timeline-item">
                   <div className="timeline-marker"></div>
                   <div className="timeline-content">
                     <div className="timeline-header">
-                      <span className="status-change">
-                        {entry.old_status ? `${entry.old_status} → ` : ''}{entry.new_status}
+                      <span className={`status-badge ${getStatusClass(entry.status)}`}>
+                        {entry.status}
                       </span>
                       <span className="timeline-date">{formatDate(entry.created_at)}</span>
                     </div>
-                    {entry.changed_by_name && (
-                      <p className="timeline-user">Изменено: {entry.changed_by_name}</p>
+                    {entry.created_by && (
+                      <p className="timeline-user">
+                        <User size={14} />
+                        {entry.created_by}
+                      </p>
                     )}
                     {entry.comment && (
-                      <p className="timeline-comment">{entry.comment}</p>
+                      <p className="timeline-comment">
+                        <FileText size={14} />
+                        {entry.comment}
+                      </p>
                     )}
                   </div>
                 </div>
