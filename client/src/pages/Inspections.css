@@ -2,6 +2,7 @@
   background-color: var(--bg-primary);
   min-height: 100vh;
   padding: 0; /* Убираем отступы */
+  margin: 0; /* Убираем внешние отступы */
   width: 100%;
   max-width: 100vw;
   overflow-x: hidden;
@@ -16,6 +17,7 @@
   border-bottom: 1px solid var(--border-color);
   background: var(--header-bg);
   border-radius: 0; /* Убираем скругления */
+  margin: 0; /* Убираем внешние отступы */
   gap: 1rem;
 }
 
@@ -134,7 +136,8 @@
   overflow-y: visible;
   width: 100%;
   max-width: 100%;
-  border-radius: 0 0 8px 8px;
+  border-radius: 0; /* Убираем скругления */
+  margin: 0; /* Убираем внешние отступы */
 }
 
 .inspections-table {
