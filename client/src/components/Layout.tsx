@@ -1,29 +1,19 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useTheme } from '../contexts/ThemeContext';
 import { 
   FileText, 
   Plus, 
-  Filter, 
-  Download, 
   LogOut, 
-  Menu,
   X,
   BarChart3,
   Users,
-  Settings,
-  Building,
-  Car,
-  Home,
-  Sun,
-  Moon
+  Settings
 } from 'lucide-react';
 import './Layout.css';
 
 const Layout: React.FC = () => {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
@@ -128,26 +118,6 @@ const Layout: React.FC = () => {
 
       {/* Основной контент */}
       <main className="main-content">
-        <div className="content-header">
-          <div className="header-actions">
-            <button className="btn btn-secondary">
-              <Filter size={16} />
-              Фильтры
-            </button>
-            <button className="btn btn-secondary">
-              <Download size={16} />
-              Excel
-            </button>
-            <button 
-              className="btn btn-primary"
-              onClick={() => navigate('/inspections/create')}
-            >
-              <Plus size={16} />
-              Новый осмотр
-            </button>
-          </div>
-        </div>
-
         <div className="content-body">
           <Outlet />
         </div>
