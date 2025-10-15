@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Download, 
-  Eye, 
-  Copy, 
+import {
+  Download,
+  Eye,
+  Copy,
   RefreshCw,
   Car,
   Building,
   Home,
   Wrench,
   ChevronDown,
-  Plus
+  Plus,
+  Filter,
+  X
 } from 'lucide-react';
 import { inspectionsApi } from '../services/api';
 import toast from 'react-hot-toast';
@@ -55,6 +57,42 @@ const Inspections: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
+
+  // Фильтрация демо-данных
+  const getFilteredInspections = () => {
+    let filtered = getDemoInspections();
+
+    if (filters.status) {
+      filtered = filtered.filter(i => i.status === filters.status);
+    }
+    if (filters.address) {
+      filtered = filtered.filter(i => 
+        i.address.toLowerCase().includes(filters.address.toLowerCase())
+      );
+    }
+    if (filters.inspector) {
+      filtered = filtered.filter(i => 
+        i.inspector_name.toLowerCase().includes(filters.inspector.toLowerCase())
+      );
+    }
+    if (filters.internalNumber) {
+      filtered = filtered.filter(i => 
+        i.internal_number?.includes(filters.internalNumber)
+      );
+    }
+    if (filters.dateFrom) {
+      filtered = filtered.filter(i => 
+        new Date(i.created_at) >= new Date(filters.dateFrom)
+      );
+    }
+    if (filters.dateTo) {
+      filtered = filtered.filter(i => 
+        new Date(i.created_at) <= new Date(filters.dateTo)
+      );
+    }
+
+    return filtered;
+  };
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['inspections', filters, page],
@@ -312,52 +350,125 @@ const Inspections: React.FC = () => {
     <div className="inspections-page">
       <div className="page-header">
         <h1 className="page-title">Осмотры</h1>
-        <div className="page-controls">
-          <div className="status-filter">
-            <label>Статус:</label>
-            <select 
-              value={filters.status}
-              onChange={(e) => handleFilterChange('status', e.target.value)}
-              className="filter-select"
-            >
-              <option value="">любой</option>
-              <option value="готово">готово</option>
-              <option value="отменён">отменён</option>
-              <option value="на доработке">на доработке</option>
-              <option value="проверка">проверка</option>
-            </select>
-          </div>
+        
+        <div className="page-actions">
+          <button 
+            className="btn btn-secondary"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <Filter size={16} />
+            Фильтры
+            <ChevronDown 
+              size={16} 
+              style={{ 
+                transform: showFilters ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 0.2s'
+              }} 
+            />
+          </button>
           
-          <div className="search-bar">
-            <label>Поиск:</label>
-            <div className="search-input">
-              <input 
-                type="text" 
-                placeholder="тел., адрес, кад.М"
+          <button className="btn btn-secondary" onClick={() => refetch()}>
+            <RefreshCw size={16} />
+          </button>
+          
+          <button className="btn btn-secondary" onClick={handleExport}>
+            <Download size={16} />
+          </button>
+          
+          <button className="btn btn-primary" onClick={() => navigate('/inspections/create')}>
+            <Plus size={16} />
+            Новый осмотр
+          </button>
+          
+          <div className="total-count">{getFilteredInspections().length}</div>
+        </div>
+      </div>
+
+      {/* Раскрывающаяся панель фильтров */}
+      {showFilters && (
+        <div className="filters-panel">
+          <div className="filters-grid">
+            <div className="form-group">
+              <label className="form-label">Внутренний номер</label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Введите номер"
+                value={filters.internalNumber}
+                onChange={(e) => handleFilterChange('internalNumber', e.target.value)}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Адрес объекта</label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Введите адрес"
                 value={filters.address}
                 onChange={(e) => handleFilterChange('address', e.target.value)}
               />
             </div>
+
+            <div className="form-group">
+              <label className="form-label">Исполнитель</label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="ФИО исполнителя"
+                value={filters.inspector}
+                onChange={(e) => handleFilterChange('inspector', e.target.value)}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Статус</label>
+              <select
+                className="form-select"
+                value={filters.status}
+                onChange={(e) => handleFilterChange('status', e.target.value)}
+              >
+                <option value="">Все статусы</option>
+                <option value="готово">Готов</option>
+                <option value="в работе">В работе</option>
+                <option value="проверка">Проверка</option>
+                <option value="на доработке">Доработка</option>
+                <option value="отменён">Отменён</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Дата создания (от)</label>
+              <input
+                type="date"
+                className="form-input"
+                value={filters.dateFrom}
+                onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Дата создания (до)</label>
+              <input
+                type="date"
+                className="form-input"
+                value={filters.dateTo}
+                onChange={(e) => handleFilterChange('dateTo', e.target.value)}
+              />
+            </div>
           </div>
-          
-          <button className="btn btn-secondary" onClick={() => refetch()}>
-            <RefreshCw size={16} />
-            Обновить
-          </button>
+
+          <div className="filters-actions">
+            <button 
+              className="btn btn-secondary"
+              onClick={clearFilters}
+            >
+              <X size={16} />
+              Очистить фильтры
+            </button>
+          </div>
         </div>
-        
-        <div className="page-actions">
-          <button className="btn btn-secondary" onClick={handleExport}>
-            <Download size={16} />
-          </button>
-          <button className="btn btn-primary" onClick={() => navigate('/inspections/create')}>
-            <Plus size={16} />
-            Новый осмотр
-            <ChevronDown size={16} />
-          </button>
-          <div className="total-count">146</div>
-        </div>
-      </div>
+      )}
 
       {/* Панель фильтров */}
       {showFilters && (
@@ -470,7 +581,7 @@ const Inspections: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {getDemoInspections().map((inspection: Inspection) => (
+                      {getFilteredInspections().map((inspection: Inspection) => (
                   <tr key={inspection.id}>
                     <td className="date-cell">
                       {formatDateTime(inspection.created_at)}
