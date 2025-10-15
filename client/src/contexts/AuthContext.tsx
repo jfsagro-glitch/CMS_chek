@@ -71,6 +71,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('token', token);
       setUser(user);
     } catch (error: any) {
+      if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+        throw new Error('Backend сервер недоступен. Для полной функциональности необходимо задеплоить backend на Railway/Render. См. документацию BACKEND_DEPLOYMENT.md');
+      }
       throw new Error(error.response?.data?.message || 'Ошибка входа в систему');
     }
   };
@@ -83,6 +86,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('token', token);
       setUser(user);
     } catch (error: any) {
+      if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+        throw new Error('Backend сервер недоступен. Для полной функциональности необходимо задеплоить backend на Railway/Render. См. документацию BACKEND_DEPLOYMENT.md');
+      }
       throw new Error(error.response?.data?.message || 'Ошибка регистрации');
     }
   };

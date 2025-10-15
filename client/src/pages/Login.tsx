@@ -91,6 +91,26 @@ const Login: React.FC = () => {
           <p className="login-subtitle">Система дистанционных осмотров имущества</p>
         </div>
 
+        {/* Demo mode banner */}
+        <div className="demo-banner" style={{
+          backgroundColor: '#fff3cd',
+          border: '1px solid #ffc107',
+          borderRadius: '8px',
+          padding: '12px 16px',
+          marginBottom: '20px',
+          fontSize: '14px',
+          color: '#856404'
+        }}>
+          <strong>Демо-режим:</strong> Backend сервер не подключен. 
+          Для полной функциональности необходимо задеплоить backend. 
+          <a href="https://github.com/jfsagro-glitch/CMS_chek#readme" 
+             target="_blank" 
+             rel="noopener noreferrer"
+             style={{ color: '#856404', textDecoration: 'underline', marginLeft: '4px' }}>
+            Инструкция
+          </a>
+        </div>
+
         <div className="login-tabs">
           <button
             className={`tab ${isLogin ? 'active' : ''}`}
