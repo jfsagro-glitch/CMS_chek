@@ -1,0 +1,446 @@
+import React, { useState } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { useNavigate } from 'react-router-dom';
+import { 
+  Car, 
+  Building, 
+  Home, 
+  Truck, 
+  Plus, 
+  Trash2, 
+  Upload,
+  MapPin,
+  User,
+  Phone,
+  Mail,
+  FileText
+} from 'lucide-react';
+import { inspectionsApi } from '../services/api';
+import toast from 'react-hot-toast';
+import './CreateInspection.css';
+
+const schema = yup.object({
+  propertyType: yup.string().required('Выберите тип имущества'),
+  address: yup.string().required('Адрес обязателен'),
+  latitude: yup.number().optional(),
+  longitude: yup.number().optional(),
+  inspectorName: yup.string().required('ФИО исполнителя обязательно'),
+  inspectorPhone: yup.string().matches(/^\+7\d{10}$/, 'Неверный формат телефона').required('Телефон обязателен'),
+  inspectorEmail: yup.string().email('Неверный формат email').optional(),
+  internalNumber: yup.string().optional(),
+  comment: yup.string().optional(),
+  objects: yup.array().of(
+    yup.object({
+      vin: yup.string().optional(),
+      registrationNumber: yup.string().optional(),
+      category: yup.string().required('Категория обязательна'),
+      type: yup.string().required('Тип обязателен'),
+      make: yup.string().required('Марка обязательна'),
+      model: yup.string().required('Модель обязательна'),
+    })
+  ).min(1, 'Добавьте хотя бы один объект'),
+});
+
+interface InspectionFormData {
+  propertyType: string;
+  address: string;
+  latitude?: number;
+  longitude?: number;
+  inspectorName: string;
+  inspectorPhone: string;
+  inspectorEmail?: string;
+  internalNumber?: string;
+  comment?: string;
+  objects: Array<{
+    vin?: string;
+    registrationNumber?: string;
+    category: string;
+    type: string;
+    make: string;
+    model: string;
+  }>;
+}
+
+const propertyTypes = [
+  { id: 'auto', name: 'Автотранспорт', icon: Car, color: '#1976D2' },
+  { id: 'commercial', name: 'Коммерческая недвижимость', icon: Building, color: '#388E3C' },
+  { id: 'residential', name: 'Загородная недвижимость', icon: Home, color: '#F57C00' },
+  { id: 'other', name: 'Прочее имущество', icon: Truck, color: '#7B1FA2' },
+];
+
+const vehicleCategories = [
+  'Легковой автомобиль',
+  'Грузовой автомобиль',
+  'Автобус',
+  'Мотоцикл',
+  'Прицеп',
+  'Спецтехника'
+];
+
+const vehicleTypes = [
+  'Седан',
+  'Хэтчбек',
+  'Универсал',
+  'Кроссовер',
+  'Внедорожник',
+  'Пикап',
+  'Фургон',
+  'Микроавтобус'
+];
+
+const CreateInspection: React.FC = () => {
+  const [step, setStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const { register, control, handleSubmit, watch, setValue, formState: { errors } } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      objects: [{ category: '', type: '', make: '', model: '', vin: '', registrationNumber: '' }]
+    }
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'objects'
+  });
+
+  const selectedPropertyType = watch('propertyType');
+
+  const onSubmit = async (data: any) => {
+    setIsLoading(true);
+    try {
+      await inspectionsApi.createInspection(data);
+      toast.success('Осмотр успешно создан');
+      navigate('/inspections');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Ошибка создания осмотра');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleImportFromExcel = () => {
+    // Здесь будет логика импорта из Excel
+    toast('Функция импорта будет реализована');
+  };
+
+
+  return (
+    <div className="create-inspection-page">
+      <div className="page-header">
+        <h1 className="page-title">Создание осмотра</h1>
+        <button 
+          className="btn btn-secondary"
+          onClick={() => navigate('/inspections')}
+        >
+          Отмена
+        </button>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="inspection-form">
+        {/* Шаг 1: Выбор типа имущества */}
+        {step === 1 && (
+          <div className="step-content">
+            <div className="step-header">
+              <h2>Выберите тип имущества</h2>
+              <p>Выберите категорию имущества для осмотра</p>
+            </div>
+
+            <div className="property-types">
+              {propertyTypes.map((type) => {
+                const IconComponent = type.icon;
+                return (
+                  <button
+                    key={type.id}
+                    type="button"
+                    className={`property-type-card ${selectedPropertyType === type.id ? 'selected' : ''}`}
+                    onClick={() => setValue('propertyType', type.id)}
+                  >
+                    <div className="property-type-icon" style={{ backgroundColor: type.color }}>
+                      <IconComponent size={32} />
+                    </div>
+                    <span className="property-type-name">{type.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {errors.propertyType && (
+              <div className="form-error">{errors.propertyType.message}</div>
+            )}
+
+            <div className="step-actions">
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => setStep(2)}
+                disabled={!selectedPropertyType}
+              >
+                Продолжить
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Шаг 2: Основная информация */}
+        {step === 2 && (
+          <div className="step-content">
+            <div className="step-header">
+              <h2>Информация об осмотре</h2>
+              <p>Заполните основную информацию об осмотре</p>
+            </div>
+
+            <div className="form-grid">
+              <div className="form-group">
+                <label className="form-label required">
+                  <MapPin size={16} />
+                  Адрес
+                </label>
+                <input
+                  type="text"
+                  className="form-input"
+                  {...register('address')}
+                  placeholder="Введите адрес или выберите на карте"
+                />
+                {errors.address && (
+                  <div className="form-error">{errors.address.message}</div>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">
+                  <FileText size={16} />
+                  Внутренний номер
+                </label>
+                <input
+                  type="text"
+                  className="form-input"
+                  {...register('internalNumber')}
+                  placeholder="Введите внутренний номер"
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label required">
+                  <User size={16} />
+                  ФИО исполнителя
+                </label>
+                <input
+                  type="text"
+                  className="form-input"
+                  {...register('inspectorName')}
+                  placeholder="Введите ФИО полностью"
+                />
+                {errors.inspectorName && (
+                  <div className="form-error">{errors.inspectorName.message}</div>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label className="form-label required">
+                  <Phone size={16} />
+                  Телефон исполнителя
+                </label>
+                <input
+                  type="tel"
+                  className="form-input"
+                  {...register('inspectorPhone')}
+                  placeholder="+7 (999) 123-45-67"
+                />
+                {errors.inspectorPhone && (
+                  <div className="form-error">{errors.inspectorPhone.message}</div>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">
+                  <Mail size={16} />
+                  Email исполнителя
+                </label>
+                <input
+                  type="email"
+                  className="form-input"
+                  {...register('inspectorEmail')}
+                  placeholder="email@example.com"
+                />
+                {errors.inspectorEmail && (
+                  <div className="form-error">{errors.inspectorEmail.message}</div>
+                )}
+              </div>
+
+              <div className="form-group full-width">
+                <label className="form-label">
+                  Комментарии
+                </label>
+                <textarea
+                  className="form-input"
+                  rows={3}
+                  {...register('comment')}
+                  placeholder="Дополнительная информация об осмотре"
+                />
+              </div>
+            </div>
+
+            <div className="step-actions">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setStep(1)}
+              >
+                Назад
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => setStep(3)}
+              >
+                Продолжить
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Шаг 3: Объекты осмотра */}
+        {step === 3 && (
+          <div className="step-content">
+            <div className="step-header">
+              <h2>Объекты осмотра</h2>
+              <p>Добавьте объекты для осмотра</p>
+            </div>
+
+            <div className="objects-section">
+              <div className="objects-header">
+                <h3>Список объектов</h3>
+                <div className="objects-actions">
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    onClick={handleImportFromExcel}
+                  >
+                    <Upload size={16} />
+                    Импорт из Excel
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    onClick={() => append({ category: '', type: '', make: '', model: '', vin: '', registrationNumber: '' })}
+                  >
+                    <Plus size={16} />
+                    Добавить объект
+                  </button>
+                </div>
+              </div>
+
+              <div className="objects-table">
+                <div className="table-header">
+                  <div className="table-cell">VIN</div>
+                  <div className="table-cell">Рег. номер</div>
+                  <div className="table-cell">Категория</div>
+                  <div className="table-cell">Тип</div>
+                  <div className="table-cell">Марка</div>
+                  <div className="table-cell">Модель</div>
+                  <div className="table-cell">Действия</div>
+                </div>
+
+                {fields.map((field, index) => (
+                  <div key={field.id} className="table-row">
+                    <div className="table-cell">
+                      <input
+                        type="text"
+                        className="form-input"
+                        {...register(`objects.${index}.vin`)}
+                        placeholder="VIN номер"
+                      />
+                    </div>
+                    <div className="table-cell">
+                      <input
+                        type="text"
+                        className="form-input"
+                        {...register(`objects.${index}.registrationNumber`)}
+                        placeholder="А123БВ77"
+                      />
+                    </div>
+                    <div className="table-cell">
+                      <select
+                        className="form-select"
+                        {...register(`objects.${index}.category`)}
+                      >
+                        <option value="">Выберите</option>
+                        {vehicleCategories.map(category => (
+                          <option key={category} value={category}>{category}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="table-cell">
+                      <select
+                        className="form-select"
+                        {...register(`objects.${index}.type`)}
+                      >
+                        <option value="">Выберите</option>
+                        {vehicleTypes.map(type => (
+                          <option key={type} value={type}>{type}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="table-cell">
+                      <input
+                        type="text"
+                        className="form-input"
+                        {...register(`objects.${index}.make`)}
+                        placeholder="Марка"
+                      />
+                    </div>
+                    <div className="table-cell">
+                      <input
+                        type="text"
+                        className="form-input"
+                        {...register(`objects.${index}.model`)}
+                        placeholder="Модель"
+                      />
+                    </div>
+                    <div className="table-cell">
+                      <button
+                        type="button"
+                        className="btn btn-error btn-sm"
+                        onClick={() => remove(index)}
+                        disabled={fields.length === 1}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {errors.objects && (
+                <div className="form-error">{errors.objects.message}</div>
+              )}
+            </div>
+
+            <div className="step-actions">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setStep(2)}
+              >
+                Назад
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Создание...' : 'Создать осмотр'}
+              </button>
+            </div>
+          </div>
+        )}
+      </form>
+    </div>
+  );
+};
+
+export default CreateInspection;

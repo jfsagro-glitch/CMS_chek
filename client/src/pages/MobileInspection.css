@@ -1,0 +1,346 @@
+.mobile-inspection {
+  min-height: 100vh;
+  background-color: var(--surface-color);
+  padding-bottom: 100px; /* Отступ для кнопки отправки */
+}
+
+/* Мобильная шапка */
+.mobile-header {
+  background: white;
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.back-btn:hover {
+  background-color: var(--surface-color);
+}
+
+.header-info {
+  flex: 1;
+}
+
+.header-info h1 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.header-info p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.header-status {
+  display: flex;
+  align-items: center;
+}
+
+/* Информация об осмотре */
+.inspection-info {
+  background: white;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Объекты */
+.objects-section {
+  padding: 0 16px;
+  margin-bottom: 20px;
+}
+
+.objects-section h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.object-card {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+
+.object-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.object-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.object-category {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.object-reg,
+.object-vin {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.object-reg:last-child,
+.object-vin:last-child {
+  margin-bottom: 0;
+}
+
+/* Фотографии */
+.object-photos h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+}
+
+.photo-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.photo-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-photo {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.add-photo-btn {
+  aspect-ratio: 1;
+  border: 2px dashed var(--border-color);
+  border-radius: var(--border-radius);
+  background: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.add-photo-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background-color: rgba(25, 118, 210, 0.05);
+}
+
+.add-photo-btn span {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Кнопка отправки */
+.submit-section {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 16px;
+  border-top: 1px solid var(--border-color);
+  z-index: 50;
+}
+
+.submit-btn {
+  width: 100%;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Модальное окно камеры */
+.camera-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+}
+
+.camera-content {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 24px;
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+}
+
+.camera-content h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.camera-content p {
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.camera-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.camera-actions .btn {
+  flex: 1;
+  max-width: 120px;
+}
+
+/* Состояния загрузки и ошибок */
+.mobile-loading,
+.mobile-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.mobile-loading .spinner {
+  margin-bottom: 16px;
+}
+
+.mobile-error h3 {
+  color: var(--error-color);
+  margin: 16px 0 8px;
+  font-size: 18px;
+}
+
+.mobile-error p {
+  margin-bottom: 24px;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+  .mobile-header {
+    padding: 12px;
+  }
+  
+  .header-info h1 {
+    font-size: 16px;
+  }
+  
+  .header-info p {
+    font-size: 13px;
+  }
+  
+  .objects-section {
+    padding: 0 12px;
+  }
+  
+  .object-card {
+    padding: 12px;
+  }
+  
+  .photos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+  }
+  
+  .submit-section {
+    padding: 12px;
+  }
+}
+
+/* Анимации */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.object-card {
+  animation: fadeIn 0.3s ease;
+}
+
+.photo-item {
+  animation: fadeIn 0.2s ease;
+}
