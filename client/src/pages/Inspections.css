@@ -12,11 +12,22 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1rem;
+  padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--border-color);
   background: var(--header-bg);
   border-radius: 8px 8px 0 0;
-  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
   gap: 0.5rem;
 }
 
@@ -80,12 +91,14 @@
 }
 
 .total-count {
-  background-color: var(--text-secondary);
+  background-color: var(--primary-color);
   color: white;
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 500;
+  min-width: 24px;
+  text-align: center;
 }
 
 /* Панель фильтров */

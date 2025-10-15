@@ -355,38 +355,29 @@ const Inspections: React.FC = () => {
   return (
     <div className="inspections-page">
       <div className="page-header">
-        <h1 className="page-title">Осмотры</h1>
+        <div className="header-left">
+          <h1 className="page-title">Осмотры</h1>
+          <div className="total-count">{getFilteredInspections().length}</div>
+        </div>
         
-        <div className="page-actions">
+        <div className="header-right">
           <button 
-            className="btn btn-secondary"
+            className="btn btn-secondary btn-sm"
             onClick={() => setShowFilters(!showFilters)}
           >
             <Filter size={16} />
             Фильтры
-            <ChevronDown 
-              size={16} 
-              style={{ 
-                transform: showFilters ? 'rotate(180deg)' : 'rotate(0deg)',
-                transition: 'transform 0.2s'
-              }} 
-            />
           </button>
           
-          <button className="btn btn-secondary" onClick={() => refetch()}>
-            <RefreshCw size={16} />
-          </button>
-          
-          <button className="btn btn-secondary" onClick={handleExport}>
+          <button className="btn btn-secondary btn-sm" onClick={handleExport}>
             <Download size={16} />
+            Экспорт
           </button>
           
           <button className="btn btn-primary" onClick={() => navigate('/inspections/create')}>
             <Plus size={16} />
             Новый осмотр
           </button>
-          
-          <div className="total-count">{getFilteredInspections().length}</div>
         </div>
       </div>
 

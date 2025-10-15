@@ -37,36 +37,12 @@ const Layout: React.FC = () => {
 
   return (
     <div className="layout">
-      {/* Мобильное меню */}
-      <div className="mobile-header">
-        <button 
-          className="menu-toggle"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-        >
-          {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-        <h1 className="mobile-title">CMS Check</h1>
-        <div className="mobile-actions">
-          <button 
-            className="theme-toggle"
-            onClick={toggleTheme}
-            title={theme === 'light' ? 'Темная тема' : 'Светлая тема'}
-          >
-            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-          </button>
-          <button 
-            className="btn btn-primary btn-sm"
-            onClick={() => navigate('/inspections/create')}
-          >
-            <Plus size={16} />
-          </button>
-        </div>
-      </div>
+      {/* Мобильное меню - убрано */}
 
       {/* Боковая панель */}
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
-          <h2 className="logo">CMS Check</h2>
+          {/* Логотип убран */}
           <button 
             className="sidebar-close"
             onClick={() => setSidebarOpen(false)}
