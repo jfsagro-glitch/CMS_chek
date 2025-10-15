@@ -16,6 +16,7 @@ import {
   X
 } from 'lucide-react';
 import { inspectionsApi } from '../services/api';
+import { exportInspectionsToExcel } from '../utils/excelExport';
 import toast from 'react-hot-toast';
 import './Inspections.css';
 
@@ -118,8 +119,13 @@ const Inspections: React.FC = () => {
 
   const handleExport = async () => {
     try {
-      await inspectionsApi.exportToExcel(filters);
-      toast.success('Экспорт запущен');
+      const dataToExport = getFilteredInspections();
+      if (dataToExport.length === 0) {
+        toast.error('Нет данных для экспорта');
+        return;
+      }
+      exportInspectionsToExcel(dataToExport, 'Реестр_осмотров');
+      toast.success(`Экспортировано осмотров: ${dataToExport.length}`);
     } catch (error) {
       toast.error('Ошибка экспорта');
     }
