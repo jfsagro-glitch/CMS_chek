@@ -154,7 +154,7 @@ router.get('/:id', authenticateToken, (req, res) => {
 });
 
 // Создать новый осмотр
-router.post('/', authenticateToken, (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   try {
     const {
       propertyType,
