@@ -1,5 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const { sendSMS } = require('../utils/notifications');
 
 const router = express.Router();
 
@@ -205,8 +206,20 @@ router.post('/', authenticateToken, (req, res) => {
       });
     }
 
+    // Отправляем SMS исполнителю со ссылкой
+    try {
+      const inspectionLink = `${process.env.CLIENT_URL || 'http://localhost:3000'}/inspection/${newInspection.id}`;
+      const smsText = `CMS Check: Вам назначен осмотр №${newInspection.internal_number}. Ссылка для выполнения: ${inspectionLink}`;
+      
+      await sendSMS(inspectorPhone, smsText);
+      console.log(`SMS отправлено исполнителю: ${inspectorPhone}`);
+    } catch (smsError) {
+      console.error('Ошибка отправки SMS:', smsError.message);
+      // Не блокируем создание осмотра если SMS не отправлено
+    }
+
     res.status(201).json({
-      message: 'Осмотр успешно создан',
+      message: 'Осмотр успешно создан и отправлен исполнителю',
       inspection: newInspection
     });
 

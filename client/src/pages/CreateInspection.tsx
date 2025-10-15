@@ -18,6 +18,7 @@ import {
   FileText
 } from 'lucide-react';
 import { inspectionsApi } from '../services/api';
+import AddressAutocomplete from '../components/AddressAutocomplete';
 import toast from 'react-hot-toast';
 import './CreateInspection.css';
 
@@ -236,15 +237,19 @@ const CreateInspection: React.FC = () => {
                   <MapPin size={16} />
                   Адрес
                 </label>
-                <input
-                  type="text"
-                  className="form-input"
-                  {...register('address')}
-                  placeholder="Введите адрес или выберите на карте"
+                <AddressAutocomplete
+                  value={watch('address') || ''}
+                  onChange={(address, lat, lon) => {
+                    setValue('address', address);
+                    if (lat && lon) {
+                      setValue('latitude', lat);
+                      setValue('longitude', lon);
+                      toast.success('Координаты установлены');
+                    }
+                  }}
+                  placeholder="Начните вводить адрес и выберите из списка"
+                  error={errors.address?.message}
                 />
-                {errors.address && (
-                  <div className="form-error">{errors.address.message}</div>
-                )}
               </div>
 
               <div className="form-group">
