@@ -29,11 +29,19 @@
   box-sizing: border-box;
 }
 
+html {
+  font-size: 16px; /* Фиксированный размер шрифта */
+  overflow-x: hidden; /* Убираем горизонтальную прокрутку */
+}
+
 body {
   font-family: var(--font-family);
   background-color: var(--surface-color);
   color: var(--text-primary);
   line-height: 1.6;
+  width: 100%;
+  max-width: 100vw; /* Максимальная ширина = ширина viewport */
+  overflow-x: hidden; /* Убираем горизонтальную прокрутку */
 }
 
 /* Основные стили приложения */
