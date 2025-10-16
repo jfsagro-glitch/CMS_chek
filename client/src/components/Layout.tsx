@@ -16,7 +16,8 @@ import {
   Sun,
   Moon,
   Monitor,
-  Zap
+  Zap,
+  Code
 } from 'lucide-react';
 import './Layout.css';
 
@@ -160,6 +161,13 @@ const Layout: React.FC = () => {
                 >
                   <Monitor size={14} />
                   {!sidebarCollapsed && <span>Windows 97</span>}
+                </button>
+                <button 
+                  className={`theme-option ${theme === 'matrix' ? 'active' : ''}`}
+                  onClick={() => setTheme('matrix')}
+                >
+                  <Code size={14} />
+                  {!sidebarCollapsed && <span>Матрица</span>}
                 </button>
               </div>
             )}

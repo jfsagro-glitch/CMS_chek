@@ -83,6 +83,24 @@
   --surface-color: #d4d0c8;
 }
 
+/* Matrix Theme */
+:root[data-theme="matrix"] {
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary: #0f0f0f;
+  --text-primary: #00ff41;
+  --text-secondary: #00cc33;
+  --text-muted: #008f11;
+  --border-color: #003b00;
+  --sidebar-bg: #000000;
+  --header-bg: #0a0a0a;
+  --table-header-bg: #001a00;
+  --table-row-hover: #001a00;
+  --table-row-alt: #050505;
+  --surface-color: #0a0a0a;
+  --primary-color: #00ff41;
+}
+
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
