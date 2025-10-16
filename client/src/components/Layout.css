@@ -86,23 +86,25 @@
 /* Улучшенная контрастность для sidebar */
 .sidebar {
   color: var(--text-primary);
+  background: var(--sidebar-bg);
 }
 
 .sidebar .nav-item {
   color: var(--text-primary);
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 15px;
 }
 
 .sidebar .nav-item:hover {
   background-color: var(--bg-tertiary);
   color: var(--text-primary);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .sidebar .nav-item.active {
   background-color: var(--primary-color);
   color: white;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 /* Контрастность для всех элементов sidebar */
@@ -110,20 +112,28 @@
 .sidebar .collapse-btn,
 .sidebar .logout-btn {
   color: var(--text-primary);
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 14px;
 }
 
 .sidebar .theme-toggle-btn:hover,
 .sidebar .collapse-btn:hover,
 .sidebar .logout-btn:hover {
   color: var(--text-primary);
-  font-weight: 600;
+  font-weight: 700;
+  background-color: var(--bg-tertiary);
 }
 
 .sidebar .user-info .user-name,
 .sidebar .user-info .user-role {
   color: var(--text-primary);
-  font-weight: 500;
+  font-weight: 600;
+}
+
+.sidebar .logo-text {
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 18px;
 }
 
 .sidebar.open {
