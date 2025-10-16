@@ -1,6 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const { sendSMS } = require('../utils/notifications');
+const { sendSMS, sendEmail } = require('../utils/notifications');
 
 const router = express.Router();
 
@@ -206,16 +206,50 @@ router.post('/', authenticateToken, async (req, res) => {
       });
     }
 
-    // Отправляем SMS исполнителю со ссылкой
+    // Отправляем уведомления исполнителю (SMS и Email)
+    const inspectionLink = `${process.env.CLIENT_URL || 'http://localhost:3000'}/inspection/${newInspection.id}`;
+    
+    // Отправляем SMS
     try {
-      const inspectionLink = `${process.env.CLIENT_URL || 'http://localhost:3000'}/inspection/${newInspection.id}`;
-      const smsText = `CMS Check: Вам назначен осмотр №${newInspection.internal_number}. Ссылка для выполнения: ${inspectionLink}`;
-      
+      const smsText = `CMS Check: Вам назначен осмотр №${newInspection.internal_number}. Ссылка: ${inspectionLink}`;
       await sendSMS(inspectorPhone, smsText);
       console.log(`SMS отправлено исполнителю: ${inspectorPhone}`);
     } catch (smsError) {
       console.error('Ошибка отправки SMS:', smsError.message);
       // Не блокируем создание осмотра если SMS не отправлено
+    }
+
+    // Отправляем Email если указан
+    if (inspectorEmail) {
+      try {
+        const emailSubject = `Новый осмотр №${newInspection.internal_number}`;
+        const emailHtml = `
+          <h2>Назначен новый осмотр</h2>
+          <p>Здравствуйте, ${inspectorName}!</p>
+          <p>Вам назначен осмотр №${newInspection.internal_number}</p>
+          
+          <h3>Детали осмотра:</h3>
+          <ul>
+            <li><strong>Адрес:</strong> ${address}</li>
+            <li><strong>Тип имущества:</strong> ${propertyType}</li>
+            <li><strong>Количество объектов:</strong> ${objects?.length || 0}</li>
+            ${comment ? `<li><strong>Комментарий:</strong> ${comment}</li>` : ''}
+          </ul>
+          
+          <p><strong>Для выполнения осмотра перейдите по ссылке:</strong></p>
+          <p><a href="${inspectionLink}" style="display: inline-block; padding: 12px 24px; background-color: #1976D2; color: white; text-decoration: none; border-radius: 6px;">Перейти к осмотру</a></p>
+          
+          <p style="margin-top: 20px; font-size: 12px; color: #666;">
+            Это письмо отправлено автоматически системой CMS Check. Пожалуйста, не отвечайте на него.
+          </p>
+        `;
+        
+        await sendEmail(inspectorEmail, emailSubject, emailHtml);
+        console.log(`Email отправлен исполнителю: ${inspectorEmail}`);
+      } catch (emailError) {
+        console.error('Ошибка отправки email:', emailError.message);
+        // Не блокируем создание осмотра если email не отправлен
+      }
     }
 
     res.status(201).json({

@@ -1,111 +1,83 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { 
   Camera, 
   MapPin, 
-  CheckCircle, 
-  AlertCircle,
-  Trash2,
+  Clock, 
+  X, 
   Upload,
-  X
+  ArrowLeft,
+  AlertCircle
 } from 'lucide-react';
+import { inspectionsApi } from '../services/api';
 import toast from 'react-hot-toast';
 import './MobileInspection.css';
 
 interface Photo {
-  id: string;
-  dataUrl: string;
-  timestamp: Date;
+  id?: number;
+  file: File;
+  preview: string;
   latitude?: number;
   longitude?: number;
+  timestamp: string;
+  objectId: number;
 }
 
-interface InspectionData {
-  id: string;
-  address: string;
-  propertyType: string;
-  objects: Array<{
-    category: string;
-    type: string;
-    make: string;
-    model: string;
-    vin?: string;
-    registrationNumber?: string;
-  }>;
-  comment?: string;
-  inspectorName: string;
+interface InspectionObject {
+  id: number;
+  vin?: string;
+  registration_number?: string;
+  category: string;
+  type: string;
+  make: string;
+  model: string;
 }
 
 const MobileInspection: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  const [inspection, setInspection] = useState<InspectionData | null>(null);
   const [photos, setPhotos] = useState<Photo[]>([]);
-  const [currentLocation, setCurrentLocation] = useState<{ lat: number; lon: number } | null>(null);
-  const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
-  const [cameraPermission, setCameraPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
-  const [isCameraActive, setIsCameraActive] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [stream, setStream] = useState<MediaStream | null>(null);
+  const [currentObject, setCurrentObject] = useState<number | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
 
-  // Запрос геолокации при загрузке
+  const { data: inspection, isLoading, error } = useQuery({
+    queryKey: ['inspection', id],
+    queryFn: () => inspectionsApi.getInspection(Number(id)),
+    enabled: !!id,
+  });
+
   useEffect(() => {
-    requestGeolocation();
-    loadInspection();
-
-    return () => {
-      // Очистка камеры при размонтировании
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, [id]);
-
-  const loadInspection = async () => {
-    // Здесь должна быть загрузка данных осмотра с сервера
-    // Для демо используем моковые данные
-    setInspection({
-      id: id || '1',
-      address: 'г. Москва, ул. Тверская, д. 1',
-      propertyType: 'auto',
-      objects: [
-        {
-          category: 'Легковой автомобиль',
-          type: 'Седан',
-          make: 'Toyota',
-          model: 'Camry',
-          vin: 'XW8ZZZ5NZKG123456',
-          registrationNumber: 'А123АА777'
-        }
-      ],
-      comment: 'Требуется провести осмотр и сфотографировать общий вид, салон, документы',
-      inspectorName: 'Иванов Иван Иванович'
-    });
-  };
-
-  const requestGeolocation = () => {
-    if ('geolocation' in navigator) {
-      navigator.permissions?.query({ name: 'geolocation' as PermissionName }).then((result) => {
-        setLocationPermission(result.state as any);
-      });
-
+    // Запрашиваем геолокацию при загрузке страницы
+    if (navigator.geolocation) {
+      toast.loading('Получение геолокации...', { id: 'geolocation' });
+      
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setCurrentLocation({
+          setLocation({
             lat: position.coords.latitude,
-            lon: position.coords.longitude
+            lng: position.coords.longitude,
           });
-          setLocationPermission('granted');
-          toast.success('Геолокация определена');
+          toast.success('Геолокация получена', { id: 'geolocation' });
         },
         (error) => {
-          console.error('Geolocation error:', error);
-          setLocationPermission('denied');
-          toast.error('Не удалось определить местоположение');
+          console.error('Ошибка получения геолокации:', error);
+          let errorMessage = 'Не удалось получить геолокацию';
+          
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = 'Доступ к геолокации запрещен. Разрешите доступ в настройках браузера';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = 'Информация о местоположении недоступна';
+              break;
+            case error.TIMEOUT:
+              errorMessage = 'Превышено время ожидания геолокации';
+              break;
+          }
+          
+          toast.error(errorMessage, { id: 'geolocation', duration: 5000 });
         },
         {
           enableHighAccuracy: true,
@@ -114,274 +86,260 @@ const MobileInspection: React.FC = () => {
         }
       );
     } else {
-      toast.error('Геолокация не поддерживается');
+      toast.error('Геолокация не поддерживается вашим устройством');
     }
-  };
+  }, []);
 
-  const startCamera = async () => {
+  const handleTakePhoto = async (objectId: number) => {
     try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } },
-        audio: false
-      });
-
-      setStream(mediaStream);
-      setCameraPermission('granted');
-      setIsCameraActive(true);
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
+      // Проверяем наличие геолокации
+      if (!location) {
+        toast.error('Геолокация не определена. Разрешите доступ к местоположению');
+        return;
       }
-    } catch (error) {
-      console.error('Camera error:', error);
-      setCameraPermission('denied');
-      toast.error('Нет доступа к камере');
-    }
-  };
 
-  const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
-    }
-    setIsCameraActive(false);
-  };
-
-  const capturePhoto = () => {
-    if (!videoRef.current || !canvasRef.current) return;
-
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-
-    if (!context) return;
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    canvas.toBlob((blob) => {
-      if (!blob) return;
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const photo: Photo = {
-          id: Date.now().toString(),
-          dataUrl: reader.result as string,
-          timestamp: new Date(),
-          latitude: currentLocation?.lat,
-          longitude: currentLocation?.lon
-        };
-
-        setPhotos(prev => [...prev, photo]);
-        toast.success('Фото добавлено');
+      // Создаем input для камеры с запретом на выбор из галереи
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.capture = 'environment'; // Принудительно использует камеру
+      
+      input.onchange = (e: any) => {
+        const file = e.target.files[0];
+        if (file) {
+          // Проверяем, что файл - это новое фото (по времени создания)
+          const fileDate = new Date(file.lastModified);
+          const now = new Date();
+          const timeDiff = now.getTime() - fileDate.getTime();
+          
+          // Если фото старше 1 минуты, возможно это старое фото из галереи
+          if (timeDiff > 60000) {
+            toast.error('ВНИМАНИЕ! Используйте только свежие фотографии с камеры. Загрузка старых фото запрещена');
+            return;
+          }
+          
+          const preview = URL.createObjectURL(file);
+          
+          const photo: Photo = {
+            file,
+            preview,
+            latitude: location.lat,
+            longitude: location.lng,
+            timestamp: new Date().toISOString(),
+            objectId,
+          };
+          
+          setPhotos(prev => [...prev, photo]);
+          setCurrentObject(null);
+          toast.success('Фото добавлено с геоданными');
+        }
       };
-      reader.readAsDataURL(blob);
-    }, 'image/jpeg', 0.9);
-  };
-
-  const deletePhoto = (photoId: string) => {
-    setPhotos(prev => prev.filter(p => p.id !== photoId));
-    toast.success('Фото удалено');
-  };
-
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
-
-    toast.error('Можно использовать только камеру устройства');
-    event.target.value = '';
-  };
-
-  const submitInspection = async () => {
-    if (photos.length === 0) {
-      toast.error('Сделайте хотя бы одно фото');
-      return;
-    }
-
-    if (!currentLocation) {
-      toast.error('Геолокация не определена');
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      // Здесь должна быть отправка данных на сервер
-      // Для демо просто имитируем задержку
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      toast.success('Осмотр отправлен на проверку');
-      navigate('/');
+      
+      input.click();
+      
     } catch (error) {
-      toast.error('Ошибка при отправке осмотра');
-      console.error(error);
-    } finally {
-      setIsLoading(false);
+      console.error('Ошибка доступа к камере:', error);
+      toast.error('Не удалось получить доступ к камере');
     }
   };
 
-  if (!inspection) {
+  const handleUploadPhotos = async () => {
+    if (photos.length === 0) {
+      toast.error('Добавьте фотографии перед отправкой');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      // Упрощенная версия - просто обновляем статус
+      await inspectionsApi.updateStatus(Number(id), 'Проверка');
+      
+      toast.success('Осмотр отправлен на проверку');
+      navigate('/inspections');
+    } catch (error) {
+      toast.error('Ошибка загрузки фотографий');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotos(prev => {
+      const newPhotos = [...prev];
+      URL.revokeObjectURL(newPhotos[index].preview);
+      newPhotos.splice(index, 1);
+      return newPhotos;
+    });
+  };
+
+  const getObjectPhotos = (objectId: number) => {
+    return photos.filter(photo => photo.objectId === objectId);
+  };
+
+  if (isLoading) {
     return (
-      <div className="mobile-inspection-loading">
+      <div className="mobile-loading">
+        <div className="spinner"></div>
         <p>Загрузка осмотра...</p>
+      </div>
+    );
+  }
+
+  if (error || !inspection) {
+    return (
+      <div className="mobile-error">
+        <AlertCircle size={48} />
+        <h3>Ошибка загрузки</h3>
+        <p>Не удалось загрузить данные осмотра</p>
+        <button className="btn btn-primary" onClick={() => navigate('/')}>
+          На главную
+        </button>
       </div>
     );
   }
 
   return (
     <div className="mobile-inspection">
-      {/* Header */}
+      {/* Шапка */}
       <div className="mobile-header">
+        <button 
+          className="back-btn"
+          onClick={() => navigate('/')}
+        >
+          <ArrowLeft size={24} />
+        </button>
+        <div className="header-info">
+          <h1>Осмотр #{inspection.data.inspection.id}</h1>
+          <p>{inspection.data.inspection.address}</p>
+        </div>
+        <div className="header-status">
+          <span className={`status ${inspection.data.inspection.status.toLowerCase().replace(' ', '-')}`}>
+            {inspection.data.inspection.status}
+          </span>
+        </div>
+      </div>
+
+      {/* Информация об осмотре */}
+      <div className="inspection-info">
+        <div className="info-item">
+          <MapPin size={16} />
+          <span>{inspection.data.inspection.address}</span>
+        </div>
+        <div className="info-item">
+          <Clock size={16} />
+          <span>Создан: {new Date(inspection.data.inspection.created_at).toLocaleDateString('ru-RU')}</span>
+        </div>
+        {location && (
+          <div className="info-item geolocation-status">
+            <MapPin size={16} color="#10b981" />
+            <span>Геолокация: {location.lat.toFixed(6)}, {location.lng.toFixed(6)}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Предупреждение о требованиях к фото */}
+      <div className="photo-requirements">
+        <AlertCircle size={16} />
         <div>
-          <h1>Осмотр №{inspection.id}</h1>
-          <p className="mobile-subtitle">{inspection.address}</p>
+          <strong>Важно!</strong> Фотографии должны быть сделаны только через камеру устройства. 
+          Загрузка ранее сделанных фотографий запрещена.
         </div>
-        {currentLocation && (
-          <div className="location-badge">
-            <MapPin size={16} />
-            <span>GPS OK</span>
-          </div>
-        )}
       </div>
 
-      {/* Geolocation Request */}
-      {locationPermission !== 'granted' && (
-        <div className="permission-banner">
-          <AlertCircle size={20} />
-          <div>
-            <p><strong>Требуется доступ к геолокации</strong></p>
-            <p>Для проведения осмотра необходимо разрешить доступ к местоположению</p>
-          </div>
-          <button onClick={requestGeolocation} className="btn-primary-sm">
-            Разрешить
-          </button>
-        </div>
-      )}
-
-      {/* Inspection Info */}
-      <div className="inspection-card">
-        <h2>Объекты для осмотра:</h2>
-        {inspection.objects.map((obj, index) => (
-          <div key={index} className="object-info">
-            <p><strong>{obj.make} {obj.model}</strong></p>
-            <p>{obj.category} - {obj.type}</p>
-            {obj.vin && <p>VIN: {obj.vin}</p>}
-            {obj.registrationNumber && <p>Гос. номер: {obj.registrationNumber}</p>}
-          </div>
-        ))}
-
-        {inspection.comment && (
-          <div className="comment-box">
-            <h3>Комментарии:</h3>
-            <p>{inspection.comment}</p>
-          </div>
-        )}
-      </div>
-
-      {/* Camera Section */}
-      <div className="camera-section">
-        <h2>Фотосъемка ({photos.length} фото)</h2>
-        
-        {!isCameraActive ? (
-          <button
-            onClick={startCamera}
-            className="btn-camera-start"
-            disabled={locationPermission !== 'granted'}
-          >
-            <Camera size={24} />
-            <span>Открыть камеру</span>
-          </button>
-        ) : (
-          <div className="camera-container">
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              className="camera-video"
-            />
-            <canvas ref={canvasRef} style={{ display: 'none' }} />
-            
-            <div className="camera-controls">
-              <button onClick={stopCamera} className="btn-camera-close">
-                <X size={20} />
-              </button>
-              <button onClick={capturePhoto} className="btn-camera-capture">
-                <Camera size={32} />
-              </button>
-              <div style={{ width: 40 }} /> {/* Spacer */}
+      {/* Объекты для осмотра */}
+      <div className="objects-section">
+        <h2>Объекты для осмотра</h2>
+        {inspection.data.objects.map((object: InspectionObject) => (
+          <div key={object.id} className="object-card">
+            <div className="object-header">
+              <h3>{object.make} {object.model}</h3>
+              <span className="object-category">{object.category}</span>
             </div>
-          </div>
-        )}
+            
+            {object.registration_number && (
+              <p className="object-reg">Рег. номер: {object.registration_number}</p>
+            )}
+            
+            {object.vin && (
+              <p className="object-vin">VIN: {object.vin}</p>
+            )}
 
-        {/* Hidden file input (блокируется) */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          multiple
-          style={{ display: 'none' }}
-          onChange={handleFileSelect}
-        />
-      </div>
-
-      {/* Photos Grid */}
-      {photos.length > 0 && (
-        <div className="photos-section">
-          <h2>Сделанные фото:</h2>
-          <div className="photos-grid">
-            {photos.map((photo) => (
-              <div key={photo.id} className="photo-card">
-                <img src={photo.dataUrl} alt="Фото осмотра" />
-                <div className="photo-info">
-                  <span className="photo-time">
-                    {photo.timestamp.toLocaleTimeString('ru-RU')}
-                  </span>
-                  {photo.latitude && photo.longitude && (
-                    <span className="photo-location">
-                      <MapPin size={12} />
-                      GPS
-                    </span>
-                  )}
-                </div>
-                <button
-                  onClick={() => deletePhoto(photo.id)}
-                  className="photo-delete"
+            {/* Фотографии объекта */}
+            <div className="object-photos">
+              <h4>Фотографии ({getObjectPhotos(object.id).length})</h4>
+              <div className="photos-grid">
+                {getObjectPhotos(object.id).map((photo, index) => (
+                  <div key={index} className="photo-item">
+                    <img src={photo.preview} alt={`Фото ${index + 1}`} />
+                    <button 
+                      className="remove-photo"
+                      onClick={() => removePhoto(photos.indexOf(photo))}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ))}
+                <button 
+                  className="add-photo-btn"
+                  onClick={() => setCurrentObject(object.id)}
                 >
-                  <Trash2 size={16} />
+                  <Camera size={24} />
+                  <span>Добавить фото</span>
                 </button>
               </div>
-            ))}
+            </div>
           </div>
-        </div>
-      )}
+        ))}
+      </div>
 
-      {/* Submit Button */}
-      <div className="mobile-footer">
-        <button
-          onClick={submitInspection}
-          disabled={photos.length === 0 || !currentLocation || isLoading}
-          className="btn-submit"
+      {/* Кнопка отправки */}
+      <div className="submit-section">
+        <button 
+          className="btn btn-primary btn-lg submit-btn"
+          onClick={handleUploadPhotos}
+          disabled={photos.length === 0 || isUploading}
         >
-          {isLoading ? (
-            <span>Отправка...</span>
+          {isUploading ? (
+            <>
+              <div className="spinner"></div>
+              Загрузка...
+            </>
           ) : (
             <>
-              <CheckCircle size={20} />
-              <span>Выполнено ({photos.length} фото)</span>
+              <Upload size={20} />
+              Отправить осмотр ({photos.length} фото)
             </>
           )}
         </button>
-        
-        {(photos.length === 0 || !currentLocation) && (
-          <p className="submit-hint">
-            {!currentLocation ? 'Дождитесь определения геолокации' : 'Сделайте хотя бы одно фото'}
-          </p>
-        )}
       </div>
+
+      {/* Модальное окно для съемки */}
+      {currentObject && (
+        <div className="camera-modal">
+          <div className="camera-content">
+            <h3>Сделать фотографию</h3>
+            <p>Объект: {inspection.data.objects.find((obj: any) => obj.id === currentObject)?.make} {inspection.data.objects.find((obj: any) => obj.id === currentObject)?.model}</p>
+            
+            <div className="camera-actions">
+              <button 
+                className="btn btn-secondary"
+                onClick={() => setCurrentObject(null)}
+              >
+                Отмена
+              </button>
+              <button 
+                className="btn btn-primary"
+                onClick={() => handleTakePhoto(currentObject)}
+              >
+                <Camera size={20} />
+                Сделать фото
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default MobileInspection;
-

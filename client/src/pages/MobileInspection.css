@@ -1,399 +1,377 @@
-/* Mobile Inspection Styles */
 .mobile-inspection {
   min-height: 100vh;
-  background: var(--bg-secondary);
-  padding-bottom: 100px;
+  background-color: var(--surface-color);
+  padding-bottom: 100px; /* Отступ для кнопки отправки */
 }
 
-.mobile-inspection-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-}
-
-/* Header */
+/* Мобильная шапка */
 .mobile-header {
-  background: var(--primary-color);
-  color: white;
-  padding: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.mobile-header h1 {
-  font-size: 18px;
-  font-weight: 600;
-  margin: 0 0 4px 0;
-}
-
-.mobile-subtitle {
-  font-size: 13px;
-  opacity: 0.9;
-  margin: 0;
-}
-
-.location-badge {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: rgba(255,255,255,0.2);
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-/* Permission Banner */
-.permission-banner {
-  display: flex;
-  gap: 12px;
-  padding: 16px;
-  background: #fff3cd;
-  border-left: 4px solid #ffc107;
-  margin: 16px;
-  border-radius: 4px;
-  align-items: center;
-}
-
-.permission-banner p {
-  margin: 0;
-  font-size: 14px;
-  color: #856404;
-}
-
-.permission-banner strong {
-  font-weight: 600;
-}
-
-.btn-primary-sm {
-  background: var(--primary-color);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-/* Inspection Card */
-.inspection-card {
   background: white;
-  margin: 16px;
   padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.inspection-card h2 {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 12px 0;
-}
-
-.object-info {
-  padding: 12px;
-  background: var(--bg-secondary);
-  border-radius: 6px;
-  margin-bottom: 12px;
-}
-
-.object-info p {
-  margin: 4px 0;
-  font-size: 14px;
-  color: var(--text-primary);
-}
-
-.object-info strong {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.comment-box {
-  margin-top: 16px;
-  padding: 12px;
-  background: #e3f2fd;
-  border-left: 3px solid var(--primary-color);
-  border-radius: 4px;
-}
-
-.comment-box h3 {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 8px 0;
-}
-
-.comment-box p {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin: 0;
-  line-height: 1.5;
-}
-
-/* Camera Section */
-.camera-section {
-  background: white;
-  margin: 16px;
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.camera-section h2 {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 12px 0;
-}
-
-.btn-camera-start {
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 12px;
-  width: 100%;
-  padding: 16px;
-  background: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.btn-camera-start:hover:not(:disabled) {
-  background: #1565c0;
-  transform: translateY(-1px);
-}
-
-.btn-camera-start:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-.camera-container {
-  position: relative;
-  width: 100%;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #000;
-}
-
-.camera-video {
-  width: 100%;
-  display: block;
-  max-height: 60vh;
-  object-fit: cover;
-}
-
-.camera-controls {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-}
-
-.btn-camera-close {
+.back-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: rgba(255,255,255,0.2);
-  border: 2px solid white;
-  border-radius: 50%;
-  color: white;
+  border: none;
+  background: none;
   cursor: pointer;
-  transition: all 0.2s;
+  color: var(--text-primary);
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
 }
 
-.btn-camera-close:hover {
-  background: rgba(255,255,255,0.3);
+.back-btn:hover {
+  background-color: var(--surface-color);
 }
 
-.btn-camera-capture {
+.header-info {
+  flex: 1;
+}
+
+.header-info h1 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.header-info p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.header-status {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 70px;
-  height: 70px;
+}
+
+/* Информация об осмотре */
+.inspection-info {
   background: white;
-  border: 4px solid var(--primary-color);
-  border-radius: 50%;
-  color: var(--primary-color);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-camera-capture:hover {
-  transform: scale(1.05);
-}
-
-.btn-camera-capture:active {
-  transform: scale(0.95);
-}
-
-/* Photos Section */
-.photos-section {
-  background: white;
-  margin: 16px;
   padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  margin-bottom: 16px;
 }
 
-.photos-section h2 {
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+}
+
+.geolocation-status {
+  background-color: #f0fdf4;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #86efac;
+}
+
+/* Требования к фото */
+.photo-requirements {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background-color: #fef3c7;
+  border: 1px solid #fbbf24;
+  border-radius: 8px;
+  margin: 0 16px 16px 16px;
+  font-size: 14px;
+  color: #92400e;
+}
+
+.photo-requirements svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #f59e0b;
+}
+
+.photo-requirements strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* Объекты */
+.objects-section {
+  padding: 0 16px;
+  margin-bottom: 20px;
+}
+
+.objects-section h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.object-card {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+
+.object-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.object-header h3 {
   font-size: 16px;
   font-weight: 600;
   color: var(--text-primary);
-  margin: 0 0 12px 0;
+}
+
+.object-category {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.object-reg,
+.object-vin {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.object-reg:last-child,
+.object-vin:last-child {
+  margin-bottom: 0;
+}
+
+/* Фотографии */
+.object-photos h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
 }
 
 .photos-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 12px;
 }
 
-.photo-card {
+.photo-item {
   position: relative;
-  border-radius: 8px;
+  aspect-ratio: 1;
+  border-radius: var(--border-radius);
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  background: var(--bg-secondary);
 }
 
-.photo-card img {
+.photo-item img {
   width: 100%;
-  height: 150px;
+  height: 100%;
   object-fit: cover;
-  display: block;
 }
 
-.photo-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px;
-  background: white;
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-.photo-time {
-  font-weight: 500;
-}
-
-.photo-location {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: #4caf50;
-}
-
-.photo-delete {
+.remove-photo {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: rgba(244, 67, 54, 0.9);
-  border: none;
-  border-radius: 50%;
-  color: white;
+  font-size: 12px;
+}
+
+.add-photo-btn {
+  aspect-ratio: 1;
+  border: 2px dashed var(--border-color);
+  border-radius: var(--border-radius);
+  background: none;
   cursor: pointer;
-  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
 }
 
-.photo-delete:hover {
-  background: #f44336;
-  transform: scale(1.1);
+.add-photo-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background-color: rgba(25, 118, 210, 0.05);
 }
 
-/* Footer */
-.mobile-footer {
+.add-photo-btn span {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Кнопка отправки */
+.submit-section {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   background: white;
   padding: 16px;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
-  z-index: 100;
+  border-top: 1px solid var(--border-color);
+  z-index: 50;
 }
 
-.btn-submit {
+.submit-btn {
+  width: 100%;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Модальное окно камеры */
+.camera-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 16px;
-  background: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
+  z-index: 200;
+  padding: 20px;
 }
 
-.btn-submit:hover:not(:disabled) {
-  background: #45a049;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
-}
-
-.btn-submit:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-.submit-hint {
+.camera-content {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 24px;
   text-align: center;
-  margin: 8px 0 0 0;
-  font-size: 13px;
-  color: var(--text-muted);
+  max-width: 400px;
+  width: 100%;
 }
 
-/* Responsive */
+.camera-content h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.camera-content p {
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.camera-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.camera-actions .btn {
+  flex: 1;
+  max-width: 120px;
+}
+
+/* Состояния загрузки и ошибок */
+.mobile-loading,
+.mobile-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.mobile-loading .spinner {
+  margin-bottom: 16px;
+}
+
+.mobile-error h3 {
+  color: var(--error-color);
+  margin: 16px 0 8px;
+  font-size: 18px;
+}
+
+.mobile-error p {
+  margin-bottom: 24px;
+}
+
+/* Адаптивность */
 @media (max-width: 480px) {
+  .mobile-header {
+    padding: 12px;
+  }
+  
+  .header-info h1 {
+    font-size: 16px;
+  }
+  
+  .header-info p {
+    font-size: 13px;
+  }
+  
+  .objects-section {
+    padding: 0 12px;
+  }
+  
+  .object-card {
+    padding: 12px;
+  }
+  
   .photos-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
   }
-
-  .permission-banner {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .btn-primary-sm {
-    width: 100%;
+  
+  .submit-section {
+    padding: 12px;
   }
 }
 
-/* Landscape mode */
-@media (max-height: 500px) {
-  .camera-video {
-    max-height: 80vh;
+/* Анимации */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.object-card {
+  animation: fadeIn 0.3s ease;
+}
+
+.photo-item {
+  animation: fadeIn 0.2s ease;
 }
