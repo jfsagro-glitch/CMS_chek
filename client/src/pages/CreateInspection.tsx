@@ -136,9 +136,16 @@ const CreateInspection: React.FC = () => {
   const onSubmit = async (data: any) => {
     setIsLoading(true);
     try {
-      await inspectionsApi.createInspection(data);
-      toast.success('Осмотр успешно создан');
-      navigate('/inspections');
+      const response = await inspectionsApi.createInspection(data);
+      toast.success(`Осмотр №${response.data?.inspection?.internal_number || ''} успешно создан и отправлен исполнителю`);
+      
+      // Переходим на список осмотров с перезагрузкой
+      navigate('/inspections', { replace: true });
+      
+      // Для гарантии обновления - перезагружаем страницу через небольшую задержку
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Ошибка создания осмотра');
     } finally {
