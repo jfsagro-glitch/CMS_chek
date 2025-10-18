@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Download,
   Eye,
@@ -58,6 +58,7 @@ const Inspections: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Фильтрация демо-данных
   const getFilteredInspections = () => {
@@ -99,6 +100,24 @@ const Inspections: React.FC = () => {
     queryKey: ['inspections', filters, page],
     queryFn: () => inspectionsApi.getInspections({ ...filters, page, limit: 20 }),
   });
+
+  // Обрабатываем обновление после создания нового осмотра
+  useEffect(() => {
+    const state = location.state as { refresh?: boolean; newInspection?: string } | null;
+    if (state?.refresh) {
+      // Показываем уведомление о новом осмотре
+      if (state.newInspection) {
+        toast.success(`Осмотр №${state.newInspection} добавлен в реестр`, {
+          duration: 4000,
+          icon: '✅'
+        });
+      }
+      // Очищаем state чтобы не показывать уведомление повторно
+      window.history.replaceState({}, document.title);
+      // Обновляем данные
+      refetch();
+    }
+  }, [location.state, refetch]);
 
   const handleFilterChange = (key: keyof Filters, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));

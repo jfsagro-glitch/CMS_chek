@@ -137,18 +137,20 @@ const CreateInspection: React.FC = () => {
     setIsLoading(true);
     try {
       const response = await inspectionsApi.createInspection(data);
-      toast.success(`Осмотр №${response.data?.inspection?.internal_number || ''} успешно создан и отправлен исполнителю`);
+      const inspectionNumber = response.data?.inspection?.internal_number || '';
       
-      // Переходим на список осмотров с перезагрузкой
-      navigate('/inspections', { replace: true });
+      toast.success(`Осмотр №${inspectionNumber} успешно создан и отправлен исполнителю`, {
+        duration: 3000
+      });
       
-      // Для гарантии обновления - перезагружаем страницу через небольшую задержку
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
+      // Переходим на список осмотров
+      // Используем state для передачи информации о необходимости обновления
+      navigate('/inspections', { 
+        replace: true,
+        state: { refresh: true, newInspection: inspectionNumber }
+      });
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Ошибка создания осмотра');
-    } finally {
       setIsLoading(false);
     }
   };
