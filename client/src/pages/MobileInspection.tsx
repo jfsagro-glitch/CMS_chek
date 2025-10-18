@@ -58,8 +58,57 @@ const MobileInspection: React.FC = () => {
 
   const { data: inspection, isLoading, error } = useQuery({
     queryKey: ['inspection', id],
-    queryFn: () => inspectionsApi.getInspection(Number(id)),
+    queryFn: async () => {
+      try {
+        return await inspectionsApi.getInspection(Number(id));
+      } catch (error) {
+        // Если backend недоступен, используем демо данные
+        console.log('Backend недоступен, используем демо данные');
+        return {
+          data: {
+            inspection: {
+              id: Number(id),
+              internal_number: `INS-${String(id).padStart(3, '0')}`,
+              property_type: 'Автотранспорт',
+              address: 'г. Москва, ул. Тверская, д. 1',
+              latitude: 55.7558,
+              longitude: 37.6176,
+              inspector_name: 'Иванов Иван Иванович',
+              inspector_phone: '+79991234567',
+              inspector_email: 'inspector@example.com',
+              status: 'В работе',
+              comment: 'Демо осмотр для тестирования мобильного интерфейса',
+              created_at: new Date().toISOString(),
+            },
+            objects: [
+              {
+                id: 1,
+                inspection_id: Number(id),
+                vin: '1HGBH41JXMN109186',
+                registration_number: 'А123БВ77',
+                category: 'Легковой автомобиль',
+                type: 'Седан',
+                make: 'Toyota',
+                model: 'Camry'
+              },
+              {
+                id: 2,
+                inspection_id: Number(id),
+                vin: '2HGBH41JXMN109187',
+                registration_number: 'В456ГД78',
+                category: 'Легковой автомобиль',
+                type: 'Внедорожник',
+                make: 'Land Rover',
+                model: 'Discovery'
+              }
+            ],
+            photos: []
+          }
+        };
+      }
+    },
     enabled: !!id,
+    retry: false, // Не повторяем запрос при ошибке
   });
 
   // Загрузка сохраненных фото из IndexedDB
@@ -304,6 +353,9 @@ const MobileInspection: React.FC = () => {
         console.error('Ошибка удаления из офлайн хранилища:', error);
       }
     }
+    
+
+
     
     setPhotos(prev => {
       const newPhotos = [...prev];

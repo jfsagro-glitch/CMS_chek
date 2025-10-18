@@ -179,7 +179,7 @@ router.post('/', authenticateToken, async (req, res) => {
       inspector_name: inspectorName,
       inspector_phone: inspectorPhone,
       inspector_email: inspectorEmail,
-      status: 'В работе',
+      status: 'Новый',
       comment,
       created_by: req.user.userId,
       created_at: new Date().toISOString(),
