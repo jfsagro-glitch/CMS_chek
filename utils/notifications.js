@@ -30,16 +30,22 @@ const sendSMS = async (phone, message) => {
       return;
     }
 
-    await twilioClient.messages.create({
+    // Добавляем timeout чтобы не зависать
+    const sendPromise = twilioClient.messages.create({
       body: message,
       from: process.env.TWILIO_PHONE_NUMBER,
       to: phone
     });
 
+    await Promise.race([
+      sendPromise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('SMS timeout')), 5000))
+    ]);
+
     console.log('SMS отправлено на номер:', phone);
   } catch (error) {
-    console.error('Ошибка отправки SMS:', error);
-    throw error;
+    console.error('Ошибка отправки SMS:', error.message);
+    // НЕ бросаем ошибку дальше, чтобы не блокировать создание осмотра
   }
 };
 
@@ -59,11 +65,18 @@ const sendEmail = async (to, subject, text, html = null) => {
       html
     };
 
-    await transporter.sendMail(mailOptions);
+    // Добавляем timeout чтобы не зависать
+    const sendPromise = transporter.sendMail(mailOptions);
+    
+    await Promise.race([
+      sendPromise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Email timeout')), 5000))
+    ]);
+
     console.log('Email отправлен на:', to);
   } catch (error) {
-    console.error('Ошибка отправки email:', error);
-    throw error;
+    console.error('Ошибка отправки email:', error.message);
+    // НЕ бросаем ошибку дальше, чтобы не блокировать создание осмотра
   }
 };
 

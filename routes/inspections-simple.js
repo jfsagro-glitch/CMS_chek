@@ -156,6 +156,8 @@ router.get('/:id', authenticateToken, (req, res) => {
 // Создать новый осмотр
 router.post('/', authenticateToken, async (req, res) => {
   try {
+    console.log('Получен запрос на создание осмотра:', req.body);
+    
     const {
       propertyType,
       address,
@@ -189,6 +191,7 @@ router.post('/', authenticateToken, async (req, res) => {
     };
 
     inspections.push(newInspection);
+    console.log('Осмотр создан:', newInspection.internal_number);
 
     // Добавляем объекты осмотра
     if (objects && objects.length > 0) {
@@ -204,62 +207,55 @@ router.post('/', authenticateToken, async (req, res) => {
           model: obj.model
         });
       });
+      console.log(`Добавлено объектов: ${objects.length}`);
     }
 
-    // Отправляем уведомления исполнителю (SMS и Email)
-    const inspectionLink = `${process.env.CLIENT_URL || 'http://localhost:3000'}/inspection/${newInspection.id}`;
-    
-    // Отправляем SMS
-    try {
-      const smsText = `CMS Check: Вам назначен осмотр №${newInspection.internal_number}. Ссылка: ${inspectionLink}`;
-      await sendSMS(inspectorPhone, smsText);
-      console.log(`SMS отправлено исполнителю: ${inspectorPhone}`);
-    } catch (smsError) {
-      console.error('Ошибка отправки SMS:', smsError.message);
-      // Не блокируем создание осмотра если SMS не отправлено
-    }
-
-    // Отправляем Email если указан
-    if (inspectorEmail) {
-      try {
-        const emailSubject = `Новый осмотр №${newInspection.internal_number}`;
-        const emailHtml = `
-          <h2>Назначен новый осмотр</h2>
-          <p>Здравствуйте, ${inspectorName}!</p>
-          <p>Вам назначен осмотр №${newInspection.internal_number}</p>
-          
-          <h3>Детали осмотра:</h3>
-          <ul>
-            <li><strong>Адрес:</strong> ${address}</li>
-            <li><strong>Тип имущества:</strong> ${propertyType}</li>
-            <li><strong>Количество объектов:</strong> ${objects?.length || 0}</li>
-            ${comment ? `<li><strong>Комментарий:</strong> ${comment}</li>` : ''}
-          </ul>
-          
-          <p><strong>Для выполнения осмотра перейдите по ссылке:</strong></p>
-          <p><a href="${inspectionLink}" style="display: inline-block; padding: 12px 24px; background-color: #1976D2; color: white; text-decoration: none; border-radius: 6px;">Перейти к осмотру</a></p>
-          
-          <p style="margin-top: 20px; font-size: 12px; color: #666;">
-            Это письмо отправлено автоматически системой CMS Check. Пожалуйста, не отвечайте на него.
-          </p>
-        `;
-        
-        await sendEmail(inspectorEmail, emailSubject, emailHtml);
-        console.log(`Email отправлен исполнителю: ${inspectorEmail}`);
-      } catch (emailError) {
-        console.error('Ошибка отправки email:', emailError.message);
-        // Не блокируем создание осмотра если email не отправлен
-      }
-    }
-
+    // СНАЧАЛА отправляем ответ клиенту, чтобы не зависать
     res.status(201).json({
       message: 'Осмотр успешно создан и отправлен исполнителю',
       inspection: newInspection
     });
 
+    // ПОТОМ асинхронно отправляем уведомления (не блокируя ответ)
+    const inspectionLink = `${process.env.CLIENT_URL || 'https://jfsagro-glitch.github.io/CMS_chek'}/inspection/${newInspection.id}`;
+    
+    // Отправляем SMS в фоне
+    sendSMS(inspectorPhone, `CMS Check: Вам назначен осмотр №${newInspection.internal_number}. Ссылка: ${inspectionLink}`)
+      .then(() => console.log(`SMS отправлено: ${inspectorPhone}`))
+      .catch(err => console.error('Ошибка SMS:', err.message));
+
+    // Отправляем Email в фоне
+    if (inspectorEmail) {
+      const emailSubject = `Новый осмотр №${newInspection.internal_number}`;
+      const emailHtml = `
+        <h2>Назначен новый осмотр</h2>
+        <p>Здравствуйте, ${inspectorName}!</p>
+        <p>Вам назначен осмотр №${newInspection.internal_number}</p>
+        
+        <h3>Детали осмотра:</h3>
+        <ul>
+          <li><strong>Адрес:</strong> ${address}</li>
+          <li><strong>Тип имущества:</strong> ${propertyType}</li>
+          <li><strong>Количество объектов:</strong> ${objects?.length || 0}</li>
+          ${comment ? `<li><strong>Комментарий:</strong> ${comment}</li>` : ''}
+        </ul>
+        
+        <p><strong>Для выполнения осмотра перейдите по ссылке:</strong></p>
+        <p><a href="${inspectionLink}" style="display: inline-block; padding: 12px 24px; background-color: #1976D2; color: white; text-decoration: none; border-radius: 6px;">Перейти к осмотру</a></p>
+        
+        <p style="margin-top: 20px; font-size: 12px; color: #666;">
+          Это письмо отправлено автоматически системой CMS Check. Пожалуйста, не отвечайте на него.
+        </p>
+      `;
+      
+      sendEmail(inspectorEmail, emailSubject, emailHtml)
+        .then(() => console.log(`Email отправлен: ${inspectorEmail}`))
+        .catch(err => console.error('Ошибка Email:', err.message));
+    }
+
   } catch (error) {
     console.error('Ошибка создания осмотра:', error);
-    res.status(500).json({ message: 'Ошибка сервера' });
+    res.status(500).json({ message: 'Ошибка сервера', error: error.message });
   }
 });
 
