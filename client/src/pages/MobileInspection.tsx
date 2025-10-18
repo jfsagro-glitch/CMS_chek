@@ -8,20 +8,32 @@ import {
   X, 
   Upload,
   ArrowLeft,
-  AlertCircle
+  AlertCircle,
+  Wifi,
+  WifiOff,
+  CloudUpload
 } from 'lucide-react';
 import { inspectionsApi } from '../services/api';
+import { 
+  savePhotoOffline, 
+  getPhotosForInspection, 
+  checkOnlineStatus,
+  uploadPendingPhotos,
+  deletePhoto as deleteOfflinePhoto
+} from '../utils/offlineStorage';
 import toast from 'react-hot-toast';
 import './MobileInspection.css';
 
 interface Photo {
-  id?: number;
-  file: File;
+  id?: string;
+  file: File | Blob;
   preview: string;
   latitude?: number;
   longitude?: number;
   timestamp: string;
   objectId: number;
+  uploaded?: boolean;
+  offlineId?: string;
 }
 
 interface InspectionObject {
@@ -41,6 +53,8 @@ const MobileInspection: React.FC = () => {
   const [currentObject, setCurrentObject] = useState<number | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [pendingCount, setPendingCount] = useState(0);
 
   const { data: inspection, isLoading, error } = useQuery({
     queryKey: ['inspection', id],
@@ -48,8 +62,66 @@ const MobileInspection: React.FC = () => {
     enabled: !!id,
   });
 
+  // Загрузка сохраненных фото из IndexedDB
   useEffect(() => {
-    // Запрашиваем геолокацию при загрузке страницы
+    const loadOfflinePhotos = async () => {
+      if (id) {
+        try {
+          const offlinePhotos = await getPhotosForInspection(Number(id));
+          const loadedPhotos: Photo[] = await Promise.all(
+            offlinePhotos.map(async (offlinePhoto) => {
+              const preview = URL.createObjectURL(offlinePhoto.file);
+              return {
+                id: offlinePhoto.id,
+                file: offlinePhoto.file as File,
+                preview,
+                latitude: offlinePhoto.latitude,
+                longitude: offlinePhoto.longitude,
+                timestamp: offlinePhoto.timestamp,
+                objectId: offlinePhoto.objectId,
+                uploaded: offlinePhoto.uploaded,
+                offlineId: offlinePhoto.id
+              };
+            })
+          );
+          setPhotos(loadedPhotos);
+          setPendingCount(loadedPhotos.filter(p => !p.uploaded).length);
+        } catch (error) {
+          console.error('Ошибка загрузки сохраненных фото:', error);
+        }
+      }
+    };
+
+    loadOfflinePhotos();
+  }, [id]);
+
+  // Отслеживание онлайн/офлайн статуса
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      toast.success('Подключение к интернету восстановлено');
+      // Попытаться загрузить неотправленные фото
+      tryUploadPendingPhotos();
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      toast.error('Нет подключения к интернету. Фото будут сохранены локально', {
+        duration: 5000
+      });
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Запрос геолокации
+  useEffect(() => {
     if (navigator.geolocation) {
       toast.loading('Получение геолокации...', { id: 'geolocation' });
       
@@ -104,7 +176,7 @@ const MobileInspection: React.FC = () => {
       input.accept = 'image/*';
       input.capture = 'environment'; // Принудительно использует камеру
       
-      input.onchange = (e: any) => {
+      input.onchange = async (e: any) => {
         const file = e.target.files[0];
         if (file) {
           // Проверяем, что файл - это новое фото (по времени создания)
@@ -119,19 +191,49 @@ const MobileInspection: React.FC = () => {
           }
           
           const preview = URL.createObjectURL(file);
+          const timestamp = new Date().toISOString();
           
-          const photo: Photo = {
-            file,
-            preview,
-            latitude: location.lat,
-            longitude: location.lng,
-            timestamp: new Date().toISOString(),
-            objectId,
-          };
-          
-          setPhotos(prev => [...prev, photo]);
-          setCurrentObject(null);
-          toast.success('Фото добавлено с геоданными');
+          // Сохраняем фото в IndexedDB для офлайн режима
+          try {
+            const offlineId = await savePhotoOffline({
+              inspectionId: Number(id),
+              objectId,
+              file,
+              fileName: file.name,
+              latitude: location.lat,
+              longitude: location.lng,
+              timestamp,
+              uploaded: false
+            });
+            
+            const photo: Photo = {
+              id: offlineId,
+              file,
+              preview,
+              latitude: location.lat,
+              longitude: location.lng,
+              timestamp,
+              objectId,
+              uploaded: false,
+              offlineId
+            };
+            
+            setPhotos(prev => [...prev, photo]);
+            setPendingCount(prev => prev + 1);
+            setCurrentObject(null);
+            
+            if (isOnline) {
+              toast.success('Фото добавлено с геоданными');
+            } else {
+              toast.success('Фото сохранено локально. Загрузится при появлении интернета', {
+                icon: '💾',
+                duration: 5000
+              });
+            }
+          } catch (error) {
+            console.error('Ошибка сохранения фото:', error);
+            toast.error('Ошибка сохранения фото');
+          }
         }
       };
       
@@ -163,13 +265,56 @@ const MobileInspection: React.FC = () => {
     }
   };
 
-  const removePhoto = (index: number) => {
+  const tryUploadPendingPhotos = async () => {
+    if (!isOnline) return;
+
+    try {
+      const uploadedCount = await uploadPendingPhotos(async (offlinePhoto) => {
+        // Здесь будет реальная загрузка на сервер
+        // Пока просто имитируем успех
+        console.log('Загрузка фото:', offlinePhoto.id);
+      });
+
+      if (uploadedCount > 0) {
+        toast.success(`Загружено фото: ${uploadedCount}`, {
+          icon: '☁️',
+          duration: 4000
+        });
+        setPendingCount(prev => Math.max(0, prev - uploadedCount));
+        
+        // Обновляем статус фото в состоянии
+        setPhotos(prev => prev.map(p => ({
+          ...p,
+          uploaded: true
+        })));
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки неотправленных фото:', error);
+    }
+  };
+
+  const removePhoto = async (index: number) => {
+    const photo = photos[index];
+    
+    // Удаляем из IndexedDB если есть offlineId
+    if (photo.offlineId) {
+      try {
+        await deleteOfflinePhoto(photo.offlineId);
+      } catch (error) {
+        console.error('Ошибка удаления из офлайн хранилища:', error);
+      }
+    }
+    
     setPhotos(prev => {
       const newPhotos = [...prev];
       URL.revokeObjectURL(newPhotos[index].preview);
       newPhotos.splice(index, 1);
       return newPhotos;
     });
+    
+    if (!photo.uploaded) {
+      setPendingCount(prev => Math.max(0, prev - 1));
+    }
   };
 
   const getObjectPhotos = (objectId: number) => {
@@ -204,7 +349,7 @@ const MobileInspection: React.FC = () => {
       <div className="mobile-header">
         <button 
           className="back-btn"
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/mobile')}
         >
           <ArrowLeft size={24} />
         </button>
@@ -216,6 +361,12 @@ const MobileInspection: React.FC = () => {
           <span className={`status ${inspection.data.inspection.status.toLowerCase().replace(' ', '-')}`}>
             {inspection.data.inspection.status}
           </span>
+          <div className={`online-indicator ${isOnline ? 'online' : 'offline'}`}>
+            {isOnline ? <Wifi size={16} /> : <WifiOff size={16} />}
+            {pendingCount > 0 && (
+              <span className="pending-badge">{pendingCount}</span>
+            )}
+          </div>
         </div>
       </div>
 

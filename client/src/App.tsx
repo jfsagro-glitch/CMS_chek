@@ -11,6 +11,7 @@ import Inspections from './pages/Inspections';
 import CreateInspection from './pages/CreateInspection';
 import InspectionDetail from './pages/InspectionDetail';
 import MobileInspection from './pages/MobileInspection';
+import MobileHome from './pages/MobileHome';
 import './App.css';
 import './theme.css';
 
@@ -32,6 +33,7 @@ function App() {
           <div className="App">
             <Routes>
               <Route path="/login" element={<Login />} />
+              <Route path="/mobile" element={<MobileHome />} />
               <Route path="/inspection/:id" element={<MobileInspection />} />
               <Route
                 path="/"
