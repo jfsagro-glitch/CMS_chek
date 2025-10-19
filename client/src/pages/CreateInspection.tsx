@@ -430,8 +430,8 @@ const CreateInspection: React.FC = () => {
                             
                             {char.type === 'select' ? (
                               <select
-                                className={`form-select ${errors.objects?.[index]?.[char.id] ? 'input-error' : ''}`}
-                                {...register(`objects.${index}.${char.id}`)}
+                                className={`form-select ${(errors.objects as any)?.[index]?.[char.id] ? 'input-error' : ''}`}
+                                {...register(`objects.${index}.${char.id}` as any)}
                               >
                                 <option value="">Выберите {char.name.toLowerCase()}</option>
                                 {char.options?.map(option => (
@@ -441,14 +441,14 @@ const CreateInspection: React.FC = () => {
                             ) : (
                               <input
                                 type={char.type}
-                                className={`form-input ${errors.objects?.[index]?.[char.id] ? 'input-error' : ''}`}
-                                {...register(`objects.${index}.${char.id}`)}
+                                className={`form-input ${(errors.objects as any)?.[index]?.[char.id] ? 'input-error' : ''}`}
+                                {...register(`objects.${index}.${char.id}` as any)}
                                 placeholder={char.placeholder}
                               />
                             )}
                             
-                            {errors.objects?.[index]?.[char.id] && (
-                              <div className="form-error-inline">{errors.objects[index]?.[char.id]?.message}</div>
+                            {(errors.objects as any)?.[index]?.[char.id] && (
+                              <div className="form-error-inline">{(errors.objects as any)[index]?.[char.id]?.message}</div>
                             )}
                           </div>
                         ))}
