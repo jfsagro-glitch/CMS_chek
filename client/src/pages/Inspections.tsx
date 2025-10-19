@@ -13,7 +13,8 @@ import {
   ChevronDown,
   Plus,
   Filter,
-  X
+  X,
+  Camera
 } from 'lucide-react';
 import { inspectionsApi } from '../services/api';
 import { exportInspectionsToExcel } from '../utils/excelExport';
@@ -169,6 +170,15 @@ const Inspections: React.FC = () => {
     }) + ' ' + date.toLocaleTimeString('ru-RU', {
       hour: '2-digit',
       minute: '2-digit',
+    });
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ru-RU', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
     });
   };
 
@@ -586,13 +596,11 @@ const Inspections: React.FC = () => {
               <thead>
                 <tr>
                   <th>Создан</th>
-                  <th>Отправлен</th>
                   <th>№</th>
                   <th>Исполнитель</th>
-                  <th>Получатель</th>
+                  <th>Адрес</th>
                   <th>Статус</th>
                   <th>Тип</th>
-                  <th>Объект</th>
                   <th>Фото</th>
                 </tr>
               </thead>
@@ -604,31 +612,23 @@ const Inspections: React.FC = () => {
                     style={{ cursor: 'pointer' }}
                   >
                     <td className="date-cell">
-                      {formatDateTime(inspection.created_at)}
-                    </td>
-                    <td className="date-cell">
-                      {inspection.sent_at ? formatDateTime(inspection.sent_at) : '-'}
+                      {formatDate(inspection.created_at)}
                     </td>
                     <td>
                       <div className="inspection-number">
-                        {inspection.internal_number}
+                        {inspection.internal_number || `INS-${String(inspection.id).padStart(3, '0')}`}
                       </div>
                     </td>
-                    <td className="blurred">
+                    <td>
                       <div className="user-cell">
                         <div className="user-avatar">
                           {inspection.inspector_name.charAt(0)}
                         </div>
-                        <span>{inspection.inspector_name}</span>
+                        <span className="inspector-name">{inspection.inspector_name}</span>
                       </div>
                     </td>
-                    <td className="blurred">
-                      <div className="user-cell">
-                        <div className="user-avatar">
-                          {inspection.recipient_name.charAt(0)}
-                        </div>
-                        <span>{inspection.recipient_name}</span>
-                      </div>
+                    <td className="address-cell">
+                      <span className="address-text">{inspection.address || 'Адрес не указан'}</span>
                     </td>
                     <td>
                       <span className={`status ${getStatusClass(inspection.status)}`}>
@@ -642,17 +642,18 @@ const Inspections: React.FC = () => {
                       </div>
                     </td>
                     <td>
-                      <div className="object-info">
-                        <div className="object-type">
-                          <span className="object-category">{inspection.object_type}</span>
-                          <span className="object-description">{inspection.object_description}</span>
-                        </div>
+                      <div className="photo-indicator">
+                        {inspection.photos_count > 0 ? (
+                          <div className="photo-icon">
+                            <Camera size={16} />
+                            <span className="photo-count">{inspection.photos_count}</span>
+                          </div>
+                        ) : (
+                          <div className="no-photo">
+                            <X size={16} />
+                          </div>
+                        )}
                       </div>
-                    </td>
-                    <td>
-                      <span className="photo-count">
-                        {inspection.photos_count}
-                      </span>
                     </td>
                   </tr>
                 ))}
