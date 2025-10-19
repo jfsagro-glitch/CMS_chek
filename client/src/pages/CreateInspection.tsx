@@ -61,10 +61,10 @@ interface InspectionFormData {
 }
 
 const propertyTypes = [
-  { id: 'auto', name: 'Автотранспорт', icon: Car, color: '#1976D2' },
-  { id: 'commercial', name: 'Коммерческая недвижимость', icon: Building, color: '#388E3C' },
-  { id: 'residential', name: 'Загородная недвижимость', icon: Home, color: '#F57C00' },
-  { id: 'other', name: 'Прочее имущество', icon: Truck, color: '#7B1FA2' },
+  { id: 'Автотранспорт', name: 'Автотранспорт', icon: Car, color: '#1976D2' },
+  { id: 'Недвижимость', name: 'Недвижимость', icon: Building, color: '#388E3C' },
+  { id: 'Оборудование', name: 'Оборудование', icon: Home, color: '#F57C00' },
+  { id: 'Ценные бумаги', name: 'Ценные бумаги', icon: Truck, color: '#7B1FA2' },
 ];
 
 const CreateInspection: React.FC = () => {
