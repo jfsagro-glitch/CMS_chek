@@ -234,6 +234,63 @@
   min-width: 120px;
 }
 
+/* Стили для карточек объектов */
+.objects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.object-card {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  background: var(--bg-secondary);
+}
+
+.object-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.object-header h4 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.object-characteristics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.object-characteristics .form-group {
+  margin-bottom: 0;
+}
+
+.object-characteristics .form-label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.object-characteristics .form-input,
+.object-characteristics .form-select {
+  font-size: 14px;
+  padding: 10px 12px;
+}
+
+.required {
+  color: var(--error-color);
+  margin-left: 4px;
+}
+
 /* Адаптивность */
 @media (max-width: 768px) {
   .step-content {
@@ -245,6 +302,10 @@
   }
   
   .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .object-characteristics {
     grid-template-columns: 1fr;
   }
   

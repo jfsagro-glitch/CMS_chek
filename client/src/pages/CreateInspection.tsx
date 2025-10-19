@@ -21,6 +21,7 @@ import {
 import { inspectionsApi } from '../services/api';
 import AddressAutocomplete from '../components/AddressAutocomplete';
 import { vehicleCategories, vehicleTypes, vehicleMakes, getModelsByMake } from '../data/vehicleData';
+import { getCharacteristicsForPropertyType } from '../data/objectCharacteristics';
 import toast from 'react-hot-toast';
 import './CreateInspection.css';
 
@@ -35,14 +36,7 @@ const schema = yup.object({
   internalNumber: yup.string().optional(),
   comment: yup.string().optional(),
   objects: yup.array().of(
-    yup.object({
-      vin: yup.string().optional(),
-      registrationNumber: yup.string().optional(),
-      category: yup.string().required('Категория обязательна'),
-      type: yup.string().required('Тип обязателен'),
-      make: yup.string().required('Марка обязательна'),
-      model: yup.string().required('Модель обязательна'),
-    })
+    yup.object().shape({})
   ).min(1, 'Добавьте хотя бы один объект'),
 });
 
@@ -227,7 +221,11 @@ const CreateInspection: React.FC = () => {
                     key={type.id}
                     type="button"
                     className={`property-type-card ${selectedPropertyType === type.id ? 'selected' : ''}`}
-                    onClick={() => setValue('propertyType', type.id)}
+                    onClick={() => {
+                      setValue('propertyType', type.id);
+                      // Автоматически переходим к следующему шагу
+                      setTimeout(() => setStep(2), 300);
+                    }}
                   >
                     <div className="property-type-icon" style={{ backgroundColor: type.color }}>
                       <IconComponent size={32} />
@@ -241,17 +239,6 @@ const CreateInspection: React.FC = () => {
             {errors.propertyType && (
               <div className="form-error">{errors.propertyType.message}</div>
             )}
-
-            <div className="step-actions">
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => setStep(2)}
-                disabled={!selectedPropertyType}
-              >
-                Продолжить
-              </button>
-            </div>
           </div>
         )}
 
@@ -415,104 +402,60 @@ const CreateInspection: React.FC = () => {
                 </div>
               </div>
 
-              <div className="objects-table">
-                <div className="table-header">
-                  <div className="table-cell">VIN</div>
-                  <div className="table-cell">Рег. номер</div>
-                  <div className="table-cell">Категория</div>
-                  <div className="table-cell">Тип</div>
-                  <div className="table-cell">Марка</div>
-                  <div className="table-cell">Модель</div>
-                  <div className="table-cell">Действия</div>
-                </div>
-
-                {fields.map((field, index) => (
-                  <div key={field.id} className="table-row">
-                    <div className="table-cell">
-                      <input
-                        type="text"
-                        className="form-input"
-                        {...register(`objects.${index}.vin`)}
-                        placeholder="VIN номер"
-                      />
-                    </div>
-                    <div className="table-cell">
-                      <input
-                        type="text"
-                        className="form-input"
-                        {...register(`objects.${index}.registrationNumber`)}
-                        placeholder="А123БВ77"
-                      />
-                    </div>
-                    <div className="table-cell">
-                      <select
-                        className="form-select"
-                        {...register(`objects.${index}.category`)}
-                      >
-                        <option value="">Выберите</option>
-                        {vehicleCategories.map(category => (
-                          <option key={category} value={category}>{category}</option>
+              <div className="objects-list">
+                {fields.map((field, index) => {
+                  const characteristics = getCharacteristicsForPropertyType(selectedPropertyType || '');
+                  
+                  return (
+                    <div key={field.id} className="object-card">
+                      <div className="object-header">
+                        <h4>Объект #{index + 1}</h4>
+                        <button
+                          type="button"
+                          className="btn btn-error btn-sm"
+                          onClick={() => remove(index)}
+                          disabled={fields.length === 1}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                      
+                      <div className="object-characteristics">
+                        {characteristics.map((char) => (
+                          <div key={char.id} className="form-group">
+                            <label className="form-label">
+                              {char.name}
+                              {char.required && <span className="required">*</span>}
+                            </label>
+                            
+                            {char.type === 'select' ? (
+                              <select
+                                className={`form-select ${errors.objects?.[index]?.[char.id] ? 'input-error' : ''}`}
+                                {...register(`objects.${index}.${char.id}`)}
+                              >
+                                <option value="">Выберите {char.name.toLowerCase()}</option>
+                                {char.options?.map(option => (
+                                  <option key={option} value={option}>{option}</option>
+                                ))}
+                              </select>
+                            ) : (
+                              <input
+                                type={char.type}
+                                className={`form-input ${errors.objects?.[index]?.[char.id] ? 'input-error' : ''}`}
+                                {...register(`objects.${index}.${char.id}`)}
+                                placeholder={char.placeholder}
+                              />
+                            )}
+                            
+                            {errors.objects?.[index]?.[char.id] && (
+                              <div className="form-error-inline">{errors.objects[index]?.[char.id]?.message}</div>
+                            )}
+                          </div>
                         ))}
-                      </select>
+                      </div>
                     </div>
-                    <div className="table-cell">
-                      <select
-                        className="form-select"
-                        {...register(`objects.${index}.type`)}
-                      >
-                        <option value="">Выберите</option>
-                        {vehicleTypes.map(type => (
-                          <option key={type} value={type}>{type}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="table-cell">
-                      <select
-                        className={`form-select ${errors.objects?.[index]?.make ? 'input-error' : ''}`}
-                        {...register(`objects.${index}.make`)}
-                        onChange={(e) => {
-                          const make = e.target.value;
-                          setValue(`objects.${index}.make`, make);
-                          // Сбрасываем модель при смене марки
-                          setValue(`objects.${index}.model`, '');
-                        }}
-                      >
-                        <option value="">Выберите марку</option>
-                        {vehicleMakes.map(make => (
-                          <option key={make} value={make}>{make}</option>
-                        ))}
-                      </select>
-                      {errors.objects?.[index]?.make && (
-                        <div className="form-error-inline">{errors.objects[index]?.make?.message}</div>
-                      )}
-                    </div>
-                    <div className="table-cell">
-                      <select
-                        className={`form-select ${errors.objects?.[index]?.model ? 'input-error' : ''}`}
-                        {...register(`objects.${index}.model`)}
-                        disabled={!watch(`objects.${index}.make`)}
-                      >
-                        <option value="">Выберите модель</option>
-                        {watch(`objects.${index}.make`) && getModelsByMake(watch(`objects.${index}.make`) || '').map(model => (
-                          <option key={model} value={model}>{model}</option>
-                        ))}
-                      </select>
-                      {errors.objects?.[index]?.model && (
-                        <div className="form-error-inline">{errors.objects[index]?.model?.message}</div>
-                      )}
-                    </div>
-                    <div className="table-cell">
-                      <button
-                        type="button"
-                        className="btn btn-error btn-sm"
-                        onClick={() => remove(index)}
-                        disabled={fields.length === 1}
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {errors.objects && (
