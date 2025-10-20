@@ -64,7 +64,6 @@ const propertyTypes = [
   { id: 'Автотранспорт', name: 'Автотранспорт', icon: Car, color: '#1976D2' },
   { id: 'Недвижимость', name: 'Недвижимость', icon: Building, color: '#388E3C' },
   { id: 'Оборудование', name: 'Оборудование', icon: Home, color: '#F57C00' },
-  { id: 'Ценные бумаги', name: 'Ценные бумаги', icon: Truck, color: '#7B1FA2' },
 ];
 
 const CreateInspection: React.FC = () => {
@@ -108,19 +107,16 @@ const CreateInspection: React.FC = () => {
     if (!formValues.objects || formValues.objects.length === 0) {
       errors.push('Необходимо добавить хотя бы один объект');
     } else {
+      // Получаем характеристики для выбранного типа имущества
+      const characteristics = getCharacteristicsForPropertyType(formValues.propertyType || '');
+      
       formValues.objects.forEach((obj: any, index: number) => {
-        if (!obj.category) {
-          errors.push(`Объект ${index + 1}: не указана категория`);
-        }
-        if (!obj.type) {
-          errors.push(`Объект ${index + 1}: не указан тип`);
-        }
-        if (!obj.make) {
-          errors.push(`Объект ${index + 1}: не указана марка`);
-        }
-        if (!obj.model) {
-          errors.push(`Объект ${index + 1}: не указана модель`);
-        }
+        // Проверяем только обязательные характеристики
+        characteristics.forEach((char) => {
+          if (char.required && !obj[char.id]) {
+            errors.push(`Объект ${index + 1}: не указан ${char.name.toLowerCase()}`);
+          }
+        });
       });
     }
     
@@ -194,15 +190,25 @@ const CreateInspection: React.FC = () => {
 
   return (
     <div className="create-inspection-page">
-      <div className="page-header">
-        <h1 className="page-title">Создание осмотра</h1>
-        <button 
-          className="btn btn-secondary"
-          onClick={() => navigate('/inspections')}
-        >
-          Отмена
-        </button>
-      </div>
+      <div className="create-inspection-content">
+        <div className="page-header">
+          <h1 className="page-title">Создание осмотра</h1>
+          <div className="header-actions">
+            <button 
+              className="btn btn-secondary"
+              onClick={() => navigate('/inspections')}
+            >
+              Отмена
+            </button>
+            <button 
+              className="btn btn-close"
+              onClick={() => navigate('/inspections')}
+              title="Закрыть"
+            >
+              ×
+            </button>
+          </div>
+        </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="inspection-form">
         {/* Шаг 1: Выбор типа имущества */}
@@ -467,7 +473,7 @@ const CreateInspection: React.FC = () => {
               <button
                 type="button"
                 className="btn btn-secondary"
-                onClick={() => setStep(2)}
+                onClick={() => setStep(1)}
               >
                 Назад
               </button>
@@ -498,6 +504,7 @@ const CreateInspection: React.FC = () => {
           </div>
         )}
       </form>
+      </div>
     </div>
   );
 };

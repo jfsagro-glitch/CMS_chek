@@ -383,7 +383,8 @@ const Inspections: React.FC = () => {
 
   return (
     <div className="inspections-page">
-      <div className="page-header">
+      <div className="inspections-content">
+        <div className="page-header">
         <div className="header-left">
           <h1 className="page-title">Осмотры</h1>
           <div className="total-count">{getFilteredInspections().length}</div>
@@ -406,6 +407,14 @@ const Inspections: React.FC = () => {
           <button className="btn btn-primary" onClick={() => navigate('/inspections/create')}>
             <Plus size={16} />
             Новый осмотр
+          </button>
+          
+          <button 
+            className="btn btn-close"
+            onClick={() => navigate('/')}
+            title="Закрыть"
+          >
+            ×
           </button>
         </div>
       </div>
@@ -697,6 +706,7 @@ const Inspections: React.FC = () => {
             )}
           </>
         )}
+      </div>
       </div>
     </div>
   );
