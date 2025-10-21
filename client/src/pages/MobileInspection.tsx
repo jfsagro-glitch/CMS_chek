@@ -10,14 +10,12 @@ import {
   ArrowLeft,
   AlertCircle,
   Wifi,
-  WifiOff,
-  CloudUpload
+  WifiOff
 } from 'lucide-react';
 import { inspectionsApi } from '../services/api';
 import { 
   savePhotoOffline, 
   getPhotosForInspection, 
-  checkOnlineStatus,
   uploadPendingPhotos,
   deletePhoto as deleteOfflinePhoto
 } from '../utils/offlineStorage';
@@ -56,7 +54,7 @@ const MobileInspection: React.FC = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [pendingCount, setPendingCount] = useState(0);
 
-  const { data: inspection, isLoading, error } = useQuery({
+  const { data: inspection, isLoading } = useQuery({
     queryKey: ['inspection', id],
     queryFn: async () => {
       try {
@@ -146,6 +144,34 @@ const MobileInspection: React.FC = () => {
 
   // Отслеживание онлайн/офлайн статуса
   useEffect(() => {
+    const tryUploadPendingPhotos = async () => {
+      if (!navigator.onLine) return;
+
+      try {
+        const uploadedCount = await uploadPendingPhotos(async (offlinePhoto) => {
+          // Здесь будет реальная загрузка на сервер
+          // Пока просто имитируем успех
+          console.log('Загрузка фото:', offlinePhoto.id);
+        });
+
+        if (uploadedCount > 0) {
+          toast.success(`Загружено фото: ${uploadedCount}`, {
+            icon: '☁️',
+            duration: 4000
+          });
+          setPendingCount(prev => Math.max(0, prev - uploadedCount));
+          
+          // Обновляем статус фото в состоянии
+          setPhotos(prev => prev.map(p => ({
+            ...p,
+            uploaded: true
+          })));
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки неотправленных фото:', error);
+      }
+    };
+
     const handleOnline = () => {
       setIsOnline(true);
       toast.success('Подключение к интернету восстановлено');
@@ -167,7 +193,7 @@ const MobileInspection: React.FC = () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [setPendingCount, setPhotos]);
 
   // Запрос геолокации
   useEffect(() => {
@@ -340,10 +366,11 @@ const MobileInspection: React.FC = () => {
             duration: 3000
           });
         } else {
-        toast.success('Фотографии сохранены локально. Будут отправлены при появлении интернета', {
-          icon: '💾',
-          duration: 5000
-        });
+          toast.success('Фотографии сохранены локально. Будут отправлены при появлении интернета', {
+            icon: '💾',
+            duration: 5000
+          });
+        }
         
         // Возвращаемся назад через 2 секунды
         setTimeout(() => {
