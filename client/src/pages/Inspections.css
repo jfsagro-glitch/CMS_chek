@@ -1,7 +1,9 @@
 .inspections-page {
   padding: 0;
+  margin: 0;
   height: 100%;
   overflow-y: auto;
+  margin-left: 0;
 }
 
 .inspections-content {
@@ -9,13 +11,15 @@
   width: 100%;
   height: 100%;
   position: relative;
+  margin: 0;
+  padding: 0;
 }
 
 .page-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.5rem;
+  padding: 1rem 1.5rem 1rem 0;
   border-bottom: 1px solid var(--border-color);
   background: var(--header-bg);
   border-radius: 0; /* Убираем скругления */
@@ -185,15 +189,13 @@
 }
 
 /* Фиксированные ширины колонок */
-.inspections-table th:nth-child(1), .inspections-table td:nth-child(1) { width: 8%; } /* Создан */
-.inspections-table th:nth-child(2), .inspections-table td:nth-child(2) { width: 8%; } /* Отправлен */
-.inspections-table th:nth-child(3), .inspections-table td:nth-child(3) { width: 10%; } /* № */
-.inspections-table th:nth-child(4), .inspections-table td:nth-child(4) { width: 15%; } /* Исполнитель */
-.inspections-table th:nth-child(5), .inspections-table td:nth-child(5) { width: 15%; } /* Получатель */
-.inspections-table th:nth-child(6), .inspections-table td:nth-child(6) { width: 10%; } /* Статус */
-.inspections-table th:nth-child(7), .inspections-table td:nth-child(7) { width: 12%; } /* Тип */
-.inspections-table th:nth-child(8), .inspections-table td:nth-child(8) { width: 12%; } /* Объект */
-.inspections-table th:nth-child(9), .inspections-table td:nth-child(9) { width: 10%; } /* Фото */
+.inspections-table th:nth-child(1), .inspections-table td:nth-child(1) { width: 12%; } /* Создан */
+.inspections-table th:nth-child(2), .inspections-table td:nth-child(2) { width: 10%; } /* № */
+.inspections-table th:nth-child(3), .inspections-table td:nth-child(3) { width: 15%; } /* Исполнитель */
+.inspections-table th:nth-child(4), .inspections-table td:nth-child(4) { width: 25%; } /* Адрес */
+.inspections-table th:nth-child(5), .inspections-table td:nth-child(5) { width: 12%; } /* Статус */
+.inspections-table th:nth-child(6), .inspections-table td:nth-child(6) { width: 15%; } /* Тип */
+.inspections-table th:nth-child(7), .inspections-table td:nth-child(7) { width: 11%; } /* Фото */
 
 .inspections-table td {
   padding: 0.75rem;
@@ -464,7 +466,8 @@
 }
 
 .address-cell {
-  max-width: 200px;
+  max-width: none;
+  width: 25%;
 }
 
 .address-text {
@@ -472,6 +475,8 @@
   color: var(--text-secondary);
   line-height: 1.4;
   word-break: break-word;
+  white-space: normal;
+  overflow: visible;
 }
 
 .photo-indicator {
@@ -502,11 +507,13 @@
 /* Мобильная адаптация для новых элементов */
 @media (max-width: 768px) {
   .address-cell {
-    max-width: 150px;
+    max-width: none;
+    width: 25%;
   }
   
   .address-text {
     font-size: 12px;
+    white-space: normal;
   }
   
   .inspector-name {
@@ -524,11 +531,13 @@
 
 @media (max-width: 480px) {
   .address-cell {
-    max-width: 120px;
+    max-width: none;
+    width: 25%;
   }
   
   .address-text {
     font-size: 11px;
+    white-space: normal;
   }
   
   .inspector-name {
@@ -550,15 +559,13 @@
 
 /* Медиа-запросы для адаптивности */
 @media (max-width: 1200px) {
-  .inspections-table th:nth-child(1), .inspections-table td:nth-child(1) { width: 7%; } /* Создан */
-  .inspections-table th:nth-child(2), .inspections-table td:nth-child(2) { width: 7%; } /* Отправлен */
-  .inspections-table th:nth-child(3), .inspections-table td:nth-child(3) { width: 8%; } /* № */
-  .inspections-table th:nth-child(4), .inspections-table td:nth-child(4) { width: 18%; } /* Исполнитель */
-  .inspections-table th:nth-child(5), .inspections-table td:nth-child(5) { width: 18%; } /* Получатель */
-  .inspections-table th:nth-child(6), .inspections-table td:nth-child(6) { width: 8%; } /* Статус */
-  .inspections-table th:nth-child(7), .inspections-table td:nth-child(7) { width: 12%; } /* Тип */
-  .inspections-table th:nth-child(8), .inspections-table td:nth-child(8) { width: 12%; } /* Объект */
-  .inspections-table th:nth-child(9), .inspections-table td:nth-child(9) { width: 10%; } /* Фото */
+  .inspections-table th:nth-child(1), .inspections-table td:nth-child(1) { width: 10%; } /* Создан */
+  .inspections-table th:nth-child(2), .inspections-table td:nth-child(2) { width: 8%; } /* № */
+  .inspections-table th:nth-child(3), .inspections-table td:nth-child(3) { width: 15%; } /* Исполнитель */
+  .inspections-table th:nth-child(4), .inspections-table td:nth-child(4) { width: 25%; } /* Адрес */
+  .inspections-table th:nth-child(5), .inspections-table td:nth-child(5) { width: 10%; } /* Статус */
+  .inspections-table th:nth-child(6), .inspections-table td:nth-child(6) { width: 15%; } /* Тип */
+  .inspections-table th:nth-child(7), .inspections-table td:nth-child(7) { width: 17%; } /* Фото */
 }
 
 @media (max-width: 768px) {
@@ -592,13 +599,11 @@
     padding: 0.5rem;
   }
   
-  .inspections-table th:nth-child(1), .inspections-table td:nth-child(1) { width: 6%; } /* Создан */
-  .inspections-table th:nth-child(2), .inspections-table td:nth-child(2) { width: 6%; } /* Отправлен */
-  .inspections-table th:nth-child(3), .inspections-table td:nth-child(3) { width: 8%; } /* № */
-  .inspections-table th:nth-child(4), .inspections-table td:nth-child(4) { width: 20%; } /* Исполнитель */
-  .inspections-table th:nth-child(5), .inspections-table td:nth-child(5) { width: 20%; } /* Получатель */
-  .inspections-table th:nth-child(6), .inspections-table td:nth-child(6) { width: 8%; } /* Статус */
-  .inspections-table th:nth-child(7), .inspections-table td:nth-child(7) { width: 16%; } /* Тип */
-  .inspections-table th:nth-child(8), .inspections-table td:nth-child(8) { width: 16%; } /* Объект */
-  .inspections-table th:nth-child(9), .inspections-table td:nth-child(9) { width: 0%; display: none; } /* Скрываем фото на мобильных */
+  .inspections-table th:nth-child(1), .inspections-table td:nth-child(1) { width: 8%; } /* Создан */
+  .inspections-table th:nth-child(2), .inspections-table td:nth-child(2) { width: 6%; } /* № */
+  .inspections-table th:nth-child(3), .inspections-table td:nth-child(3) { width: 15%; } /* Исполнитель */
+  .inspections-table th:nth-child(4), .inspections-table td:nth-child(4) { width: 25%; } /* Адрес */
+  .inspections-table th:nth-child(5), .inspections-table td:nth-child(5) { width: 8%; } /* Статус */
+  .inspections-table th:nth-child(6), .inspections-table td:nth-child(6) { width: 15%; } /* Тип */
+  .inspections-table th:nth-child(7), .inspections-table td:nth-child(7) { width: 23%; } /* Фото */
 }
