@@ -5,6 +5,7 @@
   overflow-y: auto;
   margin-left: 200px; /* Отступ под тулбар */
   transition: margin-left 0.3s ease;
+  width: calc(100vw - 200px); /* Полная ширина минус тулбар */
 }
 
 .inspections-content {
@@ -21,6 +22,7 @@
 /* Адаптация под скрытый тулбар */
 .sidebar.collapsed ~ .main-content .inspections-page {
   margin-left: 60px;
+  width: calc(100vw - 60px); /* Полная ширина минус свернутый тулбар */
 }
 
 .page-header {
@@ -181,7 +183,7 @@
   width: 100%;
   max-width: 100%;
   border-collapse: collapse;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   table-layout: fixed;
   overflow-x: auto;
 }
@@ -190,30 +192,41 @@
   background-color: #374151;
   color: white;
   font-weight: 600;
-  padding: 0.5rem 0.25rem;
+  padding: 0.3rem 0.1rem;
   text-align: left;
   border-bottom: none;
   white-space: nowrap;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
 }
 
 /* Адаптивные ширины колонок */
-.inspections-table th:nth-child(1), .inspections-table td:nth-child(1) { width: 8%; min-width: 80px; } /* Создан */
-.inspections-table th:nth-child(2), .inspections-table td:nth-child(2) { width: 6%; min-width: 60px; } /* № */
-.inspections-table th:nth-child(3), .inspections-table td:nth-child(3) { width: 15%; min-width: 120px; } /* Исполнитель */
-.inspections-table th:nth-child(4), .inspections-table td:nth-child(4) { width: 35%; min-width: 200px; } /* Адрес */
-.inspections-table th:nth-child(5), .inspections-table td:nth-child(5) { width: 8%; min-width: 80px; } /* Статус */
-.inspections-table th:nth-child(6), .inspections-table td:nth-child(6) { width: 12%; min-width: 100px; } /* Тип */
-.inspections-table th:nth-child(7), .inspections-table td:nth-child(7) { width: 6%; min-width: 60px; } /* Фото */
+.inspections-table th:nth-child(1), .inspections-table td:nth-child(1) { width: 7%; min-width: 70px; } /* Создан */
+.inspections-table th:nth-child(2), .inspections-table td:nth-child(2) { width: 5%; min-width: 50px; } /* № */
+.inspections-table th:nth-child(3), .inspections-table td:nth-child(3) { width: 12%; min-width: 100px; } /* Исполнитель */
+.inspections-table th:nth-child(4), .inspections-table td:nth-child(4) { width: 40%; min-width: 250px; } /* Адрес */
+.inspections-table th:nth-child(5), .inspections-table td:nth-child(5) { width: 7%; min-width: 70px; } /* Статус */
+.inspections-table th:nth-child(6), .inspections-table td:nth-child(6) { width: 10%; min-width: 80px; } /* Тип */
+.inspections-table th:nth-child(7), .inspections-table td:nth-child(7) { width: 5%; min-width: 50px; } /* Фото */
+
+/* Убираем отступы в столбце адрес */
+.inspections-table td:nth-child(4) {
+  padding-left: 0.1rem;
+  padding-right: 0.1rem;
+}
+
+/* Убираем аватары в столбце исполнитель */
+.inspections-table td:nth-child(3) .avatar {
+  display: none;
+}
 
 .inspections-table td {
-  padding: 0.4rem 0.25rem;
+  padding: 0.2rem 0.1rem;
   border-bottom: 1px solid #f3f4f6;
   vertical-align: middle;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
 }
 
 .inspections-table tbody tr:hover {

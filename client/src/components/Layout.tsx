@@ -45,8 +45,10 @@ const Layout: React.FC = () => {
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''} ${sidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
           <div className="sidebar-logo">
-            <div className="logo-icon">CMS</div>
-            {!sidebarCollapsed && <span className="logo-text">Check</span>}
+            <div className="logo-icon">
+              <div className="logo-shield">🛡️</div>
+            </div>
+            {!sidebarCollapsed && <span className="logo-text">CMS Check</span>}
           </div>
           <button 
             className="sidebar-close"
@@ -129,42 +131,60 @@ const Layout: React.FC = () => {
               <div className="theme-options">
                 <button 
                   className={`theme-option ${theme === 'light' ? 'active' : ''}`}
-                  onClick={() => setTheme('light')}
+                  onClick={() => {
+                    setTheme('light');
+                    setShowThemeSelector(false);
+                  }}
                 >
                   <Sun size={14} />
                   {!sidebarCollapsed && <span>Светлая</span>}
                 </button>
                 <button 
                   className={`theme-option ${theme === 'dark' ? 'active' : ''}`}
-                  onClick={() => setTheme('dark')}
+                  onClick={() => {
+                    setTheme('dark');
+                    setShowThemeSelector(false);
+                  }}
                 >
                   <Moon size={14} />
                   {!sidebarCollapsed && <span>Темная</span>}
                 </button>
                 <button 
                   className={`theme-option ${theme === 'gray' ? 'active' : ''}`}
-                  onClick={() => setTheme('gray')}
+                  onClick={() => {
+                    setTheme('gray');
+                    setShowThemeSelector(false);
+                  }}
                 >
                   <Monitor size={14} />
                   {!sidebarCollapsed && <span>Серая</span>}
                 </button>
                 <button 
                   className={`theme-option ${theme === 'monochrome' ? 'active' : ''}`}
-                  onClick={() => setTheme('monochrome')}
+                  onClick={() => {
+                    setTheme('monochrome');
+                    setShowThemeSelector(false);
+                  }}
                 >
                   <Zap size={14} />
                   {!sidebarCollapsed && <span>Монохром</span>}
                 </button>
                 <button 
                   className={`theme-option ${theme === 'windows97' ? 'active' : ''}`}
-                  onClick={() => setTheme('windows97')}
+                  onClick={() => {
+                    setTheme('windows97');
+                    setShowThemeSelector(false);
+                  }}
                 >
                   <Monitor size={14} />
                   {!sidebarCollapsed && <span>Windows 97</span>}
                 </button>
                 <button 
                   className={`theme-option ${theme === 'matrix' ? 'active' : ''}`}
-                  onClick={() => setTheme('matrix')}
+                  onClick={() => {
+                    setTheme('matrix');
+                    setShowThemeSelector(false);
+                  }}
                 >
                   <Code size={14} />
                   {!sidebarCollapsed && <span>Матрица</span>}
@@ -175,7 +195,7 @@ const Layout: React.FC = () => {
 
           {/* Кнопка сворачивания */}
           <button 
-            className="collapse-btn"
+            className="collapse-btn green-pulse"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             title={sidebarCollapsed ? 'Развернуть' : 'Свернуть'}
           >

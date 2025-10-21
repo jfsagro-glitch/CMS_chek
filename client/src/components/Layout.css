@@ -155,16 +155,23 @@
 }
 
 .logo-icon {
-  width: 32px;
-  height: 32px;
-  background: var(--primary-color);
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
   color: white;
-  border-radius: 6px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 18px;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.logo-shield {
+  font-size: 20px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .logo-text {
@@ -309,6 +316,31 @@
 
 .collapse-btn:hover {
   background: var(--bg-secondary);
+}
+
+/* Зеленая пульсирующая стрелка */
+.collapse-btn.green-pulse {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+  animation: pulse-green 2s infinite;
+}
+
+.collapse-btn.green-pulse:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.6);
+}
+
+@keyframes pulse-green {
+  0% {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+  }
 }
 
 .user-info {
