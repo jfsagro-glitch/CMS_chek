@@ -3,12 +3,8 @@
   margin: 0;
   height: 100vh;
   overflow-y: auto;
-  margin-left: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  margin-left: 200px; /* Отступ под тулбар */
+  transition: margin-left 0.3s ease;
 }
 
 .inspections-content {
@@ -20,6 +16,11 @@
   padding: 0;
   display: flex;
   flex-direction: column;
+}
+
+/* Адаптация под скрытый тулбар */
+.sidebar.collapsed ~ .main-content .inspections-page {
+  margin-left: 60px;
 }
 
 .page-header {
@@ -196,14 +197,14 @@
   font-size: 0.7rem;
 }
 
-/* Фиксированные ширины колонок */
-.inspections-table th:nth-child(1), .inspections-table td:nth-child(1) { width: 10%; } /* Создан */
-.inspections-table th:nth-child(2), .inspections-table td:nth-child(2) { width: 8%; } /* № */
-.inspections-table th:nth-child(3), .inspections-table td:nth-child(3) { width: 15%; } /* Исполнитель */
-.inspections-table th:nth-child(4), .inspections-table td:nth-child(4) { width: 30%; } /* Адрес */
-.inspections-table th:nth-child(5), .inspections-table td:nth-child(5) { width: 10%; } /* Статус */
-.inspections-table th:nth-child(6), .inspections-table td:nth-child(6) { width: 12%; } /* Тип */
-.inspections-table th:nth-child(7), .inspections-table td:nth-child(7) { width: 8%; } /* Фото */
+/* Адаптивные ширины колонок */
+.inspections-table th:nth-child(1), .inspections-table td:nth-child(1) { width: 8%; min-width: 80px; } /* Создан */
+.inspections-table th:nth-child(2), .inspections-table td:nth-child(2) { width: 6%; min-width: 60px; } /* № */
+.inspections-table th:nth-child(3), .inspections-table td:nth-child(3) { width: 15%; min-width: 120px; } /* Исполнитель */
+.inspections-table th:nth-child(4), .inspections-table td:nth-child(4) { width: 35%; min-width: 200px; } /* Адрес */
+.inspections-table th:nth-child(5), .inspections-table td:nth-child(5) { width: 8%; min-width: 80px; } /* Статус */
+.inspections-table th:nth-child(6), .inspections-table td:nth-child(6) { width: 12%; min-width: 100px; } /* Тип */
+.inspections-table th:nth-child(7), .inspections-table td:nth-child(7) { width: 6%; min-width: 60px; } /* Фото */
 
 .inspections-table td {
   padding: 0.4rem 0.25rem;
@@ -581,6 +582,7 @@
   .inspections-page {
     padding: 0;
     margin: 0;
+    margin-left: 0; /* На мобильных убираем отступ */
   }
   
   .page-header {

@@ -142,15 +142,11 @@ const CreateInspection: React.FC = () => {
       // Сбрасываем состояние загрузки
       setIsLoading(false);
       
-      // Небольшая задержка для показа уведомления
-      setTimeout(() => {
-        // Переходим на список осмотров
-        // Используем state для передачи информации о необходимости обновления
-        navigate('/inspections', { 
-          replace: true,
-          state: { refresh: true, newInspection: inspectionNumber }
-        });
-      }, 1000);
+      // Немедленно переходим на список осмотров
+      navigate('/inspections', { 
+        replace: true,
+        state: { refresh: true, newInspection: inspectionNumber }
+      });
     } catch (error: any) {
       console.error('Ошибка создания осмотра:', error);
       
