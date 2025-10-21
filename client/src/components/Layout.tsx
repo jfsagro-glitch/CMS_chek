@@ -72,9 +72,9 @@ const Layout: React.FC = () => {
           </button>
           
           <button
-            className={`nav-item ${isActive('/create-inspection') ? 'active' : ''}`}
+            className={`nav-item ${isActive('/inspections/create') ? 'active' : ''}`}
             onClick={() => {
-              navigate('/create-inspection');
+              navigate('/inspections/create');
               setSidebarOpen(false);
             }}
           >
