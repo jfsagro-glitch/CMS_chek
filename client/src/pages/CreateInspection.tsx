@@ -124,14 +124,23 @@ const CreateInspection: React.FC = () => {
   }, [formValues]);
 
   const onSubmit = async (data: any) => {
+    console.log('Начинаем создание осмотра:', data);
     setIsLoading(true);
+    setValidationErrors([]); // Очищаем ошибки валидации
+    
     try {
+      console.log('Отправляем запрос на создание осмотра...');
       const response = await inspectionsApi.createInspection(data);
+      console.log('Ответ от сервера:', response);
+      
       const inspectionNumber = response.data?.inspection?.internal_number || '';
       
       toast.success(`Осмотр №${inspectionNumber} успешно создан и отправлен исполнителю`, {
         duration: 3000
       });
+      
+      // Сбрасываем состояние загрузки
+      setIsLoading(false);
       
       // Переходим на список осмотров
       // Используем state для передачи информации о необходимости обновления
@@ -140,7 +149,19 @@ const CreateInspection: React.FC = () => {
         state: { refresh: true, newInspection: inspectionNumber }
       });
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Ошибка создания осмотра');
+      console.error('Ошибка создания осмотра:', error);
+      
+      // Более детальная обработка ошибок
+      let errorMessage = 'Ошибка создания осмотра';
+      if (error.response) {
+        errorMessage = error.response.data?.message || `Ошибка сервера: ${error.response.status}`;
+      } else if (error.request) {
+        errorMessage = 'Сервер недоступен. Проверьте подключение к интернету';
+      } else {
+        errorMessage = error.message || 'Неизвестная ошибка';
+      }
+      
+      toast.error(errorMessage);
       setIsLoading(false);
     }
   };
