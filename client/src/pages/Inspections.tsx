@@ -408,14 +408,6 @@ const Inspections: React.FC = () => {
             <Plus size={16} />
             Новый осмотр
           </button>
-          
-          <button 
-            className="btn btn-close"
-            onClick={() => navigate('/')}
-            title="Закрыть"
-          >
-            ×
-          </button>
         </div>
       </div>
 
