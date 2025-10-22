@@ -149,6 +149,34 @@
   margin-bottom: 32px;
 }
 
+/* Стили для адреса с картой */
+.address-with-map {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.address-input {
+  display: flex;
+  flex-direction: column;
+}
+
+.map-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.map-container .form-label {
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .form-group.full-width {
   grid-column: 1 / -1;
 }
@@ -354,6 +382,11 @@
   
   .form-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .address-with-map {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
   
   .object-characteristics {

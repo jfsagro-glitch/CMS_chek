@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { inspectionsApi } from '../services/api';
 import AddressAutocomplete from '../components/AddressAutocomplete';
+import YandexMap from '../components/YandexMap';
 import { vehicleCategories, vehicleTypes, vehicleMakes, getModelsByMake } from '../data/vehicleData';
 import { getCharacteristicsForPropertyType } from '../data/objectCharacteristics';
 import toast from 'react-hot-toast';
@@ -297,24 +298,44 @@ const CreateInspection: React.FC = () => {
             </div>
 
             <div className="form-grid">
-              <div className="form-group">
-                <label className="form-label required">
-                  <MapPin size={16} />
-                  Адрес
-                </label>
-                <AddressAutocomplete
-                  value={watch('address') || ''}
-                  onChange={(address, lat, lon) => {
-                    setValue('address', address);
-                    if (lat && lon) {
+              <div className="form-group address-with-map">
+                <div className="address-input">
+                  <label className="form-label required">
+                    <MapPin size={16} />
+                    Адрес
+                  </label>
+                  <AddressAutocomplete
+                    value={watch('address') || ''}
+                    onChange={(address, lat, lon) => {
+                      setValue('address', address);
+                      if (lat && lon) {
+                        setValue('latitude', lat);
+                        setValue('longitude', lon);
+                        toast.success('Координаты установлены');
+                      }
+                    }}
+                    placeholder="Начните вводить адрес и выберите из списка"
+                    error={errors.address?.message}
+                  />
+                </div>
+                <div className="map-container">
+                  <label className="form-label">
+                    <MapPin size={16} />
+                    Карта
+                  </label>
+                  <YandexMap
+                    latitude={watch('latitude')}
+                    longitude={watch('longitude')}
+                    address={watch('address')}
+                    onLocationChange={(lat, lon, address) => {
                       setValue('latitude', lat);
                       setValue('longitude', lon);
-                      toast.success('Координаты установлены');
-                    }
-                  }}
-                  placeholder="Начните вводить адрес и выберите из списка"
-                  error={errors.address?.message}
-                />
+                      setValue('address', address);
+                      toast.success('Местоположение обновлено');
+                    }}
+                    height="250px"
+                  />
+                </div>
               </div>
 
               <div className="form-group">
