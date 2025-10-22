@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { inspectionsApi } from '../services/api';
 import AddressAutocomplete from '../components/AddressAutocomplete';
-import YandexMap from '../components/YandexMap';
+import GoogleMap from '../components/GoogleMap';
 import { vehicleCategories, vehicleTypes, vehicleMakes, getModelsByMake } from '../data/vehicleData';
 import { getCharacteristicsForPropertyType } from '../data/objectCharacteristics';
 import toast from 'react-hot-toast';
@@ -323,7 +323,7 @@ const CreateInspection: React.FC = () => {
                     <MapPin size={16} />
                     Карта
                   </label>
-                  <YandexMap
+                  <GoogleMap
                     latitude={watch('latitude')}
                     longitude={watch('longitude')}
                     address={watch('address')}
