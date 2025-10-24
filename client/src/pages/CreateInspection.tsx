@@ -159,10 +159,12 @@ const CreateInspection: React.FC = () => {
       addNewInspection({ id: inspectionNumber, status: 'В работе', ...data });
       
       // Принудительно закрываем модальное окно и переходим на список осмотров
-      navigate('/inspections', { 
-        replace: true,
-        state: { refresh: true, newInspection: inspectionNumber }
-      });
+      setTimeout(() => {
+        navigate('/inspections', { 
+          replace: true,
+          state: { refresh: true, newInspection: inspectionNumber }
+        });
+      }, 100);
     } catch (error: any) {
       console.error('Ошибка создания осмотра:', error);
       
@@ -197,10 +199,12 @@ const CreateInspection: React.FC = () => {
         addNewInspection({ id: demoInspectionNumber, status: 'В работе', ...data });
         
         // В демо-режиме все равно закрываем модальное окно
-        navigate('/inspections', { 
-          replace: true,
-          state: { refresh: true, newInspection: demoInspectionNumber }
-        });
+        setTimeout(() => {
+          navigate('/inspections', { 
+            replace: true,
+            state: { refresh: true, newInspection: demoInspectionNumber }
+          });
+        }, 100);
       } else {
         toast.error(errorMessage);
         setIsLoading(false);

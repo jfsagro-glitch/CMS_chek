@@ -52,6 +52,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const verifyToken = async () => {
+    // Проверяем, работаем ли мы на GitHub Pages
+    const IS_GITHUB_PAGES = window.location.hostname.includes('github.io');
+    
+    if (IS_GITHUB_PAGES) {
+      console.log('GitHub Pages detected, skipping token verification');
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+    
     try {
       const response = await api.get('/auth/verify');
       setUser(response.data.user);
@@ -64,6 +74,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const login = async (email: string, password: string) => {
+    // Проверяем, работаем ли мы на GitHub Pages
+    const IS_GITHUB_PAGES = window.location.hostname.includes('github.io');
+    
+    if (IS_GITHUB_PAGES) {
+      console.log('GitHub Pages detected, simulating login');
+      // Симулируем успешный вход для демо режима
+      const demoUser = {
+        id: 1,
+        email: email,
+        name: 'Демо пользователь',
+        role: 'admin'
+      };
+      localStorage.setItem('token', 'demo-token-' + Date.now());
+      setUser(demoUser);
+      return;
+    }
+    
     try {
       const response = await api.post('/auth/login', { email, password });
       const { token, user } = response.data;
@@ -79,6 +106,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const register = async (userData: RegisterData) => {
+    // Проверяем, работаем ли мы на GitHub Pages
+    const IS_GITHUB_PAGES = window.location.hostname.includes('github.io');
+    
+    if (IS_GITHUB_PAGES) {
+      console.log('GitHub Pages detected, simulating registration');
+      // Симулируем успешную регистрацию для демо режима
+      const demoUser = {
+        id: 1,
+        email: userData.email,
+        name: userData.name,
+        role: 'admin'
+      };
+      localStorage.setItem('token', 'demo-token-' + Date.now());
+      setUser(demoUser);
+      return;
+    }
+    
     try {
       const response = await api.post('/auth/register', userData);
       const { token, user } = response.data;

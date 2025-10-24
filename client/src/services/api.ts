@@ -4,6 +4,10 @@ import axios from 'axios';
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://cms-chek.onrender.com/api';
 const IS_GITHUB_PAGES = window.location.hostname.includes('github.io');
 
+// Отладочная информация
+console.log('Current hostname:', window.location.hostname);
+console.log('IS_GITHUB_PAGES:', IS_GITHUB_PAGES);
+
 export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -169,21 +173,68 @@ export const inspectionsApi = {
 // API методы для пользователей
 export const usersApi = {
   // Получить профиль пользователя
-  getProfile: () => api.get('/users/profile'),
+  getProfile: () => {
+    if (IS_GITHUB_PAGES) {
+      console.log('GitHub Pages detected, using demo profile');
+      return Promise.resolve({ 
+        data: { 
+          id: 1,
+          email: 'demo@example.com',
+          name: 'Демо пользователь',
+          role: 'admin'
+        } 
+      });
+    }
+    return api.get('/users/profile');
+  },
   
   // Обновить профиль
-  updateProfile: (data: any) => api.put('/users/profile', data),
+  updateProfile: (data: any) => {
+    if (IS_GITHUB_PAGES) {
+      console.log('GitHub Pages detected, simulating profile update');
+      return Promise.resolve({ 
+        data: { 
+          success: true,
+          message: 'Profile updated successfully (demo mode)'
+        } 
+      });
+    }
+    return api.put('/users/profile', data);
+  },
 };
 
 // API методы для загрузки файлов
 export const uploadApi = {
   // Загрузить фото
-  uploadPhoto: (formData: FormData) => api.post('/upload/photo', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  }),
+  uploadPhoto: (formData: FormData) => {
+    if (IS_GITHUB_PAGES) {
+      console.log('GitHub Pages detected, simulating photo upload');
+      return Promise.resolve({ 
+        data: { 
+          success: true,
+          message: 'Photo uploaded successfully (demo mode)',
+          photoId: Date.now()
+        } 
+      });
+    }
+    return api.post('/upload/photo', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
   
   // Удалить фото
-  deletePhoto: (id: number) => api.delete(`/upload/photo/${id}`),
+  deletePhoto: (id: number) => {
+    if (IS_GITHUB_PAGES) {
+      console.log('GitHub Pages detected, simulating photo deletion');
+      return Promise.resolve({ 
+        data: { 
+          success: true,
+          message: 'Photo deleted successfully (demo mode)'
+        } 
+      });
+    }
+    return api.delete(`/upload/photo/${id}`);
+  },
 };
