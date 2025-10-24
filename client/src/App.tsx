@@ -26,7 +26,8 @@ const queryClient = new QueryClient({
 // Определяем базовый путь для GitHub Pages
 const getBasename = () => {
   if (window.location.hostname.includes('github.io')) {
-    return '/CMS_chek';
+    // Для GitHub Pages используем HashRouter без basename
+    return '';
   }
   return '/';
 };
