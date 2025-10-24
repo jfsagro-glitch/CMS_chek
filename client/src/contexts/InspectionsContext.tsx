@@ -21,6 +21,15 @@ export const InspectionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [inspectionsCount, setInspectionsCount] = useState(0);
 
   const updateInspectionsCount = async () => {
+    // Проверяем, работаем ли мы на GitHub Pages
+    const IS_GITHUB_PAGES = window.location.hostname.includes('github.io');
+    
+    if (IS_GITHUB_PAGES) {
+      console.log('GitHub Pages detected, using demo count');
+      setInspectionsCount(10); // Демо количество
+      return;
+    }
+    
     try {
       const response = await inspectionsApi.getInspections({ page: 1, limit: 1 });
       setInspectionsCount(response.data?.pagination?.total || 0);

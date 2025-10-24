@@ -54,9 +54,49 @@ const MobileInspection: React.FC = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [pendingCount, setPendingCount] = useState(0);
 
+  // Проверяем, работаем ли мы на GitHub Pages
+  const IS_GITHUB_PAGES = window.location.hostname.includes('github.io');
+  
   const { data: inspection, isLoading } = useQuery({
     queryKey: ['inspection', id],
     queryFn: async () => {
+      // На GitHub Pages сразу возвращаем демо данные
+      if (IS_GITHUB_PAGES) {
+        console.log('GitHub Pages detected, using demo data');
+        return {
+          data: {
+            inspection: {
+              id: Number(id),
+              internal_number: `INS-${String(id).padStart(3, '0')}`,
+              property_type: 'Автотранспорт',
+              address: 'г. Москва, ул. Тверская, д. 1',
+              latitude: 55.7558,
+              longitude: 37.6176,
+              inspector_name: 'Иванов Иван Иванович',
+              inspector_phone: '+79991234567',
+              inspector_email: 'inspector@example.com',
+              status: 'В работе',
+              created_at: new Date().toISOString(),
+              objects: [
+                {
+                  id: 1,
+                  type: 'Автомобиль',
+                  description: 'Toyota Camry 2020',
+                  characteristics: {
+                    vin: '1HGBH41JXMN109186',
+                    license_plate: 'А123БВ777',
+                    color: 'Белый',
+                    year: '2020',
+                    make: 'Toyota',
+                    model: 'Camry'
+                  }
+                }
+              ]
+            }
+          }
+        };
+      }
+      
       try {
         return await inspectionsApi.getInspection(Number(id));
       } catch (error) {
@@ -105,7 +145,7 @@ const MobileInspection: React.FC = () => {
         };
       }
     },
-    enabled: !!id,
+    enabled: !!id && !IS_GITHUB_PAGES, // Отключаем запросы на GitHub Pages
     retry: false, // Не повторяем запрос при ошибке
   });
 
