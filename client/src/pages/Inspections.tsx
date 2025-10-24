@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { inspectionsApi } from '../services/api';
 import { exportInspectionsToExcel } from '../utils/excelExport';
+import { useInspections } from '../contexts/InspectionsContext';
 import toast from 'react-hot-toast';
 import './Inspections.css';
 
@@ -60,6 +61,7 @@ const Inspections: React.FC = () => {
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
   const location = useLocation();
+  const { updateInspectionsCount } = useInspections();
 
   // Фильтрация демо-данных
   const getFilteredInspections = () => {
@@ -100,6 +102,8 @@ const Inspections: React.FC = () => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['inspections', filters, page],
     queryFn: () => inspectionsApi.getInspections({ ...filters, page, limit: 20 }),
+    retry: false, // Не повторять запрос при ошибке
+    refetchOnWindowFocus: false, // Не обновлять при фокусе окна
   });
 
   // Обрабатываем обновление после создания нового осмотра
@@ -115,10 +119,11 @@ const Inspections: React.FC = () => {
       }
       // Очищаем state чтобы не показывать уведомление повторно
       window.history.replaceState({}, document.title);
-      // Обновляем данные
+      // Обновляем данные и счетчик
       refetch();
+      updateInspectionsCount();
     }
-  }, [location.state, refetch]);
+  }, [location.state, refetch, updateInspectionsCount]);
 
   const handleFilterChange = (key: keyof Filters, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -153,10 +158,11 @@ const Inspections: React.FC = () => {
 
   const getStatusClass = (status: string) => {
     switch (status) {
-      case 'готово': return 'status-ready';
-      case 'отменён': return 'status-cancelled';
-      case 'на доработке': return 'status-revision';
-      case 'проверка': return 'status-checking';
+      case 'Готов': return 'status-ready';
+      case 'В работе': return 'status-in-progress';
+      case 'Проверка': return 'status-checking';
+      case 'Доработка': return 'status-revision';
+      case 'Отменен': return 'status-cancelled';
       default: return 'status';
     }
   };
@@ -178,9 +184,10 @@ const Inspections: React.FC = () => {
     return date.toLocaleDateString('ru-RU', {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric',
+      year: '2-digit',
     });
   };
+
 
   const getPropertyTypeIcon = (type: string) => {
     switch (type) {
@@ -200,7 +207,7 @@ const Inspections: React.FC = () => {
       {
         id: 1,
         internal_number: '220525-1626',
-        status: 'готово',
+        status: 'Готов',
         inspector_name: 'Иванов И.И.',
         recipient_name: 'Петров П.П.',
         created_at: '2022-05-25T03:37:00Z',
@@ -216,7 +223,7 @@ const Inspections: React.FC = () => {
       {
         id: 2,
         internal_number: '220525-1627',
-        status: 'готово',
+        status: 'В работе',
         inspector_name: 'Сидоров С.С.',
         recipient_name: 'Козлов К.К.',
         created_at: '2022-05-25T03:38:00Z',
@@ -224,7 +231,7 @@ const Inspections: React.FC = () => {
         property_type: 'Гараж',
         object_type: 'гараж',
         object_description: 'Амурская обл., г. Благовещенск, кв-л 103',
-        photos_count: 33,
+        photos_count: 0,
         objects_count: 1,
         created_by_name: 'Администратор',
         address: 'Амурская обл., г. Благовещенск, кв-л 103'
@@ -232,14 +239,14 @@ const Inspections: React.FC = () => {
       {
         id: 3,
         internal_number: '220525-1628',
-        status: 'отменён',
+        status: 'Отменен',
         inspector_name: 'Морозов М.М.',
         recipient_name: 'Новиков Н.Н.',
         created_at: '2022-05-25T03:39:00Z',
         property_type: 'Коммерческая',
         object_type: 'здание',
         object_description: 'Амурская обл., г. Благовещенск, кв-л 737',
-        photos_count: 38,
+        photos_count: 0,
         objects_count: 1,
         created_by_name: 'Администратор',
         address: 'Амурская обл., г. Благовещенск, кв-л 737'
@@ -247,7 +254,7 @@ const Inspections: React.FC = () => {
       {
         id: 4,
         internal_number: '220525-1629',
-        status: 'на доработке',
+        status: 'Доработка',
         inspector_name: 'Волков В.В.',
         recipient_name: 'Зайцев З.З.',
         created_at: '2022-05-25T03:40:00Z',
@@ -263,7 +270,7 @@ const Inspections: React.FC = () => {
       {
         id: 5,
         internal_number: '220525-1630',
-        status: 'на доработке',
+        status: 'В работе',
         inspector_name: 'Орлов О.О.',
         recipient_name: 'Соколов С.С.',
         created_at: '2022-05-25T03:41:00Z',
@@ -271,7 +278,7 @@ const Inspections: React.FC = () => {
         property_type: 'Коммерческая',
         object_type: 'здание',
         object_description: 'Амурская обл., г. Благовещенск, кв-л 737',
-        photos_count: 35,
+        photos_count: 15,
         objects_count: 1,
         created_by_name: 'Администратор',
         address: 'Амурская обл., г. Благовещенск, кв-л 737'
@@ -279,7 +286,7 @@ const Inspections: React.FC = () => {
       {
         id: 6,
         internal_number: '220525-1631',
-        status: 'проверка',
+        status: 'Проверка',
         inspector_name: 'Лебедев Л.Л.',
         recipient_name: 'Голубев Г.Г.',
         created_at: '2022-05-25T03:42:00Z',
@@ -295,7 +302,7 @@ const Inspections: React.FC = () => {
       {
         id: 7,
         internal_number: '220525-1632',
-        status: 'готово',
+        status: 'Готов',
         inspector_name: 'Филиппов Ф.Ф.',
         recipient_name: 'Белов Б.Б.',
         created_at: '2022-05-25T03:43:00Z',
@@ -311,7 +318,7 @@ const Inspections: React.FC = () => {
       {
         id: 8,
         internal_number: '220525-1633',
-        status: 'готово',
+        status: 'Проверка',
         inspector_name: 'Комаров К.К.',
         recipient_name: 'Кузнецов К.К.',
         created_at: '2022-05-25T03:44:00Z',
@@ -327,7 +334,7 @@ const Inspections: React.FC = () => {
       {
         id: 9,
         internal_number: '220525-1634',
-        status: 'готово',
+        status: 'В работе',
         inspector_name: 'Дмитриев Д.Д.',
         recipient_name: 'Егоров Е.Е.',
         created_at: '2022-05-25T03:45:00Z',
@@ -335,7 +342,7 @@ const Inspections: React.FC = () => {
         property_type: 'Автотранспорт',
         object_type: 'коммерческий',
         object_description: 'УСТ 5453РН',
-        photos_count: 22,
+        photos_count: 8,
         objects_count: 1,
         created_by_name: 'Администратор',
         address: 'г. Москва, ул. Транспортная, 8'
@@ -343,7 +350,7 @@ const Inspections: React.FC = () => {
       {
         id: 10,
         internal_number: '220525-1635',
-        status: 'на доработке',
+        status: 'Доработка',
         inspector_name: 'Жуков Ж.Ж.',
         recipient_name: 'Романов Р.Р.',
         created_at: '2022-05-25T03:46:00Z',
@@ -456,11 +463,11 @@ const Inspections: React.FC = () => {
                 onChange={(e) => handleFilterChange('status', e.target.value)}
               >
                 <option value="">Все статусы</option>
-                <option value="готово">Готов</option>
-                <option value="в работе">В работе</option>
-                <option value="проверка">Проверка</option>
-                <option value="на доработке">Доработка</option>
-                <option value="отменён">Отменён</option>
+                <option value="В работе">В работе</option>
+                <option value="Проверка">Проверка</option>
+                <option value="Готов">Готов</option>
+                <option value="Доработка">Доработка</option>
+                <option value="Отменен">Отменен</option>
               </select>
             </div>
 
@@ -606,14 +613,17 @@ const Inspections: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                      {getFilteredInspections().map((inspection: Inspection) => (
+                      {(error ? getFilteredInspections() : (data?.data?.inspections || getFilteredInspections())).map((inspection: Inspection) => (
                   <tr 
                     key={inspection.id}
                     onClick={() => navigate(`/inspections/${inspection.id}`)}
                     style={{ cursor: 'pointer' }}
                   >
                     <td className="date-cell">
-                      {formatDate(inspection.created_at)}
+                      <div className="date-time">
+                        <div className="date">{formatDate(inspection.created_at)}</div>
+                        <div className="time">{new Date(inspection.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</div>
+                      </div>
                     </td>
                     <td>
                       <div className="inspection-number">
@@ -621,12 +631,7 @@ const Inspections: React.FC = () => {
                       </div>
                     </td>
                     <td>
-                      <div className="user-cell">
-                        <div className="user-avatar">
-                          {inspection.inspector_name.charAt(0)}
-                        </div>
-                        <span className="inspector-name">{inspection.inspector_name}</span>
-                      </div>
+                      <span className="inspector-name">{inspection.inspector_name}</span>
                     </td>
                     <td className="address-cell">
                       <span className="address-text">{inspection.address || 'Адрес не указан'}</span>
@@ -637,9 +642,8 @@ const Inspections: React.FC = () => {
                       </span>
                     </td>
                     <td>
-                      <div className="property-type">
+                      <div className="property-type-icon">
                         {getPropertyTypeIcon(inspection.property_type)}
-                        <span>{inspection.property_type}</span>
                       </div>
                     </td>
                     <td>
@@ -661,7 +665,7 @@ const Inspections: React.FC = () => {
               </tbody>
             </table>
 
-            {data?.data.inspections.length === 0 && (
+            {(error ? getFilteredInspections() : (data?.data?.inspections || getFilteredInspections())).length === 0 && (
               <div className="empty-state">
                 <h3>Осмотры не найдены</h3>
                 <p>Попробуйте изменить фильтры или создать новый осмотр</p>
@@ -675,7 +679,7 @@ const Inspections: React.FC = () => {
             )}
 
             {/* Пагинация */}
-            {data?.data.pagination && data.data.pagination.pages > 1 && (
+            {!error && data?.data.pagination && data.data.pagination.pages > 1 && (
               <div className="pagination">
                 <button
                   className="btn btn-secondary"

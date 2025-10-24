@@ -293,6 +293,20 @@
   gap: 0.5rem;
 }
 
+.property-type-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: #666;
+  transition: color 0.2s ease;
+}
+
+.property-type-icon:hover {
+  color: #1890ff;
+}
+
 .object-info {
   display: flex;
   flex-direction: column;
@@ -328,6 +342,42 @@
   gap: 6px;
   color: var(--text-secondary);
   font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Специальные стили для даты и времени */
+.date-time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 60px;
+}
+
+.date-time .date {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.date-time .time {
+  font-size: 0.6rem;
+  color: var(--text-secondary);
+  line-height: 1.2;
+}
+
+/* Исполнитель без аватара */
+.inspector-name {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
 }
 
 .count-badge {
@@ -365,9 +415,14 @@
   color: #065f46;
 }
 
-.status-cancelled {
-  background-color: #f3f4f6;
-  color: #374151;
+.status-in-progress {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-checking {
+  background-color: #fef3c7;
+  color: #92400e;
 }
 
 .status-revision {
@@ -375,9 +430,9 @@
   color: #991b1b;
 }
 
-.status-checking {
-  background-color: #fef3c7;
-  color: #92400e;
+.status-cancelled {
+  background-color: #f3f4f6;
+  color: #374151;
 }
 
 /* Состояния */
@@ -510,7 +565,12 @@
   line-height: 1.4;
   word-break: break-word;
   white-space: normal;
-  overflow: visible;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  max-height: 2.8em; /* 2 строки */
 }
 
 .photo-indicator {
@@ -548,6 +608,12 @@
   .address-text {
     font-size: 12px;
     white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    max-height: 2.4em;
   }
   
   .inspector-name {
@@ -572,6 +638,12 @@
   .address-text {
     font-size: 11px;
     white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    max-height: 2.2em;
   }
   
   .inspector-name {

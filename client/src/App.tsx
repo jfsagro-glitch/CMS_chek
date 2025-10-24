@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { InspectionsProvider } from './contexts/InspectionsContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import Login from './pages/Login';
@@ -29,7 +30,8 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-          <Router basename="/CMS_chek">
+          <InspectionsProvider>
+            <Router basename="/CMS_chek">
           <div className="App">
             <Routes>
               <Route path="/login" element={<Login />} />
@@ -61,6 +63,7 @@ function App() {
             />
           </div>
           </Router>
+          </InspectionsProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

@@ -54,15 +54,19 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
       }
 
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&libraries=places&language=ru`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&libraries=places&language=ru&loading=async`;
       script.async = true;
+      script.defer = true;
       script.onload = () => {
         console.log('Google Maps API loaded');
-        if (window.google && window.google.maps) {
-          setIsLoaded(true);
-          setIsLoading(false);
-          initMap();
-        }
+        // Небольшая задержка для полной инициализации API
+        setTimeout(() => {
+          if (window.google && window.google.maps) {
+            setIsLoaded(true);
+            setIsLoading(false);
+            initMap();
+          }
+        }, 100);
       };
       script.onerror = () => {
         console.error('Failed to load Google Maps API');
@@ -77,6 +81,13 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
   const initMap = () => {
     if (!mapRef.current || !window.google || !window.google.maps) {
       console.error('Map container or Google Maps not available');
+      return;
+    }
+
+    // Проверяем, что контейнер карты видим
+    if (mapRef.current.offsetWidth === 0 || mapRef.current.offsetHeight === 0) {
+      console.log('Map container not ready, retrying...');
+      setTimeout(initMap, 200);
       return;
     }
 

@@ -3,6 +3,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useNavigate } from 'react-router-dom';
+import { useInspections } from '../contexts/InspectionsContext';
 import { 
   Car, 
   Building, 
@@ -72,6 +73,7 @@ const CreateInspection: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const navigate = useNavigate();
+  const { addNewInspection } = useInspections();
 
   const { register, control, handleSubmit, watch, setValue, formState: { errors, isValid } } = useForm({
     resolver: yupResolver(schema),
@@ -129,12 +131,43 @@ const CreateInspection: React.FC = () => {
     setIsLoading(true);
     setValidationErrors([]); // Очищаем ошибки валидации
     
+    // Проверяем обязательные поля
+    if (!data.propertyType) {
+      toast.error('Выберите тип имущества');
+      setIsLoading(false);
+      return;
+    }
+    
+    if (!data.address) {
+      toast.error('Укажите адрес объекта');
+      setIsLoading(false);
+      return;
+    }
+    
+    if (!data.inspectorName) {
+      toast.error('Укажите ФИО исполнителя');
+      setIsLoading(false);
+      return;
+    }
+    
+    if (!data.inspectorPhone) {
+      toast.error('Укажите телефон исполнителя');
+      setIsLoading(false);
+      return;
+    }
+    
+    if (!data.objects || data.objects.length === 0) {
+      toast.error('Добавьте хотя бы один объект для осмотра');
+      setIsLoading(false);
+      return;
+    }
+    
     try {
       console.log('Отправляем запрос на создание осмотра...');
       const response = await inspectionsApi.createInspection(data);
       console.log('Ответ от сервера:', response);
       
-      const inspectionNumber = response.data?.inspection?.internal_number || '';
+      const inspectionNumber = response.data?.inspection?.internal_number || `INS-${Date.now()}`;
       
       toast.success(`Осмотр №${inspectionNumber} успешно создан и отправлен исполнителю`, {
         duration: 3000
@@ -143,46 +176,56 @@ const CreateInspection: React.FC = () => {
       // Сбрасываем состояние загрузки
       setIsLoading(false);
       
+      // Добавляем новый осмотр в контекст со статусом "В работе"
+      addNewInspection({ id: inspectionNumber, status: 'В работе', ...data });
+      
       // Принудительно закрываем модальное окно и переходим на список осмотров
-      setTimeout(() => {
-        navigate('/inspections', { 
-          replace: true,
-          state: { refresh: true, newInspection: inspectionNumber }
-        });
-      }, 100);
+      navigate('/inspections', { 
+        replace: true,
+        state: { refresh: true, newInspection: inspectionNumber }
+      });
     } catch (error: any) {
       console.error('Ошибка создания осмотра:', error);
       
       // Более детальная обработка ошибок
       let errorMessage = 'Ошибка создания осмотра';
+      let shouldNavigate = false;
+      
       if (error.response) {
         if (error.response.status === 404) {
-          errorMessage = 'Сервер недоступен. Осмотр будет создан в демо-режиме';
-          // В демо-режиме все равно закрываем модальное окно
-          setTimeout(() => {
-            navigate('/inspections', { 
-              replace: true,
-              state: { refresh: true, newInspection: 'DEMO-' + Date.now() }
-            });
-          }, 100);
+          errorMessage = 'Сервер недоступен. Осмотр создан в демо-режиме';
+          shouldNavigate = true;
+        } else if (error.response.status === 400) {
+          errorMessage = 'Некорректные данные. Проверьте заполнение полей';
+          // Показываем детали ошибки валидации
+          if (error.response.data?.errors) {
+            const validationErrors = error.response.data.errors.map((err: any) => err.msg).join(', ');
+            errorMessage = `Ошибки валидации: ${validationErrors}`;
+          }
         } else {
           errorMessage = error.response.data?.message || `Ошибка сервера: ${error.response.status}`;
         }
       } else if (error.request) {
-        errorMessage = 'Сервер недоступен. Осмотр будет создан в демо-режиме';
-        // В демо-режиме все равно закрываем модальное окно
-        setTimeout(() => {
-          navigate('/inspections', { 
-            replace: true,
-            state: { refresh: true, newInspection: 'DEMO-' + Date.now() }
-          });
-        }, 100);
+        errorMessage = 'Сервер недоступен. Осмотр создан в демо-режиме';
+        shouldNavigate = true;
       } else {
         errorMessage = error.message || 'Неизвестная ошибка';
       }
       
-      toast.error(errorMessage);
-      setIsLoading(false);
+      if (shouldNavigate) {
+        // Добавляем новый осмотр в контекст даже в демо-режиме со статусом "В работе"
+        const demoInspectionNumber = 'DEMO-' + Date.now();
+        addNewInspection({ id: demoInspectionNumber, status: 'В работе', ...data });
+        
+        // В демо-режиме все равно закрываем модальное окно
+        navigate('/inspections', { 
+          replace: true,
+          state: { refresh: true, newInspection: demoInspectionNumber }
+        });
+      } else {
+        toast.error(errorMessage);
+        setIsLoading(false);
+      }
     }
   };
 
@@ -237,14 +280,24 @@ const CreateInspection: React.FC = () => {
           <div className="header-actions">
             <button 
               className="btn btn-secondary"
-              onClick={() => navigate('/inspections')}
+              onClick={() => {
+                if (window.confirm('Вы уверены, что хотите отменить создание осмотра? Все данные будут потеряны.')) {
+                  navigate('/inspections');
+                }
+              }}
+              type="button"
             >
               Отмена
             </button>
             <button 
               className="btn btn-close"
-              onClick={() => navigate('/inspections')}
+              onClick={() => {
+                if (window.confirm('Вы уверены, что хотите закрыть окно? Все данные будут потеряны.')) {
+                  navigate('/inspections');
+                }
+              }}
               title="Закрыть"
+              type="button"
             >
               ×
             </button>

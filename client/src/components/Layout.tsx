@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { useInspections } from '../contexts/InspectionsContext';
 import { 
   FileText, 
   Plus, 
@@ -24,6 +25,7 @@ import './Layout.css';
 const Layout: React.FC = () => {
   const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { inspectionsCount } = useInspections();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
@@ -68,7 +70,7 @@ const Layout: React.FC = () => {
           >
             <FileText size={20} />
             <span>Осмотры</span>
-            <span className="badge">13</span>
+            <span className="badge">{inspectionsCount}</span>
           </button>
           
           <button
