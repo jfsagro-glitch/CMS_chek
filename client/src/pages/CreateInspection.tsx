@@ -148,12 +148,12 @@ const CreateInspection: React.FC = () => {
       
       const inspectionNumber = response.data?.inspection?.internal_number || `INS-${Date.now()}`;
       
+      // Сбрасываем состояние загрузки СРАЗУ после успешного ответа
+      setIsLoading(false);
+      
       toast.success(`Осмотр №${inspectionNumber} успешно создан и отправлен исполнителю`, {
         duration: 3000
       });
-      
-      // Сбрасываем состояние загрузки
-      setIsLoading(false);
       
       // Добавляем новый осмотр в контекст со статусом "В работе"
       addNewInspection({ id: inspectionNumber, status: 'В работе', ...data });
@@ -193,6 +193,9 @@ const CreateInspection: React.FC = () => {
         errorMessage = error.message || 'Неизвестная ошибка';
       }
       
+      // Сбрасываем состояние загрузки в любом случае
+      setIsLoading(false);
+      
       if (shouldNavigate) {
         // Добавляем новый осмотр в контекст даже в демо-режиме со статусом "В работе"
         const demoInspectionNumber = 'DEMO-' + Date.now();
@@ -207,7 +210,6 @@ const CreateInspection: React.FC = () => {
         }, 100);
       } else {
         toast.error(errorMessage);
-        setIsLoading(false);
       }
     }
   };
