@@ -1,90 +1,37 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 const path = require('path');
 require('dotenv').config();
 
-// Используем упрощенные маршруты без базы данных для быстрого тестирования
-const authRoutes = require('./routes/auth-simple');
-const inspectionRoutes = require('./routes/inspections-simple');
-// Временно отключаем маршруты, требующие БД
-// const userRoutes = require('./routes/users');
-// const uploadRoutes = require('./routes/upload');
-
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(helmet());
-
-// CORS configuration - allow both GitHub Pages URLs
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://jfsagro-glitch.github.io',
-  'https://jfsagro-glitch.github.io/CMS_chek',
-  process.env.CLIENT_URL
-].filter(Boolean);
-
-app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.some(allowed => origin.startsWith(allowed))) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true
+app.use(helmet({
+  contentSecurityPolicy: false,
 }));
+app.use(cors());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
-});
-app.use(limiter);
+// Статические файлы
+app.use(express.static(path.join(__dirname, 'docs')));
 
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+// API маршруты
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/inspections', require('./routes/inspections'));
+app.use('/api/upload', require('./routes/upload'));
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'ok', 
-    message: 'CMS Check Backend is running',
-    timestamp: new Date().toISOString()
-  });
+// Обработка для GitHub Pages - все маршруты ведут к index.html
+app.get(['/', '/login', '/register', '/inspections', '/inspections/create', '/inspections/*', '/mobile', '/inspection/*'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'docs', 'index.html'));
 });
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/inspections', inspectionRoutes);
-// Временно отключаем маршруты, требующие БД
-// app.use('/api/users', userRoutes);
-// app.use('/api/upload', uploadRoutes);
-
-// Serve static files from React build (only if build exists)
-// Frontend is hosted on GitHub Pages, so this is not needed on Render
-if (process.env.NODE_ENV === 'production' && process.env.SERVE_STATIC === 'true') {
-  const buildPath = path.join(__dirname, 'client/build');
-  if (require('fs').existsSync(buildPath)) {
-    app.use(express.static(buildPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(buildPath, 'index.html'));
-    });
-  }
-}
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ 
-    message: 'Что-то пошло не так!',
-    error: process.env.NODE_ENV === 'development' ? err.message : {}
-  });
+// Fallback для всех остальных маршрутов
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'docs', 'index.html'));
 });
 
 app.listen(PORT, () => {
