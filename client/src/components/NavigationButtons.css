@@ -1,0 +1,63 @@
+.navigation-buttons {
+  display: flex;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.nav-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.back-button {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.back-button:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.close-button {
+  background-color: var(--error);
+  color: white;
+  border: 1px solid var(--error);
+}
+
+.close-button:hover {
+  background-color: #c82333;
+}
+
+/* Windows 97 кнопки */
+.win97-button {
+  border: 2px outset #c0c0c0;
+  background-color: #c0c0c0;
+  color: #000000;
+  padding: 4px 12px;
+  font-family: "MS Sans Serif";
+  font-size: 11px;
+}
+
+.win97-button:active {
+  border: 2px inset #c0c0c0;
+}
+
+/* Nokia 3110 кнопки */
+.nokia-button {
+  background-color: #0f380f;
+  color: #9bbc0f;
+  border: 1px solid #306230;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-family: "Courier New", monospace;
+  image-rendering: pixelated;
+}
+
+.nokia-button:active {
+  background-color: #306230;
+}

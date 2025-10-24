@@ -135,19 +135,28 @@ export const inspectionsApi = {
       () => api.get(`/inspections/${id}`)
     ),
   
-  createInspection: (data: any) =>
-    createApiHandler(
-      { 
-        message: 'Осмотр успешно создан (демо)',
-        inspection: {
-          id: Date.now(),
-          internal_number: `INS-${Date.now()}`,
-          status: 'В работе',
-          ...data
-        }
-      },
-      () => api.post('/inspections', data)
-    ),
+  createInspection: (data: any) => {
+    if (IS_GITHUB_PAGES) {
+      console.log('GitHub Pages detected, simulating inspection creation');
+      // Имитируем задержку сети
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve({
+            data: {
+              message: 'Осмотр успешно создан!',
+              inspection: {
+                id: Date.now(),
+                internal_number: `INS-${Date.now()}`,
+                status: 'В работе',
+                ...data
+              }
+            }
+          });
+        }, 1000);
+      });
+    }
+    return api.post('/inspections', data);
+  },
   
   updateStatus: (id: number, status: string, comment?: string) =>
     createApiHandler(

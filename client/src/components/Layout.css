@@ -1,511 +1,138 @@
-/* Layout стили */
 .layout {
   display: flex;
   min-height: 100vh;
-  background-color: var(--surface-color);
-}
-
-/* Мобильная шапка - убрана */
-.mobile-header {
-  display: none !important;
-}
-
-.mobile-title {
-  font-size: 18px;
-  font-weight: 600;
+  background-color: var(--bg-primary);
   color: var(--text-primary);
 }
 
-.menu-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  color: var(--text-primary);
-}
-
-.mobile-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.theme-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: none;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-  cursor: pointer;
-  color: var(--text-primary);
-  transition: all 0.2s ease;
-}
-
-.theme-toggle:hover {
-  background: var(--bg-tertiary);
-  transform: scale(1.05);
-}
-
-/* Боковая панель */
+/* Sidebar */
 .sidebar {
-  width: 200px;
-  background: var(--sidebar-bg);
+  width: 260px;
+  background-color: var(--bg-secondary);
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  z-index: 200;
-  transform: translateX(-100%);
-  transition: all 0.3s ease;
-  color: var(--text-primary);
+  transition: width 0.3s ease;
 }
 
-.sidebar.collapsed {
-  width: 60px;
-}
-
-.sidebar.collapsed .sidebar-logo .logo-text,
-.sidebar.collapsed .nav-item span,
-.sidebar.collapsed .user-details,
-.sidebar.collapsed .logout-btn span,
-.sidebar.collapsed .theme-toggle-btn span,
-.sidebar.collapsed .collapse-btn span {
-  display: none;
-}
-
-/* Стилистика в стиле cmsauto.ru */
-.sidebar {
-  color: #ffffff;
-  background: #2d2d2d;
-  border-right: 1px solid #404040;
-}
-
-.sidebar .nav-item {
-  color: #ffffff;
-  font-weight: 500;
-  font-size: 14px;
-  padding: 12px 16px;
-  border-radius: 0;
-  margin: 0;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  border: none;
-  background: none;
-  width: 100%;
-  text-align: left;
-  border-bottom: 1px solid #404040;
-}
-
-.sidebar .nav-item:hover {
-  background: #3a3a3a;
-  color: #ffffff;
-  font-weight: 600;
-}
-
-.sidebar .nav-item.active {
-  background: #1890ff;
-  color: #ffffff;
-  font-weight: 600;
-}
-
-/* Контрастность для всех элементов sidebar */
-.sidebar .theme-toggle-btn,
-.sidebar .collapse-btn,
-.sidebar .logout-btn {
-  color: var(--text-primary);
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.sidebar .theme-toggle-btn:hover,
-.sidebar .collapse-btn:hover,
-.sidebar .logout-btn:hover {
-  color: var(--text-primary);
-  font-weight: 700;
-  background-color: var(--bg-tertiary);
-}
-
-.sidebar .user-info .user-name,
-.sidebar .user-info .user-role {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.sidebar .logo-text {
-  color: var(--text-primary);
-  font-weight: 700;
-  font-size: 18px;
-}
-
-.sidebar.open {
-  transform: translateX(0);
+.sidebar.closed {
+  width: 80px;
 }
 
 .sidebar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px;
+  padding: 16px;
   border-bottom: 1px solid var(--border-color);
 }
 
-.sidebar-logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.logo-icon {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
-  color: white;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 18px;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-}
-
-.logo-shield {
-  font-size: 20px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-}
-
-.logo-text {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.logo {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--primary-color);
-}
-
-.sidebar-close {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
+.sidebar-toggle {
   background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   cursor: pointer;
-  color: var(--text-secondary);
+  padding: 4px 8px;
+  border-radius: 4px;
 }
 
-/* Навигация */
 .sidebar-nav {
   flex: 1;
-  padding: 20px 0;
+  padding: 16px 0;
 }
 
 .nav-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
   width: 100%;
-  padding: 12px 20px;
-  border: none;
+  padding: 12px 16px;
   background: none;
+  border: none;
+  color: var(--text-primary);
   text-align: left;
   cursor: pointer;
-  color: var(--text-primary);
-  transition: all 0.2s ease;
-  font-size: 14px;
+  border-bottom: 1px solid var(--border-light);
+  transition: background-color 0.2s ease;
 }
 
 .nav-item:hover {
-  background-color: var(--surface-color);
-  color: var(--text-primary);
+  background-color: var(--bg-tertiary);
 }
 
 .nav-item.active {
-  background-color: rgba(25, 118, 210, 0.1);
-  color: var(--primary-color);
-  border-right: 3px solid var(--primary-color);
+  background-color: var(--accent-primary);
+  color: white;
 }
 
-/* Футер боковой панели */
+.back-button {
+  background-color: var(--warning);
+  color: var(--text-primary);
+  font-weight: bold;
+}
+
 .sidebar-footer {
-  padding: 20px;
+  padding: 16px;
   border-top: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.theme-selector {
-  position: relative;
-}
-
-.theme-toggle-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 8px 12px;
-  border: none;
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s ease;
-}
-
-.theme-toggle-btn:hover {
-  background: var(--bg-secondary);
-}
-
-.theme-options {
-  position: absolute;
-  bottom: 100%;
-  left: 0;
-  right: 0;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  box-shadow: var(--shadow-lg);
-  z-index: 1000;
-  margin-bottom: 4px;
-}
-
-.theme-option {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 8px 12px;
-  border: none;
-  background: transparent;
-  color: var(--text-primary);
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s ease;
-  text-align: left;
-}
-
-.theme-option:hover {
-  background: var(--bg-secondary);
-}
-
-.theme-option.active {
-  background: var(--primary-color);
-  color: white;
-}
-
-.collapse-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 8px 12px;
-  border: none;
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s ease;
-}
-
-.collapse-btn:hover {
-  background: var(--bg-secondary);
-}
-
-/* Зеленая пульсирующая стрелка */
-.collapse-btn.green-pulse {
-  background: linear-gradient(135deg, #10b981, #059669);
-  color: white;
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-  animation: pulse-green 2s infinite;
-}
-
-.collapse-btn.green-pulse:hover {
-  background: linear-gradient(135deg, #059669, #047857);
-  box-shadow: 0 0 25px rgba(16, 185, 129, 0.6);
-}
-
-@keyframes pulse-green {
-  0% {
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 30px rgba(16, 185, 129, 0.8);
-  }
-  100% {
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-  }
 }
 
 .user-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.user-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: var(--primary-color);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 16px;
-}
-
-.user-details {
-  flex: 1;
-}
-
-.user-name {
-  font-weight: 500;
-  color: var(--text-primary);
+  margin-bottom: 12px;
   font-size: 14px;
-}
-
-.user-role {
   color: var(--text-secondary);
-  font-size: 12px;
-  text-transform: capitalize;
 }
 
-.logout-btn {
+.theme-toggle {
   display: flex;
   align-items: center;
   gap: 8px;
   width: 100%;
   padding: 8px 12px;
+  background: var(--gradient);
   border: none;
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+  border-radius: 6px;
+  color: white;
   cursor: pointer;
-  border-radius: var(--border-radius);
-  transition: all 0.2s ease;
-  font-size: 14px;
+  margin-bottom: 8px;
 }
 
-.logout-btn:hover {
-  background-color: var(--surface-color);
-  color: var(--text-primary);
+.logout-button {
+  width: 100%;
+  padding: 8px 12px;
+  background-color: var(--error);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
 }
 
-/* Основной контент */
+/* Main content */
 .main-content {
   flex: 1;
-  margin-left: 200px; /* Убираем отступ, контент начинается сразу после sidebar */
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  transition: margin-left 0.3s ease;
+  background-color: var(--bg-primary);
+  overflow-y: auto;
 }
 
-.sidebar.collapsed + .main-content {
-  margin-left: 60px;
+/* Специфичные стили для Windows 97 */
+[data-theme="windows97"] .sidebar {
+  background-color: #c0c0c0;
+  border-right: 2px outset #c0c0c0;
 }
 
-.content-header {
-  background: white;
-  border-bottom: 1px solid var(--border-color);
-  padding: 20px;
-  position: sticky;
-  top: 0;
-  z-index: 50;
+[data-theme="windows97"] .nav-item {
+  border: 2px outset #c0c0c0;
+  margin: 2px;
 }
 
-.header-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
+[data-theme="windows97"] .nav-item:active {
+  border: 2px inset #c0c0c0;
 }
 
-.content-body {
-  flex: 1;
-  padding: 0; /* Убираем отступы для вплотную к тулбару */
+/* Специфичные стили для Nokia 3110 */
+[data-theme="nokia3110"] .sidebar {
+  background-color: #0f380f;
+  border-right: 2px solid #9bbc0f;
 }
 
-/* Оверлей */
-.sidebar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 150;
-}
-
-/* Адаптивность */
-@media (min-width: 769px) {
-  .mobile-header {
-    display: none;
-  }
-  
-  .sidebar {
-    position: static;
-    transform: translateX(0);
-  }
-  
-  .main-content {
-    margin-left: 200px;
-  }
-  
-  .sidebar-close {
-    display: none;
-  }
-}
-
-@media (max-width: 768px) {
-  .mobile-header {
-    display: flex;
-  }
-  
-  .main-content {
-    margin-left: 0; /* На мобильных убираем отступ */
-  }
-  
-  .sidebar.collapsed + .main-content {
-    margin-left: 0; /* На мобильных всегда полная ширина */
-  }
-  
-  .content-body {
-    padding: 16px;
-  }
-}
-
-/* Анимации */
-.sidebar {
-  transition: transform 0.3s ease;
-}
-
-.nav-item {
-  transition: all 0.2s ease;
-}
-
-.logout-btn {
-  transition: all 0.2s ease;
+[data-theme="nokia3110"] .nav-item {
+  border: 1px solid #306230;
+  margin: 1px 0;
+  font-size: 12px;
 }

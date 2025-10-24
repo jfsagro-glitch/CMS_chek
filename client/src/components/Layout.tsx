@@ -1,242 +1,87 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { useInspections } from '../contexts/InspectionsContext';
-import { 
-  FileText, 
-  Plus, 
-  LogOut, 
-  X,
-  BarChart3,
-  Users,
-  Settings,
-  ChevronLeft,
-  ChevronRight,
-  Palette,
-  Sun,
-  Moon,
-  Monitor,
-  Zap,
-  Code
-} from 'lucide-react';
+import Logo from './Logo';
 import './Layout.css';
 
 const Layout: React.FC = () => {
   const { user, logout } = useAuth();
-  const { theme, setTheme } = useTheme();
-  const { inspectionsCount } = useInspections();
+  const { theme, toggleTheme, getNextTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = React.useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
-  const [showThemeSelector, setShowThemeSelector] = React.useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  const isActive = (path: string) => location.pathname === path;
+  const getThemeIcon = () => {
+    switch (theme) {
+      case 'light': return '☀️';
+      case 'dark': return '🌙';
+      case 'windows97': return '🪟';
+      case 'windowsXP': return '🎯';
+      case 'ios': return '📱';
+      case 'matrix': return '🔰';
+      case 'nokia3110': return '📟';
+      default: return '🎨';
+    }
+  };
+
+  const canGoBack = location.pathname !== '/' && location.pathname !== '/inspections';
 
   return (
-    <div className="layout">
-      {/* Мобильное меню - убрано */}
-
-      {/* Боковая панель */}
-      <aside className={`sidebar ${sidebarOpen ? 'open' : ''} ${sidebarCollapsed ? 'collapsed' : ''}`}>
+    <div className={`layout theme-${theme}`}>
+      {/* Sidebar */}
+      <aside className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
         <div className="sidebar-header">
-          <div className="sidebar-logo">
-            <div className="logo-icon">
-              <div className="logo-shield">🛡️</div>
-            </div>
-            {!sidebarCollapsed && <span className="logo-text">CMS Check</span>}
-          </div>
+          <Logo />
           <button 
-            className="sidebar-close"
-            onClick={() => setSidebarOpen(false)}
+            className="sidebar-toggle"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           >
-            <X size={20} />
+            {isSidebarOpen ? '◀' : '▶'}
           </button>
         </div>
 
         <nav className="sidebar-nav">
           <button
-            className={`nav-item ${isActive('/inspections') ? 'active' : ''}`}
-            onClick={() => {
-              navigate('/inspections');
-              setSidebarOpen(false);
-            }}
+            className={`nav-item ${location.pathname === '/' || location.pathname === '/inspections' ? 'active' : ''}`}
+            onClick={() => navigate('/inspections')}
           >
-            <FileText size={20} />
-            <span>Осмотры</span>
-            <span className="badge">{inspectionsCount}</span>
+            📊 Осмотры
           </button>
           
-          <button
-            className={`nav-item ${isActive('/inspections/create') ? 'active' : ''}`}
-            onClick={() => {
-              navigate('/inspections/create');
-              setSidebarOpen(false);
-            }}
-          >
-            <Plus size={20} />
-            <span>Новый осмотр</span>
-          </button>
-
-          <button
-            className={`nav-item ${isActive('/analytics') ? 'active' : ''}`}
-            onClick={() => {
-              navigate('/analytics');
-              setSidebarOpen(false);
-            }}
-          >
-            <BarChart3 size={20} />
-            <span>Аналитика</span>
-          </button>
-
-          <button
-            className={`nav-item ${isActive('/users') ? 'active' : ''}`}
-            onClick={() => {
-              navigate('/users');
-              setSidebarOpen(false);
-            }}
-          >
-            <Users size={20} />
-            <span>Пользователи</span>
-          </button>
-
-          <button
-            className={`nav-item ${isActive('/settings') ? 'active' : ''}`}
-            onClick={() => {
-              navigate('/settings');
-              setSidebarOpen(false);
-            }}
-          >
-            <Settings size={20} />
-            <span>Настройки</span>
-          </button>
+          {canGoBack && (
+            <button
+              className="nav-item back-button"
+              onClick={() => navigate(-1)}
+            >
+              ↩️ Назад
+            </button>
+          )}
         </nav>
 
         <div className="sidebar-footer">
-          {/* Селектор тем */}
-          <div className="theme-selector">
-            <button 
-              className="theme-toggle-btn"
-              onClick={() => setShowThemeSelector(!showThemeSelector)}
-            >
-              <Palette size={16} />
-              {!sidebarCollapsed && <span>Темы</span>}
-            </button>
-            
-            {showThemeSelector && (
-              <div className="theme-options">
-                <button 
-                  className={`theme-option ${theme === 'light' ? 'active' : ''}`}
-                  onClick={() => {
-                    setTheme('light');
-                    setShowThemeSelector(false);
-                  }}
-                >
-                  <Sun size={14} />
-                  {!sidebarCollapsed && <span>Светлая</span>}
-                </button>
-                <button 
-                  className={`theme-option ${theme === 'dark' ? 'active' : ''}`}
-                  onClick={() => {
-                    setTheme('dark');
-                    setShowThemeSelector(false);
-                  }}
-                >
-                  <Moon size={14} />
-                  {!sidebarCollapsed && <span>Темная</span>}
-                </button>
-                <button 
-                  className={`theme-option ${theme === 'gray' ? 'active' : ''}`}
-                  onClick={() => {
-                    setTheme('gray');
-                    setShowThemeSelector(false);
-                  }}
-                >
-                  <Monitor size={14} />
-                  {!sidebarCollapsed && <span>Серая</span>}
-                </button>
-                <button 
-                  className={`theme-option ${theme === 'monochrome' ? 'active' : ''}`}
-                  onClick={() => {
-                    setTheme('monochrome');
-                    setShowThemeSelector(false);
-                  }}
-                >
-                  <Zap size={14} />
-                  {!sidebarCollapsed && <span>Монохром</span>}
-                </button>
-                <button 
-                  className={`theme-option ${theme === 'windows97' ? 'active' : ''}`}
-                  onClick={() => {
-                    setTheme('windows97');
-                    setShowThemeSelector(false);
-                  }}
-                >
-                  <Monitor size={14} />
-                  {!sidebarCollapsed && <span>Windows 97</span>}
-                </button>
-                <button 
-                  className={`theme-option ${theme === 'matrix' ? 'active' : ''}`}
-                  onClick={() => {
-                    setTheme('matrix');
-                    setShowThemeSelector(false);
-                  }}
-                >
-                  <Code size={14} />
-                  {!sidebarCollapsed && <span>Матрица</span>}
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Кнопка сворачивания */}
-          <button 
-            className="collapse-btn green-pulse"
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            title={sidebarCollapsed ? 'Развернуть' : 'Свернуть'}
-          >
-            {sidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-            {!sidebarCollapsed && <span>Свернуть</span>}
-          </button>
-
           <div className="user-info">
-            <div className="user-avatar">
-              {user?.fullName?.charAt(0) || 'U'}
-            </div>
-            {!sidebarCollapsed && (
-              <div className="user-details">
-                <div className="user-name">{user?.fullName}</div>
-                <div className="user-role">{user?.role}</div>
-              </div>
-            )}
+            <span>👤 {user?.fullName}</span>
           </div>
-          <button className="logout-btn" onClick={handleLogout}>
-            <LogOut size={16} />
-            {!sidebarCollapsed && <span>Выйти</span>}
+          <button className="theme-toggle" onClick={toggleTheme}>
+            <span className="theme-icon">{getThemeIcon()}</span>
+            <span className="theme-text">{getNextTheme().toUpperCase()}</span>
+          </button>
+          <button className="logout-button" onClick={handleLogout}>
+            🚪 Выход
           </button>
         </div>
       </aside>
 
-      {/* Основной контент */}
+      {/* Main content */}
       <main className="main-content">
-        <div className="content-body">
-          <Outlet />
-        </div>
+        <Outlet />
       </main>
-
-      {/* Оверлей для мобильных устройств */}
-      {sidebarOpen && (
-        <div 
-          className="sidebar-overlay"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
     </div>
   );
 };

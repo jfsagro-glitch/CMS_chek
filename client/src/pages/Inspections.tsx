@@ -15,6 +15,7 @@ import {
 import { inspectionsApi } from '../services/api';
 import { exportInspectionsToExcel } from '../utils/excelExport';
 import { useInspections } from '../contexts/InspectionsContext';
+import CreateInspection from './CreateInspection';
 import toast from 'react-hot-toast';
 import './Inspections.css';
 
@@ -55,6 +56,7 @@ const Inspections: React.FC = () => {
   });
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { updateInspectionsCount } = useInspections();
@@ -309,6 +311,14 @@ const Inspections: React.FC = () => {
     setPage(1);
   };
 
+  const handleOpenCreateModal = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
   const handleExport = async () => {
     const dataToExport = getFilteredInspections;
     if (dataToExport.length === 0) {
@@ -404,7 +414,7 @@ const Inspections: React.FC = () => {
             Экспорт
           </button>
           
-          <button className="btn btn-primary" onClick={() => navigate('/inspections/create')}>
+          <button className="btn btn-primary" onClick={handleOpenCreateModal}>
             <Plus size={16} />
             Новый осмотр
           </button>
@@ -578,7 +588,7 @@ const Inspections: React.FC = () => {
                 <p>Попробуйте изменить фильтры или создать новый осмотр</p>
                 <button 
                   className="btn btn-primary"
-                  onClick={() => navigate('/inspections/create')}
+                  onClick={handleOpenCreateModal}
                 >
                   Создать осмотр
                 </button>
@@ -611,6 +621,12 @@ const Inspections: React.FC = () => {
         )}
       </div>
       </div>
+
+      {/* Модальное окно создания осмотра */}
+      <CreateInspection 
+        isOpen={isCreateModalOpen}
+        onClose={handleCloseCreateModal}
+      />
     </div>
   );
 };

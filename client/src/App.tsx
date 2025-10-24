@@ -8,11 +8,10 @@ import Layout from './components/Layout';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Inspections from './pages/Inspections';
-import CreateInspection from './pages/CreateInspection';
 import InspectionDetail from './pages/InspectionDetail';
 import MobileHome from './pages/MobileHome';
 import MobileInspection from './pages/MobileInspection';
-import './App.css';
+import './index.css';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,34 +22,23 @@ const queryClient = new QueryClient({
   },
 });
 
-// Определяем базовый путь для GitHub Pages
-const getBasename = () => {
-  if (window.location.hostname.includes('github.io')) {
-    // Для GitHub Pages используем HashRouter без basename
-    return '';
-  }
-  return '/';
-};
-
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
           <InspectionsProvider>
-            <Router basename={getBasename()}>
+            <Router>
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/" element={<Layout />}>
                   <Route index element={<Inspections />} />
                   <Route path="inspections" element={<Inspections />} />
-                  <Route path="inspections/create" element={<CreateInspection />} />
                   <Route path="inspections/:id" element={<InspectionDetail />} />
                 </Route>
                 <Route path="/mobile" element={<MobileHome />} />
                 <Route path="/inspection/:id" element={<MobileInspection />} />
-                {/* Fallback route for GitHub Pages */}
                 <Route path="*" element={<Inspections />} />
               </Routes>
             </Router>
