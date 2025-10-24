@@ -59,140 +59,7 @@ const Inspections: React.FC = () => {
   const location = useLocation();
   const { updateInspectionsCount } = useInspections();
 
-  // Мемоизированная фильтрация демо-данных
-  const getFilteredInspections = useMemo(() => {
-    let filtered = getDemoInspections();
-
-    if (filters.status) {
-      filtered = filtered.filter(i => i.status === filters.status);
-    }
-    if (filters.address) {
-      filtered = filtered.filter(i => 
-        i.address.toLowerCase().includes(filters.address.toLowerCase())
-      );
-    }
-    if (filters.inspector) {
-      filtered = filtered.filter(i => 
-        i.inspector_name.toLowerCase().includes(filters.inspector.toLowerCase())
-      );
-    }
-    if (filters.internalNumber) {
-      filtered = filtered.filter(i => 
-        i.internal_number?.includes(filters.internalNumber)
-      );
-    }
-    if (filters.dateFrom) {
-      filtered = filtered.filter(i => 
-        new Date(i.created_at) >= new Date(filters.dateFrom)
-      );
-    }
-    if (filters.dateTo) {
-      filtered = filtered.filter(i => 
-        new Date(i.created_at) <= new Date(filters.dateTo)
-      );
-    }
-
-    return filtered;
-  }, [filters]);
-
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['inspections', filters, page],
-    queryFn: () => inspectionsApi.getInspections({ ...filters, page, limit: 20 }),
-    retry: false, // Не повторять запрос при ошибке
-    refetchOnWindowFocus: false, // Не обновлять при фокусе окна
-  });
-
-  // Обрабатываем обновление после создания нового осмотра
-  useEffect(() => {
-    const state = location.state as { refresh?: boolean; newInspection?: string } | null;
-    if (state?.refresh) {
-      // Показываем уведомление о новом осмотре
-      if (state.newInspection) {
-        toast.success(`Осмотр №${state.newInspection} добавлен в реестр`, {
-          duration: 4000,
-          icon: '✅'
-        });
-      }
-      // Очищаем state чтобы не показывать уведомление повторно
-      window.history.replaceState({}, document.title);
-      // Обновляем данные и счетчик
-      refetch();
-      updateInspectionsCount();
-    }
-  }, [location.state, refetch, updateInspectionsCount]);
-
-  const handleFilterChange = useCallback((key: keyof Filters, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-    setPage(1);
-  }, []);
-
-  const clearFilters = () => {
-    setFilters({
-      status: '',
-      address: '',
-      inspector: '',
-      dateFrom: '',
-      dateTo: '',
-      internalNumber: '',
-    });
-    setPage(1);
-  };
-
-  const handleExport = async () => {
-    const dataToExport = getFilteredInspections;
-    if (dataToExport.length === 0) {
-      toast.error('Нет данных для экспорта');
-      return;
-    }
-    
-    if (!window.confirm(`Экспортировать ${dataToExport.length} осмотров в Excel?`)) {
-      return;
-    }
-    
-    try {
-      exportInspectionsToExcel(dataToExport, 'Реестр_осмотров');
-      toast.success(`Экспортировано осмотров: ${dataToExport.length}`);
-    } catch (error) {
-      console.error('Ошибка экспорта:', error);
-      toast.error('Ошибка экспорта');
-    }
-  };
-
-  const getStatusClass = (status: string) => {
-    switch (status) {
-      case 'Готов': return 'status-ready';
-      case 'В работе': return 'status-in-progress';
-      case 'Проверка': return 'status-checking';
-      case 'Доработка': return 'status-revision';
-      case 'Отменен': return 'status-cancelled';
-      default: return 'status';
-    }
-  };
-
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU', {
-      day: '2-digit',
-      month: '2-digit',
-      year: '2-digit',
-    });
-  };
-
-
-  const getPropertyTypeIcon = (type: string) => {
-    switch (type) {
-      case 'Автотранспорт':
-        return <Car size={16} />;
-      case 'Коммерческая':
-        return <Building size={16} />;
-      case 'Гараж':
-        return <Home size={16} />;
-      default:
-        return <Wrench size={16} />;
-    }
-  };
-
+  // Функция для получения демо-данных
   const getDemoInspections = (): Inspection[] => {
     return [
       {
@@ -355,6 +222,140 @@ const Inspections: React.FC = () => {
         address: 'г. Москва, ул. Транспортная, 8'
       }
     ];
+  };
+
+  // Мемоизированная фильтрация демо-данных
+  const getFilteredInspections = useMemo(() => {
+    let filtered = getDemoInspections();
+
+    if (filters.status) {
+      filtered = filtered.filter(i => i.status === filters.status);
+    }
+    if (filters.address) {
+      filtered = filtered.filter(i => 
+        i.address.toLowerCase().includes(filters.address.toLowerCase())
+      );
+    }
+    if (filters.inspector) {
+      filtered = filtered.filter(i => 
+        i.inspector_name.toLowerCase().includes(filters.inspector.toLowerCase())
+      );
+    }
+    if (filters.internalNumber) {
+      filtered = filtered.filter(i => 
+        i.internal_number?.includes(filters.internalNumber)
+      );
+    }
+    if (filters.dateFrom) {
+      filtered = filtered.filter(i => 
+        new Date(i.created_at) >= new Date(filters.dateFrom)
+      );
+    }
+    if (filters.dateTo) {
+      filtered = filtered.filter(i => 
+        new Date(i.created_at) <= new Date(filters.dateTo)
+      );
+    }
+
+    return filtered;
+  }, [filters]);
+
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['inspections', filters, page],
+    queryFn: () => inspectionsApi.getInspections({ ...filters, page, limit: 20 }),
+    retry: false, // Не повторять запрос при ошибке
+    refetchOnWindowFocus: false, // Не обновлять при фокусе окна
+  });
+
+  // Обрабатываем обновление после создания нового осмотра
+  useEffect(() => {
+    const state = location.state as { refresh?: boolean; newInspection?: string } | null;
+    if (state?.refresh) {
+      // Показываем уведомление о новом осмотре
+      if (state.newInspection) {
+        toast.success(`Осмотр №${state.newInspection} добавлен в реестр`, {
+          duration: 4000,
+          icon: '✅'
+        });
+      }
+      // Очищаем state чтобы не показывать уведомление повторно
+      window.history.replaceState({}, document.title);
+      // Обновляем данные и счетчик
+      refetch();
+      updateInspectionsCount();
+    }
+  }, [location.state, refetch, updateInspectionsCount]);
+
+  const handleFilterChange = useCallback((key: keyof Filters, value: string) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+    setPage(1);
+  }, []);
+
+  const clearFilters = () => {
+    setFilters({
+      status: '',
+      address: '',
+      inspector: '',
+      dateFrom: '',
+      dateTo: '',
+      internalNumber: '',
+    });
+    setPage(1);
+  };
+
+  const handleExport = async () => {
+    const dataToExport = getFilteredInspections;
+    if (dataToExport.length === 0) {
+      toast.error('Нет данных для экспорта');
+      return;
+    }
+    
+    if (!window.confirm(`Экспортировать ${dataToExport.length} осмотров в Excel?`)) {
+      return;
+    }
+    
+    try {
+      exportInspectionsToExcel(dataToExport, 'Реестр_осмотров');
+      toast.success(`Экспортировано осмотров: ${dataToExport.length}`);
+    } catch (error) {
+      console.error('Ошибка экспорта:', error);
+      toast.error('Ошибка экспорта');
+    }
+  };
+
+  const getStatusClass = (status: string) => {
+    switch (status) {
+      case 'Готов': return 'status-ready';
+      case 'В работе': return 'status-in-progress';
+      case 'Проверка': return 'status-checking';
+      case 'Доработка': return 'status-revision';
+      case 'Отменен': return 'status-cancelled';
+      default: return 'status';
+    }
+  };
+
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ru-RU', {
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit',
+    });
+  };
+
+
+  const getPropertyTypeIcon = (type: string) => {
+    switch (type) {
+      case 'Автотранспорт':
+        return <Car size={16} />;
+      case 'Коммерческая':
+        return <Building size={16} />;
+      case 'Гараж':
+        return <Home size={16} />;
+      default:
+        return <Wrench size={16} />;
+    }
   };
 
 
