@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/CMS_chek/static/css/main.3e7250aa.css",
-    "main.js": "/CMS_chek/static/js/main.93f3c966.js",
+    "main.js": "/CMS_chek/static/js/main.0a7a7c92.js",
     "static/js/453.eb570f4f.chunk.js": "/CMS_chek/static/js/453.eb570f4f.chunk.js",
     "index.html": "/CMS_chek/index.html",
     "main.3e7250aa.css.map": "/CMS_chek/static/css/main.3e7250aa.css.map",
-    "main.93f3c966.js.map": "/CMS_chek/static/js/main.93f3c966.js.map",
+    "main.0a7a7c92.js.map": "/CMS_chek/static/js/main.0a7a7c92.js.map",
     "453.eb570f4f.chunk.js.map": "/CMS_chek/static/js/453.eb570f4f.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.3e7250aa.css",
-    "static/js/main.93f3c966.js"
+    "static/js/main.0a7a7c92.js"
   ]
 }

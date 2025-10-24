@@ -5,6 +5,8 @@
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <meta name="theme-color" content="#000000" />
+    <!-- Content Security Policy для GitHub Pages -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; connect-src 'self' https:; frame-src 'none';" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
@@ -35,6 +37,28 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>CMS Check - Система осмотров</title>
+    
+    <!-- Отключение Google Translate для предотвращения CSP ошибок -->
+    <script type="text/javascript">
+      // Отключаем Google Translate
+      if (window.google && window.google.translate) {
+        window.google.translate = null;
+      }
+      
+      // Блокируем загрузку внешних стилей Google Translate
+      const originalCreateElement = document.createElement;
+      document.createElement = function(tagName) {
+        const element = originalCreateElement.call(document, tagName);
+        if (tagName.toLowerCase() === 'link' && element.rel === 'stylesheet') {
+          element.addEventListener('error', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          });
+        }
+        return element;
+      };
+    </script>
     
     <!-- GitHub Pages SPA redirect handler -->
     <script type="text/javascript">

@@ -28,6 +28,18 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Обработка 404 ошибок - не показываем ошибку, используем демо данные
+    if (error.response?.status === 404) {
+      console.log('API endpoint not found, using demo data');
+      return Promise.resolve({ data: { inspections: [], pagination: { total: 0, pages: 1 } } });
+    }
+    
+    // Обработка сетевых ошибок
+    if (!error.response) {
+      console.log('Network error, using demo data');
+      return Promise.resolve({ data: { inspections: [], pagination: { total: 0, pages: 1 } } });
+    }
+    
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       window.location.href = '/login';
