@@ -1,240 +1,238 @@
 import axios from 'axios';
+import { APP_CONFIG } from '../config/app';
 
-// Backend URL на Render - отключен для GitHub Pages
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://cms-chek.onrender.com/api';
-const IS_GITHUB_PAGES = window.location.hostname.includes('github.io');
+const IS_GITHUB_PAGES = APP_CONFIG.IS_GITHUB_PAGES;
 
-// Отладочная информация
-console.log('Current hostname:', window.location.hostname);
-console.log('IS_GITHUB_PAGES:', IS_GITHUB_PAGES);
-
-export const api = axios.create({
-  baseURL: API_BASE_URL,
+// Конфигурация для разных окружений
+const API_CONFIG = {
+  baseURL: IS_GITHUB_PAGES ? '' : '/api',
+  timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
   },
-});
+};
 
-// Интерцептор для добавления токена к запросам
+export const api = axios.create(API_CONFIG);
+
+// Демо-данные для GitHub Pages
+const DEMO_DATA = {
+  inspections: {
+    list: Array.from({ length: 10 }, (_, i) => ({
+      id: i + 1,
+      internal_number: `INS-${String(i + 1).padStart(3, '0')}`,
+      status: ['В работе', 'Проверка', 'Готов', 'Доработка'][i % 4],
+      property_type: 'Автотранспорт',
+      address: `г. Москва, ул. Примерная, д. ${i + 1}`,
+      inspector_name: 'Иванов Иван Иванович',
+      inspector_phone: '+79991234567',
+      inspector_email: 'ivanov@example.com',
+      created_at: new Date(Date.now() - i * 86400000).toISOString(),
+      updated_at: new Date(Date.now() - i * 43200000).toISOString(),
+    })),
+    detail: (id: number) => ({
+      id,
+      internal_number: `INS-${String(id).padStart(3, '0')}`,
+      status: 'В работе',
+      property_type: 'Автотранспорт',
+      address: 'г. Москва, ул. Тверская, д. 1',
+      inspector_name: 'Иванов Иван Иванович',
+      inspector_phone: '+79991234567',
+      inspector_email: 'ivanov@example.com',
+      created_at: new Date().toISOString(),
+      objects: [
+        {
+          id: 1,
+          vin: '1HGBH41JXMN109186',
+          license_plate: 'А123БВ777',
+          make: 'Toyota',
+          model: 'Camry',
+          year: 2020,
+          color: 'Белый'
+        }
+      ],
+      photos: [],
+      comments: 'Осмотреть передние фары и бампер',
+      status_history: [
+        {
+          status: 'Создан',
+          timestamp: new Date().toISOString(),
+          user: 'Администратор'
+        }
+      ]
+    })
+  }
+};
+
+// Умный интерцептор запросов
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
-    if (token) {
+    if (token && !config.headers.Authorization) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Логируем запросы в development
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`, config);
+    }
+    
     return config;
   },
   (error) => {
+    console.error('API Request Error:', error);
     return Promise.reject(error);
   }
 );
 
-// Интерцептор для обработки ошибок
+// Умный интерцептор ответов
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    // Обработка 404 ошибок - не показываем ошибку, используем демо данные
-    if (error.response?.status === 404) {
-      console.log('API endpoint not found, using demo data');
-      return Promise.resolve({ data: { inspections: [], pagination: { total: 0, pages: 1 } } });
+  (response) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`API Response: ${response.status} ${response.config.url}`, response.data);
     }
+    return response;
+  },
+  (error) => {
+    console.error('API Response Error:', error);
     
-    // Обработка сетевых ошибок
-    if (!error.response) {
-      console.log('Network error, using demo data');
-      return Promise.resolve({ data: { inspections: [], pagination: { total: 0, pages: 1 } } });
+    // На GitHub Pages игнорируем сетевые ошибки и возвращаем демо-данные
+    if (IS_GITHUB_PAGES && (!error.response || error.code === 'NETWORK_ERROR')) {
+      console.log('GitHub Pages: Returning demo data due to network error');
+      return Promise.resolve({ data: DEMO_DATA.inspections.list });
     }
     
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      // Используем window.location для надежного перехода
+      setTimeout(() => {
+        window.location.href = '/CMS_chek/login';
+      }, 100);
     }
+    
     return Promise.reject(error);
   }
 );
 
-// API методы для осмотров
+// Универсальный API клиент с демо-режимом
+const createApiHandler = <T>(demoData: T, realCall: () => Promise<any>) => {
+  if (IS_GITHUB_PAGES) {
+    console.log('GitHub Pages: Returning demo data');
+    return Promise.resolve({ data: demoData });
+  }
+  return realCall();
+};
+
 export const inspectionsApi = {
-  // Получить список осмотров
-  getInspections: (params?: any) => {
-    if (IS_GITHUB_PAGES) {
-      console.log('GitHub Pages detected, using demo data');
-      return Promise.resolve({ 
-        data: { 
-          inspections: [], 
-          pagination: { total: 0, pages: 1 } 
-        } 
-      });
-    }
-    return api.get('/inspections', { params });
-  },
+  getInspections: (params?: any) => 
+    createApiHandler(
+      { inspections: DEMO_DATA.inspections.list, pagination: { total: 10, pages: 1 } },
+      () => api.get('/inspections', { params })
+    ),
   
-  // Получить осмотр по ID
-  getInspection: (id: number) => {
-    if (IS_GITHUB_PAGES) {
-      console.log('GitHub Pages detected, using demo data for inspection', id);
-      return Promise.resolve({ 
-        data: { 
-          inspection: {
-            id: id,
-            internal_number: `INS-${String(id).padStart(3, '0')}`,
-            property_type: 'Автотранспорт',
-            address: 'г. Москва, ул. Тверская, д. 1',
-            latitude: 55.7558,
-            longitude: 37.6176,
-            inspector_name: 'Иванов Иван Иванович',
-            inspector_phone: '+79991234567',
-            inspector_email: 'inspector@example.com',
-            status: 'В работе',
-            comment: 'Демо осмотр для тестирования мобильного интерфейса',
-            created_at: new Date().toISOString(),
-          },
-          objects: [
-            {
-              id: 1,
-              inspection_id: id,
-              vin: '1HGBH41JXMN109186',
-              registration_number: 'А123БВ77',
-              category: 'Легковой автомобиль',
-              type: 'Седан',
-              make: 'Toyota',
-              model: 'Camry'
-            }
-          ],
-          photos: []
-        } 
-      });
-    }
-    return api.get(`/inspections/${id}`);
-  },
+  getInspection: (id: number) =>
+    createApiHandler(
+      { inspection: DEMO_DATA.inspections.detail(id) },
+      () => api.get(`/inspections/${id}`)
+    ),
   
-  // Создать осмотр
-  createInspection: (data: any) => {
-    if (IS_GITHUB_PAGES) {
-      console.log('GitHub Pages detected, simulating inspection creation');
-      return Promise.resolve({ 
-        data: { 
-          inspection: {
-            id: Date.now(),
-            internal_number: `DEMO-${Date.now()}`,
-            ...data,
-            status: 'В работе',
-            created_at: new Date().toISOString()
-          }
-        } 
-      });
-    }
-    return api.post('/inspections', data);
-  },
+  createInspection: (data: any) =>
+    createApiHandler(
+      { 
+        message: 'Осмотр успешно создан (демо)',
+        inspection: {
+          id: Date.now(),
+          internal_number: `INS-${Date.now()}`,
+          status: 'В работе',
+          ...data
+        }
+      },
+      () => api.post('/inspections', data)
+    ),
   
-  // Обновить статус осмотра
-  updateStatus: (id: number, status: string, comment?: string) => {
-    if (IS_GITHUB_PAGES) {
-      console.log('GitHub Pages detected, simulating status update');
-      return Promise.resolve({ 
-        data: { 
-          success: true,
-          message: 'Status updated successfully (demo mode)'
-        } 
-      });
-    }
-    return api.patch(`/inspections/${id}/status`, { status, comment });
-  },
+  updateStatus: (id: number, status: string, comment?: string) =>
+    createApiHandler(
+      {
+        message: 'Статус обновлен (демо)',
+        inspection: { id, status, comment }
+      },
+      () => api.patch(`/inspections/${id}/status`, { status, comment })
+    ),
   
-  // Дублировать осмотр
-  duplicateInspection: (id: number) => {
-    if (IS_GITHUB_PAGES) {
-      console.log('GitHub Pages detected, simulating inspection duplication');
-      return Promise.resolve({ 
-        data: { 
-          success: true,
-          message: 'Inspection duplicated successfully (demo mode)'
-        } 
-      });
-    }
-    return api.post(`/inspections/${id}/duplicate`);
-  },
+  duplicateInspection: (id: number) =>
+    createApiHandler(
+      {
+        message: 'Осмотр дублирован (демо)',
+        inspection: { id: Date.now(), internal_number: `INS-${Date.now()}` }
+      },
+      () => api.post(`/inspections/${id}/duplicate`)
+    ),
   
-  // Экспорт в Excel
-  exportToExcel: (params?: any) => {
-    if (IS_GITHUB_PAGES) {
-      console.log('GitHub Pages detected, simulating Excel export');
-      return Promise.resolve({ 
-        data: { 
-          success: true,
-          message: 'Export completed successfully (demo mode)'
-        } 
-      });
-    }
-    return api.get('/inspections/export/excel', { params });
-  },
+  exportToExcel: (params?: any) =>
+    createApiHandler(
+      {
+        message: 'Экспорт выполнен (демо)',
+        url: '/demo-export.xlsx',
+        inspections: DEMO_DATA.inspections.list
+      },
+      () => api.get('/inspections/export/excel', { params, responseType: 'blob' })
+    ),
 };
 
-// API методы для пользователей
 export const usersApi = {
-  // Получить профиль пользователя
-  getProfile: () => {
-    if (IS_GITHUB_PAGES) {
-      console.log('GitHub Pages detected, using demo profile');
-      return Promise.resolve({ 
-        data: { 
-          id: 1,
-          email: 'demo@example.com',
-          name: 'Демо пользователь',
-          role: 'admin'
-        } 
-      });
-    }
-    return api.get('/users/profile');
-  },
+  getProfile: () =>
+    createApiHandler(
+      {
+        id: 1,
+        email: 'admin@demo.com',
+        fullName: 'Администратор Демо',
+        role: 'admin',
+        phone: '+7 (999) 123-45-67',
+        department: 'Отдел осмотров'
+      },
+      () => api.get('/users/profile')
+    ),
   
-  // Обновить профиль
-  updateProfile: (data: any) => {
-    if (IS_GITHUB_PAGES) {
-      console.log('GitHub Pages detected, simulating profile update');
-      return Promise.resolve({ 
-        data: { 
-          success: true,
-          message: 'Profile updated successfully (demo mode)'
-        } 
-      });
-    }
-    return api.put('/users/profile', data);
-  },
+  updateProfile: (data: any) =>
+    createApiHandler(
+      {
+        message: 'Профиль обновлен (демо)',
+        user: data
+      },
+      () => api.put('/users/profile', data)
+    ),
 };
 
-// API методы для загрузки файлов
 export const uploadApi = {
-  // Загрузить фото
   uploadPhoto: (formData: FormData) => {
     if (IS_GITHUB_PAGES) {
-      console.log('GitHub Pages detected, simulating photo upload');
-      return Promise.resolve({ 
-        data: { 
-          success: true,
-          message: 'Photo uploaded successfully (demo mode)',
-          photoId: Date.now()
-        } 
+      // Имитируем задержку загрузки
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve({
+            data: {
+              message: 'Фото загружено (демо)',
+              photo: {
+                id: Date.now(),
+                filename: 'demo-photo.jpg',
+                size: 1024,
+                url: '/demo-photo.jpg',
+                coordinates: { lat: 55.7558, lng: 37.6173 },
+                timestamp: new Date().toISOString()
+              }
+            }
+          });
+        }, 1000);
       });
     }
     return api.post('/upload/photo', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 30000
     });
   },
   
-  // Удалить фото
-  deletePhoto: (id: number) => {
-    if (IS_GITHUB_PAGES) {
-      console.log('GitHub Pages detected, simulating photo deletion');
-      return Promise.resolve({ 
-        data: { 
-          success: true,
-          message: 'Photo deleted successfully (demo mode)'
-        } 
-      });
-    }
-    return api.delete(`/upload/photo/${id}`);
-  },
+  deletePhoto: (id: number) =>
+    createApiHandler(
+      { message: 'Фото удалено (демо)', photoId: id },
+      () => api.delete(`/upload/photo/${id}`)
+    ),
 };
