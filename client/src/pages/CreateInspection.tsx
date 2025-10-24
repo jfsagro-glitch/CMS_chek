@@ -50,6 +50,7 @@ const propertyTypes = [
 const CreateInspection: React.FC = () => {
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const navigate = useNavigate();
   const { addNewInspection } = useInspections();
@@ -106,38 +107,50 @@ const CreateInspection: React.FC = () => {
   }, [formValues]);
 
   const onSubmit = async (data: any) => {
+    // Предотвращаем повторные отправки
+    if (isSubmitting) {
+      console.log('Форма уже отправляется, игнорируем повторную отправку');
+      return;
+    }
+    
     console.log('Начинаем создание осмотра:', data);
     setIsLoading(true);
+    setIsSubmitting(true);
     setValidationErrors([]); // Очищаем ошибки валидации
     
     // Проверяем обязательные поля
     if (!data.propertyType) {
       toast.error('Выберите тип имущества');
       setIsLoading(false);
+      setIsSubmitting(false);
       return;
     }
     
     if (!data.address) {
       toast.error('Укажите адрес объекта');
       setIsLoading(false);
+      setIsSubmitting(false);
       return;
     }
     
     if (!data.inspectorName) {
       toast.error('Укажите ФИО исполнителя');
       setIsLoading(false);
+      setIsSubmitting(false);
       return;
     }
     
     if (!data.inspectorPhone) {
       toast.error('Укажите телефон исполнителя');
       setIsLoading(false);
+      setIsSubmitting(false);
       return;
     }
     
     if (!data.objects || data.objects.length === 0) {
       toast.error('Добавьте хотя бы один объект для осмотра');
       setIsLoading(false);
+      setIsSubmitting(false);
       return;
     }
     
@@ -150,6 +163,7 @@ const CreateInspection: React.FC = () => {
       
       // Сбрасываем состояние загрузки СРАЗУ после успешного ответа
       setIsLoading(false);
+      setIsSubmitting(false);
       
       toast.success(`Осмотр №${inspectionNumber} успешно создан и отправлен исполнителю`, {
         duration: 3000
@@ -195,6 +209,7 @@ const CreateInspection: React.FC = () => {
       
       // Сбрасываем состояние загрузки в любом случае
       setIsLoading(false);
+      setIsSubmitting(false);
       
       if (shouldNavigate) {
         // Добавляем новый осмотр в контекст даже в демо-режиме со статусом "В работе"
@@ -580,10 +595,10 @@ const CreateInspection: React.FC = () => {
                 <button
                   type="submit"
                   className={`btn btn-primary ${validationErrors.length > 0 ? 'btn-disabled' : ''}`}
-                  disabled={isLoading || validationErrors.length > 0}
+                  disabled={isLoading || isSubmitting || validationErrors.length > 0}
                   title={validationErrors.length > 0 ? validationErrors.join('\n') : 'Отправить осмотр'}
                 >
-                  {isLoading ? 'Создание...' : 'Отправить'}
+                  {isLoading || isSubmitting ? 'Создание...' : 'Отправить'}
                 </button>
                 {validationErrors.length > 0 && (
                   <div className="validation-tooltip">
