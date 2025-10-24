@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-// Backend URL на Render
+// Backend URL на Render - отключен для GitHub Pages
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://cms-chek.onrender.com/api';
+const IS_GITHUB_PAGES = window.location.hostname.includes('github.io');
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -51,23 +52,118 @@ api.interceptors.response.use(
 // API методы для осмотров
 export const inspectionsApi = {
   // Получить список осмотров
-  getInspections: (params?: any) => api.get('/inspections', { params }),
+  getInspections: (params?: any) => {
+    if (IS_GITHUB_PAGES) {
+      console.log('GitHub Pages detected, using demo data');
+      return Promise.resolve({ 
+        data: { 
+          inspections: [], 
+          pagination: { total: 0, pages: 1 } 
+        } 
+      });
+    }
+    return api.get('/inspections', { params });
+  },
   
   // Получить осмотр по ID
-  getInspection: (id: number) => api.get(`/inspections/${id}`),
+  getInspection: (id: number) => {
+    if (IS_GITHUB_PAGES) {
+      console.log('GitHub Pages detected, using demo data for inspection', id);
+      return Promise.resolve({ 
+        data: { 
+          inspection: {
+            id: id,
+            internal_number: `INS-${String(id).padStart(3, '0')}`,
+            property_type: 'Автотранспорт',
+            address: 'г. Москва, ул. Тверская, д. 1',
+            latitude: 55.7558,
+            longitude: 37.6176,
+            inspector_name: 'Иванов Иван Иванович',
+            inspector_phone: '+79991234567',
+            inspector_email: 'inspector@example.com',
+            status: 'В работе',
+            comment: 'Демо осмотр для тестирования мобильного интерфейса',
+            created_at: new Date().toISOString(),
+          },
+          objects: [
+            {
+              id: 1,
+              inspection_id: id,
+              vin: '1HGBH41JXMN109186',
+              registration_number: 'А123БВ77',
+              category: 'Легковой автомобиль',
+              type: 'Седан',
+              make: 'Toyota',
+              model: 'Camry'
+            }
+          ],
+          photos: []
+        } 
+      });
+    }
+    return api.get(`/inspections/${id}`);
+  },
   
   // Создать осмотр
-  createInspection: (data: any) => api.post('/inspections', data),
+  createInspection: (data: any) => {
+    if (IS_GITHUB_PAGES) {
+      console.log('GitHub Pages detected, simulating inspection creation');
+      return Promise.resolve({ 
+        data: { 
+          inspection: {
+            id: Date.now(),
+            internal_number: `DEMO-${Date.now()}`,
+            ...data,
+            status: 'В работе',
+            created_at: new Date().toISOString()
+          }
+        } 
+      });
+    }
+    return api.post('/inspections', data);
+  },
   
   // Обновить статус осмотра
-  updateStatus: (id: number, status: string, comment?: string) => 
-    api.patch(`/inspections/${id}/status`, { status, comment }),
+  updateStatus: (id: number, status: string, comment?: string) => {
+    if (IS_GITHUB_PAGES) {
+      console.log('GitHub Pages detected, simulating status update');
+      return Promise.resolve({ 
+        data: { 
+          success: true,
+          message: 'Status updated successfully (demo mode)'
+        } 
+      });
+    }
+    return api.patch(`/inspections/${id}/status`, { status, comment });
+  },
   
   // Дублировать осмотр
-  duplicateInspection: (id: number) => api.post(`/inspections/${id}/duplicate`),
+  duplicateInspection: (id: number) => {
+    if (IS_GITHUB_PAGES) {
+      console.log('GitHub Pages detected, simulating inspection duplication');
+      return Promise.resolve({ 
+        data: { 
+          success: true,
+          message: 'Inspection duplicated successfully (demo mode)'
+        } 
+      });
+    }
+    return api.post(`/inspections/${id}/duplicate`);
+  },
   
   // Экспорт в Excel
-  exportToExcel: (params?: any) => api.get('/inspections/export/excel', { params }),
+  exportToExcel: (params?: any) => {
+    if (IS_GITHUB_PAGES) {
+      console.log('GitHub Pages detected, simulating Excel export');
+      return Promise.resolve({ 
+        data: { 
+          success: true,
+          message: 'Export completed successfully (demo mode)'
+        } 
+      });
+    }
+    return api.get('/inspections/export/excel', { params });
+  },
 };
 
 // API методы для пользователей
