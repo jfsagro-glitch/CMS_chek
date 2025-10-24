@@ -1,16 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Download,
-  Eye,
-  Copy,
-  RefreshCw,
   Car,
   Building,
   Home,
   Wrench,
-  ChevronDown,
   Plus,
   Filter,
   X,
@@ -63,8 +59,8 @@ const Inspections: React.FC = () => {
   const location = useLocation();
   const { updateInspectionsCount } = useInspections();
 
-  // Фильтрация демо-данных
-  const getFilteredInspections = () => {
+  // Мемоизированная фильтрация демо-данных
+  const getFilteredInspections = useMemo(() => {
     let filtered = getDemoInspections();
 
     if (filters.status) {
@@ -97,7 +93,7 @@ const Inspections: React.FC = () => {
     }
 
     return filtered;
-  };
+  }, [filters]);
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['inspections', filters, page],
@@ -125,10 +121,10 @@ const Inspections: React.FC = () => {
     }
   }, [location.state, refetch, updateInspectionsCount]);
 
-  const handleFilterChange = (key: keyof Filters, value: string) => {
+  const handleFilterChange = useCallback((key: keyof Filters, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
     setPage(1);
-  };
+  }, []);
 
   const clearFilters = () => {
     setFilters({
@@ -143,15 +139,21 @@ const Inspections: React.FC = () => {
   };
 
   const handleExport = async () => {
+    const dataToExport = getFilteredInspections;
+    if (dataToExport.length === 0) {
+      toast.error('Нет данных для экспорта');
+      return;
+    }
+    
+    if (!window.confirm(`Экспортировать ${dataToExport.length} осмотров в Excel?`)) {
+      return;
+    }
+    
     try {
-      const dataToExport = getFilteredInspections();
-      if (dataToExport.length === 0) {
-        toast.error('Нет данных для экспорта');
-        return;
-      }
       exportInspectionsToExcel(dataToExport, 'Реестр_осмотров');
       toast.success(`Экспортировано осмотров: ${dataToExport.length}`);
     } catch (error) {
+      console.error('Ошибка экспорта:', error);
       toast.error('Ошибка экспорта');
     }
   };
@@ -167,17 +169,6 @@ const Inspections: React.FC = () => {
     }
   };
 
-  const formatDateTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU', {
-      day: '2-digit',
-      month: '2-digit',
-      year: '2-digit',
-    }) + ' ' + date.toLocaleTimeString('ru-RU', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -366,15 +357,6 @@ const Inspections: React.FC = () => {
     ];
   };
 
-  const handleDuplicate = async (id: number) => {
-    try {
-      await inspectionsApi.duplicateInspection(id);
-      toast.success('Осмотр дублирован');
-      refetch();
-    } catch (error) {
-      toast.error('Ошибка дублирования');
-    }
-  };
 
   if (error) {
     return (
@@ -394,7 +376,7 @@ const Inspections: React.FC = () => {
         <div className="page-header">
         <div className="header-left">
           <h1 className="page-title">Осмотры</h1>
-          <div className="total-count">{getFilteredInspections().length}</div>
+          <div className="total-count">{getFilteredInspections.length}</div>
         </div>
         
         <div className="header-right">
@@ -504,92 +486,6 @@ const Inspections: React.FC = () => {
         </div>
       )}
 
-      {/* Панель фильтров */}
-      {showFilters && (
-        <div className="filters-panel">
-          <div className="filters-grid">
-            <div className="form-group">
-              <label className="form-label">Номер осмотра</label>
-              <input
-                type="text"
-                className="form-input"
-                value={filters.internalNumber}
-                onChange={(e) => handleFilterChange('internalNumber', e.target.value)}
-                placeholder="Введите номер"
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Статус</label>
-              <select
-                className="form-select"
-                value={filters.status}
-                onChange={(e) => handleFilterChange('status', e.target.value)}
-              >
-                <option value="">Все статусы</option>
-                <option value="В работе">В работе</option>
-                <option value="Проверка">Проверка</option>
-                <option value="Готов">Готов</option>
-                <option value="Доработка">Доработка</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Адрес</label>
-              <input
-                type="text"
-                className="form-input"
-                value={filters.address}
-                onChange={(e) => handleFilterChange('address', e.target.value)}
-                placeholder="Введите адрес"
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Исполнитель</label>
-              <input
-                type="text"
-                className="form-input"
-                value={filters.inspector}
-                onChange={(e) => handleFilterChange('inspector', e.target.value)}
-                placeholder="Введите ФИО"
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Дата с</label>
-              <input
-                type="date"
-                className="form-input"
-                value={filters.dateFrom}
-                onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Дата по</label>
-              <input
-                type="date"
-                className="form-input"
-                value={filters.dateTo}
-                onChange={(e) => handleFilterChange('dateTo', e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="filters-actions">
-            <button className="btn btn-secondary" onClick={clearFilters}>
-              Очистить
-            </button>
-            <button 
-              className="btn btn-primary" 
-              onClick={() => setShowFilters(false)}
-            >
-              Применить
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Таблица осмотров */}
       <div className="table-container">
@@ -613,7 +509,7 @@ const Inspections: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                      {(error ? getFilteredInspections() : (data?.data?.inspections || getFilteredInspections())).map((inspection: Inspection) => (
+                      {(error ? getFilteredInspections : (data?.data?.inspections || getFilteredInspections)).map((inspection: Inspection) => (
                   <tr 
                     key={inspection.id}
                     onClick={() => navigate(`/inspections/${inspection.id}`)}
@@ -665,7 +561,7 @@ const Inspections: React.FC = () => {
               </tbody>
             </table>
 
-            {(error ? getFilteredInspections() : (data?.data?.inspections || getFilteredInspections())).length === 0 && (
+            {(error ? getFilteredInspections : (data?.data?.inspections || getFilteredInspections)).length === 0 && (
               <div className="empty-state">
                 <h3>Осмотры не найдены</h3>
                 <p>Попробуйте изменить фильтры или создать новый осмотр</p>

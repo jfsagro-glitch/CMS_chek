@@ -8,7 +8,6 @@ import {
   Car, 
   Building, 
   Home, 
-  Truck, 
   Plus, 
   Trash2, 
   Upload,
@@ -22,7 +21,6 @@ import {
 import { inspectionsApi } from '../services/api';
 import AddressAutocomplete from '../components/AddressAutocomplete';
 import GoogleMap from '../components/GoogleMap';
-import { vehicleCategories, vehicleTypes, vehicleMakes, getModelsByMake } from '../data/vehicleData';
 import { getCharacteristicsForPropertyType } from '../data/objectCharacteristics';
 import toast from 'react-hot-toast';
 import './CreateInspection.css';
@@ -42,25 +40,6 @@ const schema = yup.object({
   ).min(1, 'Добавьте хотя бы один объект'),
 });
 
-interface InspectionFormData {
-  propertyType: string;
-  address: string;
-  latitude?: number;
-  longitude?: number;
-  inspectorName: string;
-  inspectorPhone: string;
-  inspectorEmail?: string;
-  internalNumber?: string;
-  comment?: string;
-  objects: Array<{
-    vin?: string;
-    registrationNumber?: string;
-    category: string;
-    type: string;
-    make: string;
-    model: string;
-  }>;
-}
 
 const propertyTypes = [
   { id: 'Автотранспорт', name: 'Автотранспорт', icon: Car, color: '#1976D2' },
@@ -75,7 +54,7 @@ const CreateInspection: React.FC = () => {
   const navigate = useNavigate();
   const { addNewInspection } = useInspections();
 
-  const { register, control, handleSubmit, watch, setValue, formState: { errors, isValid } } = useForm({
+  const { register, control, handleSubmit, watch, setValue, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
     mode: 'onChange', // Валидация в реальном времени
     defaultValues: {

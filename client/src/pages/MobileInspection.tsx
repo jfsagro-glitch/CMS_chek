@@ -384,33 +384,6 @@ const MobileInspection: React.FC = () => {
     }
   };
 
-  const tryUploadPendingPhotos = async () => {
-    if (!isOnline) return;
-
-    try {
-      const uploadedCount = await uploadPendingPhotos(async (offlinePhoto) => {
-        // Здесь будет реальная загрузка на сервер
-        // Пока просто имитируем успех
-        console.log('Загрузка фото:', offlinePhoto.id);
-      });
-
-      if (uploadedCount > 0) {
-        toast.success(`Загружено фото: ${uploadedCount}`, {
-          icon: '☁️',
-          duration: 4000
-        });
-        setPendingCount(prev => Math.max(0, prev - uploadedCount));
-        
-        // Обновляем статус фото в состоянии
-        setPhotos(prev => prev.map(p => ({
-          ...p,
-          uploaded: true
-        })));
-      }
-    } catch (error) {
-      console.error('Ошибка загрузки неотправленных фото:', error);
-    }
-  };
 
   const removePhoto = async (index: number) => {
     const photo = photos[index];
