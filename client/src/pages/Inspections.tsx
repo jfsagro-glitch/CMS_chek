@@ -260,11 +260,15 @@ const Inspections: React.FC = () => {
     return filtered;
   }, [filters]);
 
+  // Проверяем, работаем ли мы на GitHub Pages
+  const IS_GITHUB_PAGES = window.location.hostname.includes('github.io');
+  
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['inspections', filters, page],
     queryFn: () => inspectionsApi.getInspections({ ...filters, page, limit: 20 }),
     retry: false, // Не повторять запрос при ошибке
     refetchOnWindowFocus: false, // Не обновлять при фокусе окна
+    enabled: !IS_GITHUB_PAGES, // Отключаем запросы на GitHub Pages
   });
 
   // Обрабатываем обновление после создания нового осмотра
@@ -280,11 +284,13 @@ const Inspections: React.FC = () => {
       }
       // Очищаем state чтобы не показывать уведомление повторно
       window.history.replaceState({}, document.title);
-      // Обновляем данные и счетчик
-      refetch();
+      // Обновляем данные и счетчик (только если не на GitHub Pages)
+      if (!IS_GITHUB_PAGES) {
+        refetch();
+      }
       updateInspectionsCount();
     }
-  }, [location.state, refetch, updateInspectionsCount]);
+  }, [location.state, refetch, updateInspectionsCount, IS_GITHUB_PAGES]);
 
   const handleFilterChange = useCallback((key: keyof Filters, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -364,7 +370,11 @@ const Inspections: React.FC = () => {
       <div className="error-state">
         <h3>Ошибка загрузки данных</h3>
         <p>Попробуйте обновить страницу</p>
-        <button className="btn btn-primary" onClick={() => refetch()}>
+        <button 
+          className="btn btn-primary" 
+          onClick={() => !IS_GITHUB_PAGES && refetch()}
+          disabled={IS_GITHUB_PAGES}
+        >
           Обновить
         </button>
       </div>

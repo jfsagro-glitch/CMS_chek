@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { api } from '../services/api';
 
 interface User {
@@ -49,9 +49,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } else {
       setLoading(false);
     }
-  }, []);
+  }, [verifyToken]);
 
-  const verifyToken = async () => {
+  const verifyToken = useCallback(async () => {
     // Проверяем, работаем ли мы на GitHub Pages
     const IS_GITHUB_PAGES = window.location.hostname.includes('github.io');
     
@@ -63,6 +63,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
     
     try {
+      // На GitHub Pages не делаем реальные API запросы
+      if (IS_GITHUB_PAGES) {
+        console.log('GitHub Pages detected, skipping auth verification');
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+      
       const response = await api.get('/auth/verify');
       setUser(response.data.user);
     } catch (error) {
@@ -71,7 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const login = async (email: string, password: string) => {
     // Проверяем, работаем ли мы на GitHub Pages
