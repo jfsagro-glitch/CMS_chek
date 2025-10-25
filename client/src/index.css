@@ -210,6 +210,7 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: inherit;
+  transition: all 0.3s ease;
 }
 
 .container {
@@ -222,18 +223,40 @@ body {
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow);
   color: var(--text-primary);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 8px 0;
 }
 
 .btn-primary {
   background-color: var(--accent-primary);
   color: white;
   border: 1px solid var(--accent-secondary);
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-secondary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .btn-secondary {
   background-color: var(--bg-secondary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-tertiary);
+  transform: translateY(-1px);
 }
 
 .modal {
@@ -241,17 +264,60 @@ body {
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-lg);
   color: var(--text-primary);
+  border-radius: 12px;
+  padding: 24px;
 }
 
 .input {
   background-color: var(--bg-secondary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
+  padding: 10px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
 }
 
 .input:focus {
   border-color: var(--accent-primary);
   outline: none;
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+}
+
+/* Улучшенные стили для всех элементов */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Специальные стили для Windows 97 */
+[data-theme="windows97"] * {
+  font-family: "MS Sans Serif", "Microsoft Sans Serif", sans-serif;
+}
+
+[data-theme="windows97"] .btn-primary,
+[data-theme="windows97"] .btn-secondary {
+  border: 2px outset #c0c0c0;
+  background-color: #c0c0c0;
+  color: #000000;
+  font-size: 11px;
+}
+
+[data-theme="windows97"] .btn-primary:active,
+[data-theme="windows97"] .btn-secondary:active {
+  border: 2px inset #c0c0c0;
+}
+
+/* Специальные стили для Nokia 3110 */
+[data-theme="nokia3110"] * {
+  font-family: "Courier New", monospace;
+  image-rendering: pixelated;
+}
+
+[data-theme="nokia3110"] .btn-primary,
+[data-theme="nokia3110"] .btn-secondary {
+  border: 1px solid #306230;
+  background-color: #0f380f;
+  color: #9bbc0f;
+  font-size: 12px;
 }
 
 /* Гарантия читаемости текста */

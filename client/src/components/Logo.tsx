@@ -8,17 +8,34 @@ const Logo: React.FC = () => {
   const getLogoContent = () => {
     switch (theme) {
       case 'windows97':
-        return '🖥️ CMS 97';
+        return '🖥️';
       case 'windowsXP':
-        return '🎯 CMS XP';
+        return '🎯';
       case 'ios':
-        return '📱 CMS';
+        return '📱';
       case 'matrix':
-        return '🔰 MATRIX';
+        return '🔰';
       case 'nokia3110':
-        return '📟 CMS';
+        return '📟';
       default:
-        return '🔍 CMS Check';
+        return '🛡️';
+    }
+  };
+
+  const getLogoText = () => {
+    switch (theme) {
+      case 'windows97':
+        return 'CMS 97';
+      case 'windowsXP':
+        return 'CMS XP';
+      case 'ios':
+        return 'CMS';
+      case 'matrix':
+        return 'MATRIX';
+      case 'nokia3110':
+        return 'CMS';
+      default:
+        return 'CMS Check';
     }
   };
 
@@ -30,7 +47,7 @@ const Logo: React.FC = () => {
         </div>
       </div>
       <div className="logo-text">
-        CMS Check
+        {getLogoText()}
       </div>
     </div>
   );

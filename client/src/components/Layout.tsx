@@ -30,7 +30,10 @@ const Layout: React.FC = () => {
     }
   };
 
-  const canGoBack = location.pathname !== '/' && location.pathname !== '/inspections';
+  const canGoBack = location.pathname !== '/' && 
+                   location.pathname !== '/inspections' && 
+                   location.pathname !== '/login' && 
+                   location.pathname !== '/register';
 
   return (
     <div className={`layout theme-${theme}`}>
@@ -52,6 +55,34 @@ const Layout: React.FC = () => {
             onClick={() => navigate('/inspections')}
           >
             📊 Осмотры
+          </button>
+          
+          <button
+            className="nav-item"
+            onClick={() => navigate('/inspections/create')}
+          >
+            ➕ Новый осмотр
+          </button>
+          
+          <button
+            className="nav-item"
+            onClick={() => navigate('/analytics')}
+          >
+            📈 Аналитика
+          </button>
+          
+          <button
+            className="nav-item"
+            onClick={() => navigate('/users')}
+          >
+            👥 Пользователи
+          </button>
+          
+          <button
+            className="nav-item"
+            onClick={() => navigate('/settings')}
+          >
+            ⚙️ Настройки
           </button>
           
           {canGoBack && (
