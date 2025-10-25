@@ -5,16 +5,18 @@
   overflow-y: auto;
   margin-left: 0;
   transition: margin-left 0.3s ease;
-  width: calc(100vw - 200px); /* Полная ширина минус тулбар */
+  width: calc(100vw - 260px); /* Полная ширина минус тулбар */
   position: fixed;
   top: 0;
-  left: 200px; /* Вплотную к тулбару */
+  left: 260px; /* Вплотную к тулбару */
   z-index: 1;
-  background: #f5f5f5;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .inspections-content {
-  background: #f5f5f5;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   width: 100%;
   height: 100vh;
   position: relative;
@@ -25,10 +27,10 @@
 }
 
 /* Адаптация под скрытый тулбар */
-.sidebar.collapsed ~ .main-content .inspections-page {
+.sidebar.closed ~ .main-content .inspections-page {
   margin-left: 0;
-  width: calc(100vw - 60px); /* Полная ширина минус свернутый тулбар */
-  left: 60px; /* Вплотную к свернутому тулбару */
+  width: calc(100vw - 80px); /* Полная ширина минус свернутый тулбар */
+  left: 80px; /* Вплотную к свернутому тулбару */
 }
 
 .page-header {
@@ -36,14 +38,15 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 24px;
-  border-bottom: 1px solid #d9d9d9;
-  background: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
   border-radius: 0;
   margin: 0;
   gap: 16px;
   flex-shrink: 0;
   width: 100%;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow);
 }
 
 .btn-close {
@@ -178,7 +181,8 @@
 
 /* Таблица */
 .table-container {
-  background: #ffffff;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
   overflow-x: auto; /* Горизонтальная прокрутка при необходимости */
   overflow-y: visible;
   width: 100%;
@@ -186,7 +190,8 @@
   border-radius: 8px;
   margin: 16px;
   padding: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
 }
 
 .inspections-table {
@@ -199,12 +204,12 @@
 }
 
 .inspections-table th {
-  background-color: #fafafa;
-  color: #262626;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
   font-weight: 600;
   padding: 12px 8px;
   text-align: left;
-  border-bottom: 1px solid #d9d9d9;
+  border-bottom: 1px solid var(--border-color);
   white-space: nowrap;
   font-size: 14px;
 }
@@ -231,25 +236,26 @@
 
 .inspections-table td {
   padding: 12px 8px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--border-light);
   vertical-align: middle;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 14px;
-  color: #262626;
+  color: var(--text-primary);
+  background-color: var(--bg-card);
 }
 
 .inspections-table tbody tr:hover {
-  background-color: #f5f5f5;
+  background-color: var(--bg-tertiary);
 }
 
 .inspections-table tbody tr:nth-child(even) {
-  background-color: #f9fafb;
+  background-color: var(--bg-secondary);
 }
 
 .inspections-table tbody tr:nth-child(even):hover {
-  background-color: #f3f4f6;
+  background-color: var(--bg-tertiary);
 }
 
 .date-cell {
@@ -661,6 +667,57 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Специальные стили для Windows 97 */
+[data-theme="windows97"] .inspections-page {
+  background-color: #c0c0c0;
+  border: 2px outset #c0c0c0;
+}
+
+[data-theme="windows97"] .table-container {
+  background-color: #ffffff;
+  border: 2px outset #c0c0c0;
+  box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #ffffff;
+}
+
+[data-theme="windows97"] .inspections-table th {
+  background-color: #c0c0c0;
+  border: 1px solid #808080;
+  font-family: "MS Sans Serif", "Microsoft Sans Serif", sans-serif;
+}
+
+[data-theme="windows97"] .inspections-table td {
+  background-color: #ffffff;
+  border: 1px solid #c0c0c0;
+}
+
+/* Специальные стили для Nokia 3110 */
+[data-theme="nokia3110"] .inspections-page {
+  background-color: #0f380f;
+  border: 2px solid #9bbc0f;
+}
+
+[data-theme="nokia3110"] .table-container {
+  background-color: #0f380f;
+  border: 1px solid #306230;
+  box-shadow: 0 0 0 2px #9bbc0f;
+}
+
+[data-theme="nokia3110"] .inspections-table th {
+  background-color: #306230;
+  color: #9bbc0f;
+  border: 1px solid #8bac0f;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+}
+
+[data-theme="nokia3110"] .inspections-table td {
+  background-color: #0f380f;
+  color: #9bbc0f;
+  border: 1px solid #306230;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
 }
 
 /* Медиа-запросы для адаптивности */
