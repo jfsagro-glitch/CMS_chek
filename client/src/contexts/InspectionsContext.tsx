@@ -4,14 +4,17 @@ import { APP_CONFIG } from '../config/app';
 
 interface InspectionsContextType {
   inspectionsCount: number;
+  inspections: any[];
   updateInspectionsCount: () => Promise<void>;
   addNewInspection: (newInspection: any) => void;
+  refreshInspections: () => void;
 }
 
 const InspectionsContext = createContext<InspectionsContextType | undefined>(undefined);
 
 export const InspectionsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [inspectionsCount, setInspectionsCount] = useState(0);
+  const [inspections, setInspections] = useState<any[]>([]);
 
   const updateInspectionsCount = useCallback(async () => {
     if (APP_CONFIG.DEMO_MODE) {
@@ -32,6 +35,12 @@ export const InspectionsProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   const addNewInspection = useCallback((inspection: any) => {
     setInspectionsCount(prev => prev + 1);
+    setInspections(prev => [inspection, ...prev]);
+  }, []);
+
+  const refreshInspections = useCallback(() => {
+    // Принудительно обновляем список осмотров
+    setInspectionsCount(prev => prev);
   }, []);
 
   useEffect(() => {
@@ -39,7 +48,7 @@ export const InspectionsProvider: React.FC<{ children: ReactNode }> = ({ childre
   }, [updateInspectionsCount]);
 
   return (
-    <InspectionsContext.Provider value={{ inspectionsCount, updateInspectionsCount, addNewInspection }}>
+    <InspectionsContext.Provider value={{ inspectionsCount, inspections, updateInspectionsCount, addNewInspection, refreshInspections }}>
       {children}
     </InspectionsContext.Provider>
   );

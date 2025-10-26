@@ -59,7 +59,7 @@ const Inspections: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { updateInspectionsCount } = useInspections();
+  const { updateInspectionsCount, inspections: contextInspections, refreshInspections } = useInspections();
 
   // Функция для получения демо-данных
   const getDemoInspections = (): Inspection[] => {
@@ -228,7 +228,15 @@ const Inspections: React.FC = () => {
 
   // Мемоизированная фильтрация демо-данных
   const getFilteredInspections = useMemo(() => {
-    let filtered = getDemoInspections();
+    // Объединяем демо-данные с новыми осмотрами из контекста
+    let allInspections = [...getDemoInspections()];
+    
+    // Добавляем новые осмотры из контекста в начало списка
+    if (contextInspections.length > 0) {
+      allInspections = [...contextInspections, ...allInspections];
+    }
+    
+    let filtered = allInspections;
 
     if (filters.status) {
       filtered = filtered.filter(i => i.status === filters.status);
@@ -260,7 +268,7 @@ const Inspections: React.FC = () => {
     }
 
     return filtered;
-  }, [filters]);
+  }, [filters, contextInspections]);
 
   // Проверяем, работаем ли мы на GitHub Pages
   const IS_GITHUB_PAGES = window.location.hostname.includes('github.io');

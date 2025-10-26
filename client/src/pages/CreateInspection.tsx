@@ -31,7 +31,7 @@ interface InspectionFormData {
 
 const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
-  const { updateInspectionsCount } = useInspections();
+  const { updateInspectionsCount, addNewInspection } = useInspections();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const {
@@ -121,6 +121,9 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
 
       if (response.data) {
         toast.success(response.data.message || 'Осмотр успешно создан!');
+        
+        // Добавляем новый осмотр в контекст
+        addNewInspection(response.data.inspection);
         
         // Обновляем счетчик осмотров
         updateInspectionsCount();
