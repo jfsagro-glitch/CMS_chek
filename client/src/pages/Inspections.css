@@ -215,18 +215,42 @@
 }
 
 /* Адаптивные ширины колонок */
-.inspections-table th:nth-child(1), .inspections-table td:nth-child(1) { width: 5%; min-width: 50px; } /* Создан */
-.inspections-table th:nth-child(2), .inspections-table td:nth-child(2) { width: 3%; min-width: 30px; } /* № */
-.inspections-table th:nth-child(3), .inspections-table td:nth-child(3) { width: 8%; min-width: 70px; } /* Исполнитель */
-.inspections-table th:nth-child(4), .inspections-table td:nth-child(4) { width: 55%; min-width: 350px; } /* Адрес */
-.inspections-table th:nth-child(5), .inspections-table td:nth-child(5) { width: 5%; min-width: 50px; } /* Статус */
-.inspections-table th:nth-child(6), .inspections-table td:nth-child(6) { width: 6%; min-width: 60px; } /* Тип */
-.inspections-table th:nth-child(7), .inspections-table td:nth-child(7) { width: 3%; min-width: 30px; } /* Фото */
+.inspections-table th:nth-child(1), .inspections-table td:nth-child(1) { width: 12%; min-width: 120px; } /* Дата создания */
+.inspections-table th:nth-child(2), .inspections-table td:nth-child(2) { width: 10%; min-width: 100px; } /* Номер */
+.inspections-table th:nth-child(3), .inspections-table td:nth-child(3) { width: 15%; min-width: 150px; } /* Исполнитель */
+.inspections-table th:nth-child(4), .inspections-table td:nth-child(4) { width: 35%; min-width: 200px; } /* Адрес */
+.inspections-table th:nth-child(5), .inspections-table td:nth-child(5) { width: 12%; min-width: 120px; } /* Статус */
+.inspections-table th:nth-child(6), .inspections-table td:nth-child(6) { width: 10%; min-width: 100px; } /* Тип имущества */
+.inspections-table th:nth-child(7), .inspections-table td:nth-child(7) { width: 6%; min-width: 60px; } /* Фото */
 
-/* Убираем отступы в столбце адрес */
-.inspections-table td:nth-child(4) {
-  padding-left: 0.02rem;
-  padding-right: 0.02rem;
+/* Стили для новых элементов */
+.property-type {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.property-type-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.photo-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.photo-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.no-photo {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
 }
 
 /* Убираем аватары в столбце исполнитель */

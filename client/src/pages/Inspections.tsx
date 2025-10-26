@@ -528,12 +528,12 @@ const Inspections: React.FC = () => {
             <table className="inspections-table">
               <thead>
                 <tr>
-                  <th>Создан</th>
-                  <th>№</th>
+                  <th>Дата создания</th>
+                  <th>Номер</th>
                   <th>Исполнитель</th>
                   <th>Адрес</th>
                   <th>Статус</th>
-                  <th>Тип</th>
+                  <th>Тип имущества</th>
                   <th>Фото</th>
                 </tr>
               </thead>
@@ -544,21 +544,21 @@ const Inspections: React.FC = () => {
                     onClick={() => navigate(`/inspections/${inspection.id}`)}
                     style={{ cursor: 'pointer' }}
                   >
-                    <td className="date-cell">
+                    <td>
                       <div className="date-time">
                         <div className="date">{formatDate(inspection.created_at)}</div>
                         <div className="time">{new Date(inspection.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</div>
                       </div>
                     </td>
                     <td>
-                      <div className="inspection-number">
+                      <span className="inspection-number">
                         {inspection.internal_number || `INS-${String(inspection.id).padStart(3, '0')}`}
-                      </div>
+                      </span>
                     </td>
                     <td>
                       <span className="inspector-name">{inspection.inspector_name}</span>
                     </td>
-                    <td className="address-cell">
+                    <td>
                       <span className="address-text">{inspection.address || 'Адрес не указан'}</span>
                     </td>
                     <td>
@@ -567,23 +567,24 @@ const Inspections: React.FC = () => {
                       </span>
                     </td>
                     <td>
-                      <div className="property-type-icon">
-                        {getPropertyTypeIcon(inspection.property_type)}
+                      <div className="property-type">
+                        <span className="property-type-icon">
+                          {getPropertyTypeIcon(inspection.property_type)}
+                        </span>
+                        <span className="property-type-text">{inspection.property_type}</span>
                       </div>
                     </td>
                     <td>
-                      <div className="photo-indicator">
-                        {inspection.photos_count > 0 ? (
-                          <div className="photo-icon">
-                            <Camera size={16} />
-                            <span className="photo-count">{inspection.photos_count}</span>
-                          </div>
-                        ) : (
-                          <div className="no-photo">
-                            <X size={16} />
-                          </div>
-                        )}
-                      </div>
+                      {inspection.photos_count > 0 ? (
+                        <div className="photo-indicator">
+                          <Camera size={16} />
+                          <span className="photo-count">{inspection.photos_count}</span>
+                        </div>
+                      ) : (
+                        <div className="no-photo">
+                          <X size={16} />
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}
