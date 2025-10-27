@@ -31,6 +31,8 @@ body {
   --error: #dc3545;
   --info: #17a2b8;
   --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
 }
 
 /* ===== ТЕМНАЯ ТЕМА ===== */
@@ -53,6 +55,8 @@ body {
   --error: #f44336;
   --info: #29b6f6;
   --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
 /* ===== WINDOWS 97 ===== */
@@ -76,7 +80,8 @@ body {
   --info: #008080;
   --gradient: linear-gradient(to bottom, #c0c0c0, #808080);
   
-  font-family: "MS Sans Serif", "Microsoft Sans Serif", sans-serif;
+  font-family: "MS Sans Serif", "Microsoft Sans Serif", "Arial", sans-serif;
+  font-size: 11px;
 }
 
 /* ===== WINDOWS XP ===== */
@@ -100,7 +105,8 @@ body {
   --info: #5bc0de;
   --gradient: linear-gradient(to bottom, #f5f4f1, #e6e3d8);
   
-  font-family: "Tahoma", "Segoe UI", sans-serif;
+  font-family: "Tahoma", "Segoe UI", "Arial", sans-serif;
+  font-size: 12px;
 }
 
 /* ===== IOS ===== */
@@ -124,7 +130,9 @@ body {
   --info: #5ac8fa;
   --gradient: linear-gradient(135deg, #007aff 0%, #5856d6 100%);
   
-  font-family: -apple-system, BlinkMacSystemFont, "San Francisco", "Helvetica Neue", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
 }
 
 /* ===== МАТРИЦА ===== */
@@ -148,7 +156,10 @@ body {
   --info: #00ffff;
   --gradient: linear-gradient(135deg, #00ff00 0%, #003300 100%);
   
-  font-family: "Courier New", monospace;
+  font-family: "Courier New", "Consolas", "Monaco", monospace;
+  font-size: 14px;
+  font-weight: 400;
+  text-shadow: 0 0 5px #00ff00;
 }
 
 /* ===== NOKIA 3110 ===== */
@@ -172,8 +183,11 @@ body {
   --info: #306230;
   --gradient: linear-gradient(135deg, #0f380f 0%, #9bbc0f 100%);
   
-  font-family: "Pixel", "Courier New", monospace;
+  font-family: "Pixel", "Courier New", "Consolas", monospace;
+  font-size: 12px;
+  font-weight: 400;
   image-rendering: pixelated;
+  text-shadow: 0 0 3px #9bbc0f;
 }
 
 /* Анимация Matrix */
@@ -290,7 +304,8 @@ body {
 
 /* Специальные стили для Windows 97 */
 [data-theme="windows97"] * {
-  font-family: "MS Sans Serif", "Microsoft Sans Serif", sans-serif;
+  font-family: "MS Sans Serif", "Microsoft Sans Serif", "Arial", sans-serif !important;
+  font-size: 11px !important;
 }
 
 [data-theme="windows97"] .btn-primary,
@@ -306,10 +321,34 @@ body {
   border: 2px inset #c0c0c0;
 }
 
+/* Специальные стили для Windows XP */
+[data-theme="windowsXP"] * {
+  font-family: "Tahoma", "Segoe UI", "Arial", sans-serif !important;
+  font-size: 12px !important;
+}
+
+/* Специальные стили для iOS */
+[data-theme="ios"] * {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+}
+
+/* Специальные стили для Matrix */
+[data-theme="matrix"] * {
+  font-family: "Courier New", "Consolas", "Monaco", monospace !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  text-shadow: 0 0 5px #00ff00 !important;
+}
+
 /* Специальные стили для Nokia 3110 */
 [data-theme="nokia3110"] * {
-  font-family: "Courier New", monospace;
-  image-rendering: pixelated;
+  font-family: "Pixel", "Courier New", "Consolas", monospace !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  image-rendering: pixelated !important;
+  text-shadow: 0 0 3px #9bbc0f !important;
 }
 
 [data-theme="nokia3110"] .btn-primary,

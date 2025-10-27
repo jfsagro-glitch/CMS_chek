@@ -22,13 +22,18 @@
   justify-content: center;
   background: var(--gradient);
   border-radius: 12px;
-  font-size: 24px;
   color: white;
   position: relative;
   z-index: 2;
   animation: logoPulse 2s ease-in-out infinite;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   border: 2px solid var(--accent-primary);
+  transition: all 0.3s ease;
+}
+
+.logo-icon svg {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  transition: all 0.3s ease;
 }
 
 .logo-pulse::before {
@@ -59,6 +64,7 @@
   color: var(--text-primary);
   white-space: nowrap;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 @keyframes logoPulse {
@@ -91,22 +97,106 @@
 [data-theme="windows97"] .logo-icon {
   border-radius: 0;
   animation: none;
+  box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #ffffff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
 }
 
-[data-theme="windows97"] .logo-pulse::before {
+[data-theme="windows97"] .logo-pulse::before,
+[data-theme="windows97"] .logo-pulse::after {
   display: none;
+}
+
+[data-theme="windows97"] .logo-icon svg {
+  filter: none;
 }
 
 [data-theme="matrix"] .logo-icon {
   animation: matrixPulse 1s ease-in-out infinite;
+  box-shadow: 0 0 20px #00ff00;
+}
+
+[data-theme="matrix"] .logo-icon svg {
+  filter: drop-shadow(0 0 10px #00ff00);
 }
 
 @keyframes matrixPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  0%, 100% { 
+    opacity: 1; 
+    box-shadow: 0 0 20px #00ff00;
+  }
+  50% { 
+    opacity: 0.7; 
+    box-shadow: 0 0 30px #00ff00;
+  }
 }
 
 [data-theme="nokia3110"] .logo-icon {
   border-radius: 2px;
   image-rendering: pixelated;
+  animation: nokiaGlow 3s ease-in-out infinite;
+}
+
+[data-theme="nokia3110"] .logo-icon svg {
+  filter: contrast(1.5) brightness(1.2);
+}
+
+@keyframes nokiaGlow {
+  0%, 100% { 
+    box-shadow: 0 0 5px #9bbc0f;
+  }
+  50% { 
+    box-shadow: 0 0 15px #9bbc0f, 0 0 25px #8bac0f;
+  }
+}
+
+[data-theme="ios"] .logo-icon {
+  border-radius: 16px;
+  animation: iosBounce 2s ease-in-out infinite;
+}
+
+[data-theme="ios"] .logo-icon svg {
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15));
+}
+
+@keyframes iosBounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+[data-theme="windowsXP"] .logo-icon {
+  border-radius: 8px;
+  animation: xpShine 3s ease-in-out infinite;
+}
+
+[data-theme="windowsXP"] .logo-icon svg {
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
+}
+
+@keyframes xpShine {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), 0 0 20px rgba(58, 110, 165, 0.3);
+  }
+}
+
+/* Hover эффекты */
+.logo-container:hover .logo-icon {
+  transform: scale(1.1);
+}
+
+.logo-container:hover .logo-text {
+  color: var(--accent-primary);
+}
+
+[data-theme="matrix"] .logo-container:hover .logo-icon {
+  box-shadow: 0 0 40px #00ff00;
+}
+
+[data-theme="nokia3110"] .logo-container:hover .logo-icon {
+  box-shadow: 0 0 20px #9bbc0f, 0 0 40px #8bac0f;
 }
