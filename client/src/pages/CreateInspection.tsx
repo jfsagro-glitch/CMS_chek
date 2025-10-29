@@ -185,13 +185,24 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
   };
 
   // Если модалка закрыта, не рендерим ничего
-  if (!isOpen) return null;
+  if (!isOpen) {
+    console.log('Modal not open, returning null');
+    return null;
+  }
+  
+  console.log('Modal is open, rendering with Portal');
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget && !isSubmitting) {
       onClose();
     }
   };
+
+  const portalRoot = document.body;
+  if (!portalRoot) {
+    console.error('Portal root not found!');
+    return null;
+  }
 
   return createPortal(
     <div 
