@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
@@ -48,12 +49,22 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
     },
   });
 
-  // Сбрасываем форму при открытии/закрытии модалки
+  // Сбрасываем форму при открытии/закрытии модалки и блокируем скролл
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      // Блокируем скролл body при открытии модального окна
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Разблокируем скролл при закрытии
+      document.body.style.overflow = '';
       reset();
       setIsSubmitting(false);
     }
+    
+    // Очистка при размонтировании
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [isOpen, reset]);
 
   // Проверка валидности формы
@@ -173,9 +184,18 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
   // Если модалка закрыта, не рендерим ничего
   if (!isOpen) return null;
 
-  return (
-    <div className="create-inspection-page">
-      <div className="create-inspection-content">
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget && !isSubmitting) {
+      onClose();
+    }
+  };
+
+  return createPortal(
+    <div 
+      className="create-inspection-page"
+      onClick={handleBackdropClick}
+    >
+      <div className="create-inspection-content" onClick={(e) => e.stopPropagation()}>
         <div className="page-header">
           <h1 className="page-title">Создание осмотра</h1>
           <div className="header-actions">
@@ -410,7 +430,8 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
           </form>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
