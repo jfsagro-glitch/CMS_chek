@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { useModal } from '../contexts/ModalContext';
 import Logo from './Logo';
 import CreateInspection from '../pages/CreateInspection';
 import './Layout.css';
@@ -9,22 +10,14 @@ import './Layout.css';
 const Layout: React.FC = () => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme, getNextTheme } = useTheme();
+  const { isCreateModalOpen, openCreateModal, closeCreateModal } = useModal();
   const navigate = useNavigate();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
-  };
-
-  const handleOpenCreateModal = () => {
-    setIsCreateModalOpen(true);
-  };
-
-  const handleCloseCreateModal = () => {
-    setIsCreateModalOpen(false);
   };
 
   const getThemeIcon = () => {
@@ -69,7 +62,7 @@ const Layout: React.FC = () => {
           
           <button
             className="nav-item"
-            onClick={handleOpenCreateModal}
+            onClick={openCreateModal}
           >
             ➕ Новый осмотр
           </button>
@@ -127,7 +120,7 @@ const Layout: React.FC = () => {
       {/* Модальное окно создания осмотра */}
       <CreateInspection 
         isOpen={isCreateModalOpen}
-        onClose={handleCloseCreateModal}
+        onClose={closeCreateModal}
       />
     </div>
   );

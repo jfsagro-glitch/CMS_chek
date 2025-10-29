@@ -1,9 +1,10 @@
 name: Deploy to GitHub Pages (Disabled)
 
 on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+  # Отключен - используем deploy-gh-pages.yml
+  # push:
+  #   branches: [ main ]
+  # workflow_dispatch:
 
 permissions:
   contents: read

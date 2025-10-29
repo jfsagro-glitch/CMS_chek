@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { InspectionsProvider } from './contexts/InspectionsContext';
+import { ModalProvider } from './contexts/ModalContext';
 import Layout from './components/Layout';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -28,7 +29,8 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <InspectionsProvider>
-            <Router>
+            <ModalProvider>
+              <Router>
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
@@ -41,7 +43,8 @@ function App() {
                 <Route path="/inspection/:id" element={<MobileInspection />} />
                 <Route path="*" element={<Inspections />} />
               </Routes>
-            </Router>
+              </Router>
+            </ModalProvider>
           </InspectionsProvider>
         </AuthProvider>
       </ThemeProvider>

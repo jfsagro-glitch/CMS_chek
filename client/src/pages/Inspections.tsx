@@ -15,7 +15,7 @@ import {
 import { inspectionsApi } from '../services/api';
 import { exportInspectionsToExcel } from '../utils/excelExport';
 import { useInspections } from '../contexts/InspectionsContext';
-import CreateInspection from './CreateInspection';
+import { useModal } from '../contexts/ModalContext';
 import toast from 'react-hot-toast';
 import './Inspections.css';
 
@@ -56,10 +56,10 @@ const Inspections: React.FC = () => {
   });
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { updateInspectionsCount, inspections: contextInspections, refreshInspections } = useInspections();
+  const { openCreateModal } = useModal();
 
   // Функция для получения демо-данных
   const getDemoInspections = (): Inspection[] => {
@@ -319,13 +319,6 @@ const Inspections: React.FC = () => {
     setPage(1);
   };
 
-  const handleOpenCreateModal = () => {
-    setIsCreateModalOpen(true);
-  };
-
-  const handleCloseCreateModal = () => {
-    setIsCreateModalOpen(false);
-  };
 
   const handleExport = async () => {
     const dataToExport = getFilteredInspections;
@@ -422,7 +415,7 @@ const Inspections: React.FC = () => {
             Экспорт
           </button>
           
-          <button className="btn btn-primary" onClick={handleOpenCreateModal}>
+          <button className="btn btn-primary" onClick={openCreateModal}>
             <Plus size={16} />
             Новый осмотр
           </button>
@@ -597,7 +590,7 @@ const Inspections: React.FC = () => {
                 <p>Попробуйте изменить фильтры или создать новый осмотр</p>
                 <button 
                   className="btn btn-primary"
-                  onClick={handleOpenCreateModal}
+                  onClick={openCreateModal}
                 >
                   Создать осмотр
                 </button>
@@ -631,11 +624,6 @@ const Inspections: React.FC = () => {
       </div>
       </div>
 
-      {/* Модальное окно создания осмотра */}
-      <CreateInspection 
-        isOpen={isCreateModalOpen}
-        onClose={handleCloseCreateModal}
-      />
     </div>
   );
 };
