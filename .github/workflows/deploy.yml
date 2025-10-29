@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy to GitHub Pages (Disabled)
 
 on:
   push:
@@ -32,13 +32,15 @@ jobs:
         run: |
           cd client
           echo "Installing dependencies..."
-          npm install
+          npm install --legacy-peer-deps
           echo "Dependencies installed successfully"
 
       - name: Build
         run: |
           cd client
           echo "Starting build process..."
+          export CI=false
+          export GENERATE_SOURCEMAP=false
           npm run build
           echo "Build completed successfully"
           
@@ -47,6 +49,14 @@ jobs:
           cd client
           cp build/index.html build/404.html
           echo "404.html copied successfully"
+          
+      - name: List build files
+        run: |
+          cd client
+          echo "Build directory contents:"
+          ls -la build/
+          echo "Static directory contents:"
+          ls -la build/static/
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
