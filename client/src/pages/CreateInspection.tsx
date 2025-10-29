@@ -174,82 +174,90 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white w-full h-full max-w-none max-h-none overflow-y-auto">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">Создание осмотра</h2>
+    <div className="create-inspection-page">
+      <div className="create-inspection-content">
+        <div className="page-header">
+          <h1 className="page-title">Создание осмотра</h1>
+          <div className="header-actions">
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 text-3xl font-bold bg-gray-100 hover:bg-gray-200 rounded-full w-10 h-10 flex items-center justify-center"
+              className="btn-close"
               disabled={isSubmitting}
             >
               ×
             </button>
           </div>
+        </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="step-content">
+          <form onSubmit={handleSubmit(onSubmit)}>
             {/* Поле типа имущества */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Тип имущества *
+            <div className="form-group">
+              <label className="form-label">
+                Тип имущества <span className="required">*</span>
               </label>
               <select
                 {...register('property_type', { required: 'Выберите тип имущества' })}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className={`form-select ${errors.property_type ? 'input-error' : ''}`}
               >
                 <option value="Автотранспорт">Автотранспорт</option>
                 <option value="Недвижимость">Недвижимость</option>
                 <option value="Оборудование">Оборудование</option>
               </select>
               {errors.property_type && (
-                <p className="text-red-500 text-sm mt-1">{errors.property_type.message}</p>
+                <p className="form-error-inline">{errors.property_type.message}</p>
               )}
             </div>
 
             {/* Поле адреса */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Адрес *
+            <div className="form-group">
+              <label className="form-label">
+                Адрес <span className="required">*</span>
               </label>
               <input
                 type="text"
                 {...register('address', { required: 'Введите адрес' })}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className={`form-input ${errors.address ? 'input-error' : ''}`}
                 placeholder="Введите адрес и выберите из списка"
               />
               {errors.address && (
-                <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>
+                <p className="form-error-inline">{errors.address.message}</p>
               )}
             </div>
 
             {/* Блок исполнителя */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ФИО исполнителя *
+            <div className="form-grid">
+              <div className="form-group">
+                <label className="form-label">
+                  ФИО исполнителя <span className="required">*</span>
                 </label>
                 <input
                   type="text"
                   {...register('inspector_name', { required: 'Введите ФИО исполнителя' })}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className={`form-input ${errors.inspector_name ? 'input-error' : ''}`}
                   placeholder="Иванов Иван Иванович"
                 />
+                {errors.inspector_name && (
+                  <p className="form-error-inline">{errors.inspector_name.message}</p>
+                )}
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Телефон *
+              <div className="form-group">
+                <label className="form-label">
+                  Телефон <span className="required">*</span>
                 </label>
                 <input
                   type="tel"
                   {...register('inspector_phone', { required: 'Введите телефон' })}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className={`form-input ${errors.inspector_phone ? 'input-error' : ''}`}
                   placeholder="+7 (999) 123-45-67"
                 />
+                {errors.inspector_phone && (
+                  <p className="form-error-inline">{errors.inspector_phone.message}</p>
+                )}
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email *
+              <div className="form-group">
+                <label className="form-label">
+                  Email <span className="required">*</span>
                 </label>
                 <input
                   type="email"
@@ -260,117 +268,133 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
                       message: 'Введите корректный email'
                     }
                   })}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className={`form-input ${errors.inspector_email ? 'input-error' : ''}`}
                   placeholder="ivanov@example.com"
                 />
+                {errors.inspector_email && (
+                  <p className="form-error-inline">{errors.inspector_email.message}</p>
+                )}
               </div>
             </div>
 
             {/* Блок объектов */}
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Объекты осмотра *
-                </label>
-                <button
-                  type="button"
-                  onClick={addObject}
-                  className="bg-green-500 text-white px-3 py-1 rounded-md text-sm hover:bg-green-600"
-                >
-                  + Добавить объект
-                </button>
-              </div>
-
-              {(watch('objects') || []).map((_, index) => (
-                <div key={index} className="border p-4 rounded-md mb-4 relative">
+            <div className="objects-section">
+              <div className="objects-header">
+                <h3>Объекты осмотра <span className="required">*</span></h3>
+                <div className="objects-actions">
                   <button
                     type="button"
-                    onClick={() => removeObject(index)}
-                    className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-                    disabled={(watch('objects') || []).length <= 1}
+                    onClick={addObject}
+                    className="btn btn-success btn-sm"
                   >
-                    ×
+                    + Добавить объект
                   </button>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm text-gray-600 mb-1">VIN</label>
-                      <input
-                        type="text"
-                        {...register(`objects.${index}.vin`)}
-                        className="w-full p-2 border border-gray-300 rounded-md"
-                        placeholder="1HGBH41JXMN109186"
-                      />
+                </div>
+              </div>
+
+              <div className="objects-list">
+                {(watch('objects') || []).map((_, index) => (
+                  <div key={index} className="object-card">
+                    <div className="object-header">
+                      <h4>Объект {index + 1}</h4>
+                      <button
+                        type="button"
+                        onClick={() => removeObject(index)}
+                        className="btn btn-danger btn-sm"
+                        disabled={(watch('objects') || []).length <= 1}
+                      >
+                        × Удалить
+                      </button>
                     </div>
-                    <div>
-                      <label className="block text-sm text-gray-600 mb-1">Госномер</label>
-                      <input
-                        type="text"
-                        {...register(`objects.${index}.license_plate`)}
-                        className="w-full p-2 border border-gray-300 rounded-md"
-                        placeholder="А123БВ777"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm text-gray-600 mb-1">Марка *</label>
-                      <input
-                        type="text"
-                        {...register(`objects.${index}.make`, { required: 'Введите марку' })}
-                        className="w-full p-2 border border-gray-300 rounded-md"
-                        placeholder="Toyota"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm text-gray-600 mb-1">Модель *</label>
-                      <input
-                        type="text"
-                        {...register(`objects.${index}.model`, { required: 'Введите модель' })}
-                        className="w-full p-2 border border-gray-300 rounded-md"
-                        placeholder="Camry"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm text-gray-600 mb-1">Год</label>
-                      <input
-                        type="number"
-                        {...register(`objects.${index}.year`)}
-                        className="w-full p-2 border border-gray-300 rounded-md"
-                        placeholder="2020"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm text-gray-600 mb-1">Цвет</label>
-                      <input
-                        type="text"
-                        {...register(`objects.${index}.color`)}
-                        className="w-full p-2 border border-gray-300 rounded-md"
-                        placeholder="Белый"
-                      />
+                    
+                    <div className="object-characteristics">
+                      <div className="form-group">
+                        <label className="form-label">VIN</label>
+                        <input
+                          type="text"
+                          {...register(`objects.${index}.vin`)}
+                          className="form-input"
+                          placeholder="1HGBH41JXMN109186"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Госномер</label>
+                        <input
+                          type="text"
+                          {...register(`objects.${index}.license_plate`)}
+                          className="form-input"
+                          placeholder="А123БВ777"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">
+                          Марка <span className="required">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          {...register(`objects.${index}.make`, { required: 'Введите марку' })}
+                          className={`form-input ${errors.objects?.[index]?.make ? 'input-error' : ''}`}
+                          placeholder="Toyota"
+                        />
+                        {errors.objects?.[index]?.make && (
+                          <p className="form-error-inline">{errors.objects[index]?.make?.message}</p>
+                        )}
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">
+                          Модель <span className="required">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          {...register(`objects.${index}.model`, { required: 'Введите модель' })}
+                          className={`form-input ${errors.objects?.[index]?.model ? 'input-error' : ''}`}
+                          placeholder="Camry"
+                        />
+                        {errors.objects?.[index]?.model && (
+                          <p className="form-error-inline">{errors.objects[index]?.model?.message}</p>
+                        )}
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Год</label>
+                        <input
+                          type="number"
+                          {...register(`objects.${index}.year`)}
+                          className="form-input"
+                          placeholder="2020"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Цвет</label>
+                        <input
+                          type="text"
+                          {...register(`objects.${index}.color`)}
+                          className="form-input"
+                          placeholder="Белый"
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
             {/* Комментарии */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Комментарии
-              </label>
+            <div className="form-group full-width">
+              <label className="form-label">Комментарии</label>
               <textarea
                 {...register('comments')}
                 rows={3}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="form-input"
                 placeholder="Дополнительная информация для исполнителя..."
               />
             </div>
 
             {/* Кнопки */}
-            <div className="flex justify-end space-x-4 pt-6 border-t">
+            <div className="step-actions">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                className="btn btn-secondary"
                 disabled={isSubmitting}
               >
                 Отмена
@@ -378,7 +402,7 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`btn btn-primary ${isSubmitting ? 'btn-disabled' : ''}`}
               >
                 {isSubmitting ? 'Создание...' : 'Создать осмотр'}
               </button>
