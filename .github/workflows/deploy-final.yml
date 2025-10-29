@@ -1,10 +1,9 @@
-name: Deploy Root Files to GitHub Pages
+name: Deploy to GitHub Pages
 
 on:
-  # Отключен - используем deploy-final.yml
-  # push:
-  #   branches: [ main ]
-  # workflow_dispatch:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
 permissions:
   contents: read
