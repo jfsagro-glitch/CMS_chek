@@ -70,7 +70,7 @@ const Inspections: React.FC = () => {
         status: 'Готов',
         inspector_name: 'Иванов И.И.',
         recipient_name: 'Петров П.П.',
-        created_at: '2022-05-25T03:37:00Z',
+        created_at: new Date().toISOString(),
         sent_at: '2022-05-25T04:00:00Z',
         property_type: 'Автотранспорт',
         object_type: 'легковой',
@@ -86,7 +86,7 @@ const Inspections: React.FC = () => {
         status: 'В работе',
         inspector_name: 'Сидоров С.С.',
         recipient_name: 'Козлов К.К.',
-        created_at: '2022-05-25T03:38:00Z',
+        created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 минут назад
         sent_at: '2022-05-25T04:01:00Z',
         property_type: 'Гараж',
         object_type: 'гараж',
@@ -102,7 +102,7 @@ const Inspections: React.FC = () => {
         status: 'Отменен',
         inspector_name: 'Морозов М.М.',
         recipient_name: 'Новиков Н.Н.',
-        created_at: '2022-05-25T03:39:00Z',
+        created_at: new Date(Date.now() - 1000 * 60 * 60).toISOString(), // 1 час назад
         property_type: 'Коммерческая',
         object_type: 'здание',
         object_description: 'Амурская обл., г. Благовещенск, кв-л 737',
@@ -117,7 +117,7 @@ const Inspections: React.FC = () => {
         status: 'Доработка',
         inspector_name: 'Волков В.В.',
         recipient_name: 'Зайцев З.З.',
-        created_at: '2022-05-25T03:40:00Z',
+        created_at: new Date(Date.now() - 1000 * 60 * 90).toISOString(), // 1.5 часа назад
         sent_at: '2022-05-25T04:02:00Z',
         property_type: 'Коммерческая',
         object_type: 'здание',
@@ -133,7 +133,7 @@ const Inspections: React.FC = () => {
         status: 'В работе',
         inspector_name: 'Орлов О.О.',
         recipient_name: 'Соколов С.С.',
-        created_at: '2022-05-25T03:41:00Z',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 часа назад
         sent_at: '2022-05-25T04:03:00Z',
         property_type: 'Коммерческая',
         object_type: 'здание',
@@ -149,7 +149,7 @@ const Inspections: React.FC = () => {
         status: 'Проверка',
         inspector_name: 'Лебедев Л.Л.',
         recipient_name: 'Голубев Г.Г.',
-        created_at: '2022-05-25T03:42:00Z',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(), // 3 часа назад
         sent_at: '2022-05-25T04:04:00Z',
         property_type: 'Коммерческая',
         object_type: 'здание',
@@ -165,7 +165,7 @@ const Inspections: React.FC = () => {
         status: 'Готов',
         inspector_name: 'Филиппов Ф.Ф.',
         recipient_name: 'Белов Б.Б.',
-        created_at: '2022-05-25T03:43:00Z',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(), // 4 часа назад
         sent_at: '2022-05-25T04:05:00Z',
         property_type: 'Коммерческая',
         object_type: 'здание',
@@ -181,7 +181,7 @@ const Inspections: React.FC = () => {
         status: 'Проверка',
         inspector_name: 'Комаров К.К.',
         recipient_name: 'Кузнецов К.К.',
-        created_at: '2022-05-25T03:44:00Z',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(), // 5 часов назад
         sent_at: '2022-05-25T04:06:00Z',
         property_type: 'Коммерческая',
         object_type: 'спецтехника',
@@ -197,7 +197,7 @@ const Inspections: React.FC = () => {
         status: 'В работе',
         inspector_name: 'Дмитриев Д.Д.',
         recipient_name: 'Егоров Е.Е.',
-        created_at: '2022-05-25T03:45:00Z',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(), // 6 часов назад
         sent_at: '2022-05-25T04:07:00Z',
         property_type: 'Автотранспорт',
         object_type: 'коммерческий',
@@ -213,7 +213,7 @@ const Inspections: React.FC = () => {
         status: 'Доработка',
         inspector_name: 'Жуков Ж.Ж.',
         recipient_name: 'Романов Р.Р.',
-        created_at: '2022-05-25T03:46:00Z',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 7).toISOString(), // 7 часов назад
         sent_at: '2022-05-25T04:08:00Z',
         property_type: 'Автотранспорт',
         object_type: 'коммерческий',
@@ -353,12 +353,37 @@ const Inspections: React.FC = () => {
 
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU', {
-      day: '2-digit',
-      month: '2-digit',
-      year: '2-digit',
-    });
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return 'Неверная дата';
+      }
+      return date.toLocaleDateString('ru-RU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+    } catch (error) {
+      console.error('Ошибка форматирования даты:', error);
+      return 'Ошибка даты';
+    }
+  };
+
+  const formatTime = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return '--:--';
+      }
+      return date.toLocaleTimeString('ru-RU', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false
+      });
+    } catch (error) {
+      console.error('Ошибка форматирования времени:', error);
+      return '--:--';
+    }
   };
 
 
@@ -540,7 +565,7 @@ const Inspections: React.FC = () => {
                     <td>
                       <div className="date-time">
                         <div className="date">{formatDate(inspection.created_at)}</div>
-                        <div className="time">{new Date(inspection.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</div>
+                        <div className="time">{formatTime(inspection.created_at)}</div>
                       </div>
                     </td>
                     <td>

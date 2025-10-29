@@ -426,6 +426,89 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
                           />
                         </div>
                       </div>
+
+                      {/* Динамические атрибуты в зависимости от типа имущества */}
+                      {selectedPropertyType && propertyAttributes.length > 0 && (
+                        <div className="dynamic-attributes">
+                          <h5 className="attributes-title">Характеристики объекта</h5>
+                          <div className="attributes-grid">
+                            {propertyAttributes.map((attr) => (
+                              <div key={attr.key} className="form-group">
+                                <label className="form-label">
+                                  {attr.label}
+                                  {attr.required && <span className="required">*</span>}
+                                </label>
+                                
+                                {attr.type === 'text' && (
+                                  <input
+                                    type="text"
+                                    {...register(`objects.${index}.${attr.key}`, {
+                                      required: attr.required ? `${attr.label} обязательно` : false,
+                                      pattern: attr.validation?.pattern ? {
+                                        value: new RegExp(attr.validation.pattern),
+                                        message: attr.validation.message || 'Неверный формат'
+                                      } : undefined
+                                    })}
+                                    className={`form-input ${errors.objects?.[index]?.[attr.key] ? 'input-error' : ''}`}
+                                    placeholder={attr.placeholder}
+                                  />
+                                )}
+                                
+                                {attr.type === 'number' && (
+                                  <input
+                                    type="number"
+                                    {...register(`objects.${index}.${attr.key}`, {
+                                      required: attr.required ? `${attr.label} обязательно` : false,
+                                      min: attr.validation?.min ? {
+                                        value: attr.validation.min,
+                                        message: attr.validation.message || `Минимальное значение: ${attr.validation.min}`
+                                      } : undefined,
+                                      max: attr.validation?.max ? {
+                                        value: attr.validation.max,
+                                        message: attr.validation.message || `Максимальное значение: ${attr.validation.max}`
+                                      } : undefined
+                                    })}
+                                    className={`form-input ${errors.objects?.[index]?.[attr.key] ? 'input-error' : ''}`}
+                                    placeholder={attr.placeholder}
+                                  />
+                                )}
+                                
+                                {attr.type === 'date' && (
+                                  <input
+                                    type="date"
+                                    {...register(`objects.${index}.${attr.key}`, {
+                                      required: attr.required ? `${attr.label} обязательно` : false
+                                    })}
+                                    className={`form-input ${errors.objects?.[index]?.[attr.key] ? 'input-error' : ''}`}
+                                  />
+                                )}
+                                
+                                {attr.type === 'select' && (
+                                  <select
+                                    {...register(`objects.${index}.${attr.key}`, {
+                                      required: attr.required ? `${attr.label} обязательно` : false
+                                    })}
+                                    className={`form-select ${errors.objects?.[index]?.[attr.key] ? 'input-error' : ''}`}
+                                  >
+                                    <option value="">Выберите {attr.label.toLowerCase()}</option>
+                                    {attr.options?.map((option) => (
+                                      <option key={option} value={option}>
+                                        {option}
+                                      </option>
+                                    ))}
+                                  </select>
+                                )}
+                                
+                                {errors.objects?.[index]?.[attr.key] && (
+                                  <p className="form-error-inline">
+                                    {errors.objects[index]?.[attr.key]?.message as string}
+                                  </p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
