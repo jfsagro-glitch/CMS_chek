@@ -5,6 +5,8 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { inspectionsApi } from '../services/api';
 import { useInspections } from '../contexts/InspectionsContext';
+import { PROPERTY_TYPES, getPropertyTypeAttributes, PropertyAttribute } from '../config/propertyTypes';
+import VehicleSelector from '../components/VehicleSelector';
 import './CreateInspection.css';
 
 interface CreateInspectionProps {
@@ -24,10 +26,14 @@ interface InspectionFormData {
   objects: Array<{
     vin?: string;
     license_plate?: string;
-    make: string;
-    model: string;
+    make_id?: string;
+    model_id?: string;
+    make?: string;
+    model?: string;
     year?: number;
     color?: string;
+    // Динамические атрибуты
+    [key: string]: any;
   }>;
 }
 
@@ -35,6 +41,8 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
   const navigate = useNavigate();
   const { updateInspectionsCount, addNewInspection } = useInspections();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedPropertyType, setSelectedPropertyType] = useState<string>('');
+  const [propertyAttributes, setPropertyAttributes] = useState<PropertyAttribute[]>([]);
   
   console.log('CreateInspection rendered, isOpen:', isOpen);
   
@@ -51,6 +59,16 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
       objects: [{ make: '', model: '' }],
     },
   });
+
+  // Обработчик изменения типа имущества
+  const handlePropertyTypeChange = (typeId: string) => {
+    setSelectedPropertyType(typeId);
+    const attributes = getPropertyTypeAttributes(typeId);
+    setPropertyAttributes(attributes);
+    
+    // Очищаем объекты при смене типа имущества
+    setValue('objects', []);
+  };
 
   // Сбрасываем форму при открытии/закрытии модалки и блокируем скролл
   useEffect(() => {
@@ -92,7 +110,7 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
 
     // Проверяем, что есть хотя бы один валидный объект
     const validObjects = data.objects.filter(obj => 
-      obj.make && obj.model && (obj.vin || obj.license_plate)
+      (obj.make_id || obj.make) && (obj.model_id || obj.model) && (obj.vin || obj.license_plate)
     );
     
     if (validObjects.length === 0) {
@@ -231,12 +249,18 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
                 Тип имущества <span className="required">*</span>
               </label>
               <select
-                {...register('property_type', { required: 'Выберите тип имущества' })}
+                {...register('property_type', { 
+                  required: 'Выберите тип имущества',
+                  onChange: (e) => handlePropertyTypeChange(e.target.value)
+                })}
                 className={`form-select ${errors.property_type ? 'input-error' : ''}`}
               >
-                <option value="Автотранспорт">Автотранспорт</option>
-                <option value="Недвижимость">Недвижимость</option>
-                <option value="Оборудование">Оборудование</option>
+                <option value="">Выберите тип имущества</option>
+                {PROPERTY_TYPES.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.name}
+                  </option>
+                ))}
               </select>
               {errors.property_type && (
                 <p className="form-error-inline">{errors.property_type.message}</p>
@@ -342,69 +366,65 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
                     </div>
                     
                     <div className="object-characteristics">
-                      <div className="form-group">
-                        <label className="form-label">VIN</label>
-                        <input
-                          type="text"
-                          {...register(`objects.${index}.vin`)}
-                          className="form-input"
-                          placeholder="1HGBH41JXMN109186"
-                        />
+                      {/* VIN и госномер */}
+                      <div className="form-row">
+                        <div className="form-group">
+                          <label className="form-label">VIN</label>
+                          <input
+                            type="text"
+                            {...register(`objects.${index}.vin`)}
+                            className="form-input"
+                            placeholder="1HGBH41JXMN109186"
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">Госномер</label>
+                          <input
+                            type="text"
+                            {...register(`objects.${index}.license_plate`)}
+                            className="form-input"
+                            placeholder="А123БВ777"
+                          />
+                        </div>
                       </div>
-                      <div className="form-group">
-                        <label className="form-label">Госномер</label>
-                        <input
-                          type="text"
-                          {...register(`objects.${index}.license_plate`)}
-                          className="form-input"
-                          placeholder="А123БВ777"
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label">
-                          Марка <span className="required">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          {...register(`objects.${index}.make`, { required: 'Введите марку' })}
-                          className={`form-input ${errors.objects?.[index]?.make ? 'input-error' : ''}`}
-                          placeholder="Toyota"
-                        />
-                        {errors.objects?.[index]?.make && (
-                          <p className="form-error-inline">{errors.objects[index]?.make?.message}</p>
-                        )}
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label">
-                          Модель <span className="required">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          {...register(`objects.${index}.model`, { required: 'Введите модель' })}
-                          className={`form-input ${errors.objects?.[index]?.model ? 'input-error' : ''}`}
-                          placeholder="Camry"
-                        />
-                        {errors.objects?.[index]?.model && (
-                          <p className="form-error-inline">{errors.objects[index]?.model?.message}</p>
-                        )}
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label">Год</label>
-                        <input
-                          type="number"
-                          {...register(`objects.${index}.year`)}
-                          className="form-input"
-                          placeholder="2020"
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label">Цвет</label>
-                        <input
-                          type="text"
-                          {...register(`objects.${index}.color`)}
-                          className="form-input"
-                          placeholder="Белый"
-                        />
+
+                      {/* Выбор марки и модели */}
+                      <VehicleSelector
+                        selectedMake={watch(`objects.${index}.make_id`) || ''}
+                        selectedModel={watch(`objects.${index}.model_id`) || ''}
+                        onMakeChange={(makeId) => {
+                          setValue(`objects.${index}.make_id`, makeId);
+                          setValue(`objects.${index}.model_id`, '');
+                        }}
+                        onModelChange={(modelId) => {
+                          setValue(`objects.${index}.model_id`, modelId);
+                        }}
+                        errors={{
+                          make: errors.objects?.[index]?.make_id?.message as string,
+                          model: errors.objects?.[index]?.model_id?.message as string
+                        }}
+                      />
+
+                      {/* Дополнительные поля */}
+                      <div className="form-row">
+                        <div className="form-group">
+                          <label className="form-label">Год</label>
+                          <input
+                            type="number"
+                            {...register(`objects.${index}.year`)}
+                            className="form-input"
+                            placeholder="2020"
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">Цвет</label>
+                          <input
+                            type="text"
+                            {...register(`objects.${index}.color`)}
+                            className="form-input"
+                            placeholder="Белый"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
