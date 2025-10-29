@@ -11,6 +11,8 @@ const Layout: React.FC = () => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme, getNextTheme } = useTheme();
   const { isCreateModalOpen, openCreateModal, closeCreateModal } = useModal();
+  
+  console.log('Layout rendered, isCreateModalOpen:', isCreateModalOpen);
   const navigate = useNavigate();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -62,7 +64,10 @@ const Layout: React.FC = () => {
           
           <button
             className="nav-item"
-            onClick={openCreateModal}
+            onClick={() => {
+              console.log('Button clicked, opening modal...');
+              openCreateModal();
+            }}
           >
             ➕ Новый осмотр
           </button>

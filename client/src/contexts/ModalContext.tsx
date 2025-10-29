@@ -24,6 +24,7 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const openCreateModal = () => {
+    console.log('Opening create modal...');
     setIsCreateModalOpen(true);
   };
 

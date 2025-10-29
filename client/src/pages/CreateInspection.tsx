@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { inspectionsApi } from '../services/api';
 import { useInspections } from '../contexts/InspectionsContext';
+import './CreateInspection.css';
 
 interface CreateInspectionProps {
   isOpen: boolean;
@@ -34,6 +35,8 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
   const navigate = useNavigate();
   const { updateInspectionsCount, addNewInspection } = useInspections();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  console.log('CreateInspection rendered, isOpen:', isOpen);
   
   const {
     register,
