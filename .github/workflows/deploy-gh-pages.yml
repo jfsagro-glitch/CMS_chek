@@ -1,9 +1,10 @@
 name: Deploy to GitHub Pages (gh-pages branch)
 
 on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+  # Отключен - используем pages.yml
+  # push:
+  #   branches: [ main ]
+  # workflow_dispatch:
 
 permissions:
   contents: write
