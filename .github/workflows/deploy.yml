@@ -31,12 +31,22 @@ jobs:
       - name: Install dependencies
         run: |
           cd client
-          npm ci
+          echo "Installing dependencies..."
+          npm install
+          echo "Dependencies installed successfully"
 
       - name: Build
         run: |
           cd client
+          echo "Starting build process..."
           npm run build
+          echo "Build completed successfully"
+          
+      - name: Copy 404.html
+        run: |
+          cd client
+          cp build/index.html build/404.html
+          echo "404.html copied successfully"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
