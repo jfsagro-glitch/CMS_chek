@@ -15,6 +15,35 @@ export interface VehicleMake {
 
 // Базовый справочник автомобилей
 export const VEHICLE_MAKES: VehicleMake[] = [
+  // Россия
+  {
+    id: 'lada',
+    name: 'LADA',
+    country: 'Россия',
+    models: [
+      { id: 'granta', name: 'Granta' },
+      { id: 'vesta', name: 'Vesta' },
+      { id: 'niva', name: 'Niva' }
+    ]
+  },
+  {
+    id: 'uaz',
+    name: 'УАЗ',
+    country: 'Россия',
+    models: [
+      { id: 'patriot', name: 'Patriot' },
+      { id: 'hunter', name: 'Hunter' }
+    ]
+  },
+  {
+    id: 'gaz',
+    name: 'ГАЗ',
+    country: 'Россия',
+    models: [
+      { id: 'gazelle-next', name: 'ГАЗель NEXT' },
+      { id: 'sobol', name: 'Соболь' }
+    ]
+  },
   {
     id: 'toyota',
     name: 'Toyota',
@@ -25,6 +54,100 @@ export const VEHICLE_MAKES: VehicleMake[] = [
       { id: 'corolla', name: 'Corolla', yearFrom: 2019, bodyTypes: ['Седан', 'Хэтчбек'] },
       { id: 'highlander', name: 'Highlander', yearFrom: 2020, bodyTypes: ['Кроссовер'] },
       { id: 'prius', name: 'Prius', yearFrom: 2019, bodyTypes: ['Хэтчбек'] }
+    ]
+  },
+  // Корея
+  {
+    id: 'genesis',
+    name: 'Genesis',
+    country: 'Южная Корея',
+    models: [
+      { id: 'g70', name: 'G70' },
+      { id: 'g80', name: 'G80' },
+      { id: 'gv70', name: 'GV70' }
+    ]
+  },
+  // Китай
+  {
+    id: 'chery',
+    name: 'Chery',
+    country: 'Китай',
+    models: [
+      { id: 'tiggo-4', name: 'Tiggo 4' },
+      { id: 'tiggo-7', name: 'Tiggo 7' },
+      { id: 'tiggo-8', name: 'Tiggo 8' }
+    ]
+  },
+  {
+    id: 'geely',
+    name: 'Geely',
+    country: 'Китай',
+    models: [
+      { id: 'coolray', name: 'Coolray' },
+      { id: 'atlas-pro', name: 'Atlas Pro' },
+      { id: 'monjaro', name: 'Monjaro' }
+    ]
+  },
+  {
+    id: 'haval',
+    name: 'Haval',
+    country: 'Китай',
+    models: [
+      { id: 'jolion', name: 'Jolion' },
+      { id: 'f7', name: 'F7' },
+      { id: 'dargo', name: 'Dargo' }
+    ]
+  },
+  {
+    id: 'byd',
+    name: 'BYD',
+    country: 'Китай',
+    models: [
+      { id: 'atto-3', name: 'Atto 3' },
+      { id: 'tang', name: 'Tang' }
+    ]
+  },
+  {
+    id: 'great-wall',
+    name: 'Great Wall',
+    country: 'Китай',
+    models: [
+      { id: 'poer', name: 'Poer' }
+    ]
+  },
+  {
+    id: 'changan',
+    name: 'Changan',
+    country: 'Китай',
+    models: [
+      { id: 'cs35-plus', name: 'CS35 Plus' },
+      { id: 'cs55', name: 'CS55' }
+    ]
+  },
+  {
+    id: 'exeed',
+    name: 'EXEED',
+    country: 'Китай',
+    models: [
+      { id: 'txl', name: 'TXL' },
+      { id: 'vx', name: 'VX' }
+    ]
+  },
+  {
+    id: 'faw',
+    name: 'FAW',
+    country: 'Китай',
+    models: [
+      { id: 'bestune-t77', name: 'Bestune T77' }
+    ]
+  },
+  {
+    id: 'jac',
+    name: 'JAC',
+    country: 'Китай',
+    models: [
+      { id: 'j7', name: 'J7' },
+      { id: 's3', name: 'S3' }
     ]
   },
   {

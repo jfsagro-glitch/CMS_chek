@@ -33,8 +33,6 @@ const VehicleSelector: React.FC<VehicleSelectorProps> = ({
   onCustomModelAdd,
   errors
 }) => {
-  const [makeSearch, setMakeSearch] = useState('');
-  const [modelSearch, setModelSearch] = useState('');
   const [showAddMake, setShowAddMake] = useState(false);
   const [showAddModel, setShowAddModel] = useState(false);
   const [newMakeName, setNewMakeName] = useState('');
@@ -46,30 +44,20 @@ const VehicleSelector: React.FC<VehicleSelectorProps> = ({
 
   // Фильтрация марок
   useEffect(() => {
-    if (makeSearch.trim()) {
-      setFilteredMakes(searchVehicleMakes(makeSearch));
-    } else {
-      setFilteredMakes(VEHICLE_MAKES);
-    }
-  }, [makeSearch]);
+    setFilteredMakes(VEHICLE_MAKES);
+  }, []);
 
   // Фильтрация моделей
   useEffect(() => {
     if (selectedMake) {
-      const models = getVehicleModelsByMakeId(selectedMake);
-      if (modelSearch.trim()) {
-        setFilteredModels(searchVehicleModels(selectedMake, modelSearch));
-      } else {
-        setFilteredModels(models);
-      }
+      setFilteredModels(getVehicleModelsByMakeId(selectedMake));
     } else {
       setFilteredModels([]);
     }
-  }, [selectedMake, modelSearch]);
+  }, [selectedMake]);
 
-  // Сброс поиска моделей при смене марки
+  // Сброс формы добавления при смене марки
   useEffect(() => {
-    setModelSearch('');
     setShowAddModel(false);
   }, [selectedMake]);
 
@@ -98,7 +86,6 @@ const VehicleSelector: React.FC<VehicleSelectorProps> = ({
       setShowAddMake(false);
       setNewMakeName('');
       setNewMakeCountry('');
-      setMakeSearch('');
     }
   };
 
@@ -113,7 +100,6 @@ const VehicleSelector: React.FC<VehicleSelectorProps> = ({
         setShowAddModel(false);
         setNewModelName('');
         setNewModelBodyTypes([]);
-        setModelSearch('');
       }
     }
   };
@@ -133,50 +119,20 @@ const VehicleSelector: React.FC<VehicleSelectorProps> = ({
         <label className="form-label">
           Марка <span className="required">*</span>
         </label>
-        <div className="search-container">
-          <input
-            type="text"
-            value={makeSearch}
-            onChange={(e) => setMakeSearch(e.target.value)}
-            className={`form-input ${errors?.make ? 'input-error' : ''}`}
-            placeholder="Поиск марки..."
-            onFocus={() => setShowAddMake(false)}
-          />
-          {errors?.make && (
-            <p className="form-error-inline">{errors.make}</p>
-          )}
-        </div>
-        
-        {makeSearch && (
-          <div className="search-results">
-            {filteredMakes.length > 0 ? (
-              <ul className="search-list">
-                {filteredMakes.map((make) => (
-                  <li
-                    key={make.id}
-                    className={`search-item ${selectedMake === make.id ? 'selected' : ''}`}
-                    onClick={() => handleMakeSelect(make.id)}
-                  >
-                    <span className="make-name">{make.name}</span>
-                    {make.country && (
-                      <span className="make-country">({make.country})</span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="no-results">
-                <p>Марка не найдена</p>
-                <button
-                  type="button"
-                  className="btn btn-outline btn-sm"
-                  onClick={() => setShowAddMake(true)}
-                >
-                  + Добавить марку "{makeSearch}"
-                </button>
-              </div>
-            )}
-          </div>
+        <select
+          className={`form-select ${errors?.make ? 'input-error' : ''}`}
+          value={selectedMake}
+          onChange={(e) => handleMakeSelect(e.target.value)}
+        >
+          <option value="">Выберите марку</option>
+          {filteredMakes.map((make) => (
+            <option key={make.id} value={make.id}>
+              {make.name}
+            </option>
+          ))}
+        </select>
+        {errors?.make && (
+          <p className="form-error-inline">{errors.make}</p>
         )}
 
         {/* Форма добавления новой марки */}
@@ -233,52 +189,21 @@ const VehicleSelector: React.FC<VehicleSelectorProps> = ({
           <label className="form-label">
             Модель <span className="required">*</span>
           </label>
-          <div className="search-container">
-            <input
-              type="text"
-              value={modelSearch}
-              onChange={(e) => setModelSearch(e.target.value)}
-              className={`form-input ${errors?.model ? 'input-error' : ''}`}
-              placeholder="Поиск модели..."
-              onFocus={() => setShowAddModel(false)}
-            />
-            {errors?.model && (
-              <p className="form-error-inline">{errors.model}</p>
-            )}
-          </div>
-          
-          {modelSearch && (
-            <div className="search-results">
-              {filteredModels.length > 0 ? (
-                <ul className="search-list">
-                  {filteredModels.map((model) => (
-                    <li
-                      key={model.id}
-                      className={`search-item ${selectedModel === model.id ? 'selected' : ''}`}
-                      onClick={() => handleModelSelect(model.id)}
-                    >
-                      <span className="model-name">{model.name}</span>
-                      {model.bodyTypes && model.bodyTypes.length > 0 && (
-                        <span className="model-body-types">
-                          ({model.bodyTypes.join(', ')})
-                        </span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div className="no-results">
-                  <p>Модель не найдена</p>
-                  <button
-                    type="button"
-                    className="btn btn-outline btn-sm"
-                    onClick={() => setShowAddModel(true)}
-                  >
-                    + Добавить модель "{modelSearch}"
-                  </button>
-                </div>
-              )}
-            </div>
+          <select
+            className={`form-select ${errors?.model ? 'input-error' : ''}`}
+            value={selectedModel}
+            onChange={(e) => handleModelSelect(e.target.value)}
+            disabled={!selectedMake}
+          >
+            <option value="">Выберите модель</option>
+            {filteredModels.map((model) => (
+              <option key={model.id} value={model.id}>
+                {model.name}
+              </option>
+            ))}
+          </select>
+          {errors?.model && (
+            <p className="form-error-inline">{errors.model}</p>
           )}
 
           {/* Форма добавления новой модели */}
