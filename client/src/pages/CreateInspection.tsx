@@ -245,6 +245,11 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
     return null;
   }
 
+  // Фильтруем дублирующиеся поля для транспорта
+  const filteredVehicleAttributes = selectedPropertyType === 'vehicle'
+    ? propertyAttributes.filter((attr) => !['vin_number', 'license_plate', 'year'].includes(attr.key))
+    : propertyAttributes;
+
   return createPortal(
     <div 
       className="create-inspection-page"
@@ -391,68 +396,107 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
                     <div className="object-characteristics">
                       {/* Поля для транспортных средств */}
                       {selectedPropertyType === 'vehicle' && (
-                        <>
-                          {/* VIN и госномер */}
-                          <div className="form-row">
-                            <div className="form-group">
-                              <label className="form-label">VIN</label>
-                              <input
-                                type="text"
-                                {...register(`objects.${index}.vin`)}
-                                className="form-input"
-                                placeholder="1HGBH41JXMN109186"
-                              />
-                            </div>
-                            <div className="form-group">
-                              <label className="form-label">Госномер</label>
-                              <input
-                                type="text"
-                                {...register(`objects.${index}.license_plate`)}
-                                className="form-input"
-                                placeholder="А123БВ777"
-                              />
-                            </div>
+                        <div className="object-characteristics inline">
+                          <div className="form-group">
+                            <label className="form-label">VIN</label>
+                            <input
+                              type="text"
+                              {...register(`objects.${index}.vin`)}
+                              className="form-input"
+                              placeholder="1HGBH41JXMN109186"
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label className="form-label">Госномер</label>
+                            <input
+                              type="text"
+                              {...register(`objects.${index}.license_plate`)}
+                              className="form-input"
+                              placeholder="А123БВ777"
+                            />
+                          </div>
+                          <div className="form-group full-width">
+                            <VehicleSelector
+                              selectedMake={watch(`objects.${index}.make_id`) || ''}
+                              selectedModel={watch(`objects.${index}.model_id`) || ''}
+                              onMakeChange={(makeId) => {
+                                setValue(`objects.${index}.make_id`, makeId);
+                                setValue(`objects.${index}.model_id`, '');
+                              }}
+                              onModelChange={(modelId) => {
+                                setValue(`objects.${index}.model_id`, modelId);
+                              }}
+                              errors={{
+                                make: errors.objects?.[index]?.make_id?.message as string,
+                                model: errors.objects?.[index]?.model_id?.message as string
+                              }}
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label className="form-label">Год</label>
+                            <input
+                              type="number"
+                              {...register(`objects.${index}.year`)}
+                              className="form-input"
+                              placeholder="2020"
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label className="form-label">Цвет</label>
+                            <input
+                              type="text"
+                              {...register(`objects.${index}.color`)}
+                              className="form-input"
+                              placeholder="Белый"
+                            />
                           </div>
 
-                          {/* Выбор марки и модели */}
-                          <VehicleSelector
-                            selectedMake={watch(`objects.${index}.make_id`) || ''}
-                            selectedModel={watch(`objects.${index}.model_id`) || ''}
-                            onMakeChange={(makeId) => {
-                              setValue(`objects.${index}.make_id`, makeId);
-                              setValue(`objects.${index}.model_id`, '');
-                            }}
-                            onModelChange={(modelId) => {
-                              setValue(`objects.${index}.model_id`, modelId);
-                            }}
-                            errors={{
-                              make: errors.objects?.[index]?.make_id?.message as string,
-                              model: errors.objects?.[index]?.model_id?.message as string
-                            }}
-                          />
-
-                          {/* Дополнительные поля для ТС */}
-                          <div className="form-row">
-                            <div className="form-group">
-                              <label className="form-label">Год</label>
-                              <input
-                                type="number"
-                                {...register(`objects.${index}.year`)}
-                                className="form-input"
-                                placeholder="2020"
-                              />
+                          {/* Дополнительные (недублирующиеся) атрибуты ТС */}
+                          {filteredVehicleAttributes.map((attr) => (
+                            <div key={attr.key} className="form-group">
+                              <label className="form-label">
+                                {attr.label}
+                                {attr.required && <span className="required">*</span>}
+                              </label>
+                              {attr.type === 'text' && (
+                                <input
+                                  type="text"
+                                  {...register(`objects.${index}.${attr.key}`, {
+                                    required: attr.required ? `${attr.label} обязательно` : false,
+                                  })}
+                                  className={`form-input ${errors.objects?.[index]?.[attr.key] ? 'input-error' : ''}`}
+                                  placeholder={attr.placeholder}
+                                />
+                              )}
+                              {attr.type === 'number' && (
+                                <input
+                                  type="number"
+                                  {...register(`objects.${index}.${attr.key}`, {
+                                    required: attr.required ? `${attr.label} обязательно` : false,
+                                  })}
+                                  className={`form-input ${errors.objects?.[index]?.[attr.key] ? 'input-error' : ''}`}
+                                  placeholder={attr.placeholder}
+                                />
+                              )}
+                              {attr.type === 'select' && (
+                                <select
+                                  {...register(`objects.${index}.${attr.key}`, {
+                                    required: attr.required ? `${attr.label} обязательно` : false,
+                                  })}
+                                  className={`form-select ${errors.objects?.[index]?.[attr.key] ? 'input-error' : ''}`}
+                                >
+                                  <option value="">Выберите {attr.label.toLowerCase()}</option>
+                                  {attr.options?.map((option) => (
+                                    <option key={option} value={option}>{option}</option>
+                                  ))}
+                                </select>
+                              )}
+                              {errors.objects?.[index]?.[attr.key] && (
+                                <p className="form-error-inline">{errors.objects[index]?.[attr.key]?.message as string}</p>
+                              )}
                             </div>
-                            <div className="form-group">
-                              <label className="form-label">Цвет</label>
-                              <input
-                                type="text"
-                                {...register(`objects.${index}.color`)}
-                                className="form-input"
-                                placeholder="Белый"
-                              />
-                            </div>
-                          </div>
-                        </>
+                          ))}
+                        </div>
                       )}
 
                       {/* Поля для других типов имущества */}
@@ -474,7 +518,7 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
                       )}
 
                       {/* Динамические атрибуты в зависимости от типа имущества */}
-                      {selectedPropertyType && propertyAttributes.length > 0 && (
+                      {selectedPropertyType && selectedPropertyType !== 'vehicle' && propertyAttributes.length > 0 && (
                         <div className="dynamic-attributes">
                           <h5 className="attributes-title">Характеристики объекта</h5>
                           <div className="attributes-grid">
