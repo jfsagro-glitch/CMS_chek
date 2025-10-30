@@ -198,48 +198,6 @@ export const PROPERTY_TYPES: PropertyType[] = [
     ]
   },
   {
-    id: 'furniture',
-    name: 'Мебель',
-    attributes: [
-      {
-        key: 'material',
-        label: 'Материал',
-        type: 'text',
-        required: true,
-        placeholder: 'Дуб, металл, пластик',
-        validation: {
-          pattern: '^.{2,50}$',
-          message: 'Материал должен содержать 2-50 символов'
-        }
-      },
-      {
-        key: 'dimensions',
-        label: 'Размеры (Д×Ш×В, см)',
-        type: 'text',
-        required: false,
-        placeholder: '120×60×75',
-        validation: {
-          pattern: '^[0-9]+×[0-9]+×[0-9]+$',
-          message: 'Формат: 120×60×75'
-        }
-      },
-      {
-        key: 'condition',
-        label: 'Состояние',
-        type: 'select',
-        required: true,
-        options: ['Отличное', 'Хорошее', 'Удовлетворительное', 'Требует ремонта', 'Неисправное']
-      },
-      {
-        key: 'furniture_type',
-        label: 'Тип мебели',
-        type: 'select',
-        required: true,
-        options: ['Стол', 'Стул', 'Шкаф', 'Диван', 'Кровать', 'Полка', 'Другое']
-      }
-    ]
-  },
-  {
     id: 'other',
     name: 'Прочее',
     attributes: [

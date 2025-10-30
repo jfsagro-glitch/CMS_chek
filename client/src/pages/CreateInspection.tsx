@@ -56,8 +56,8 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
     setValue,
   } = useForm<InspectionFormData>({
     defaultValues: {
-      property_type: 'Автотранспорт',
-      objects: [{ make: '', model: '' }],
+      property_type: 'vehicle',
+      objects: [{}],
     },
   });
 
@@ -67,9 +67,36 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
     const attributes = getPropertyTypeAttributes(typeId);
     setPropertyAttributes(attributes);
     
-    // Очищаем объекты при смене типа имущества
-    setValue('objects', []);
+    // При смене типа очищаем несоответствующие поля объектов и оставляем только релевантные
+    const currentObjects = (watch('objects') || []) as any[];
+    const cleanedObjects = currentObjects.map(obj => {
+      const next: any = {};
+      if (typeId === 'vehicle') {
+        next.vin = obj.vin || '';
+        next.license_plate = obj.license_plate || '';
+        next.make_id = obj.make_id || '';
+        next.model_id = obj.model_id || '';
+        next.year = obj.year || undefined;
+        next.color = obj.color || '';
+      } else {
+        next.name = obj.name || '';
+        // переносим только атрибуты текущего типа
+        attributes.forEach(attr => {
+          next[attr.key] = obj[attr.key] ?? '';
+        });
+      }
+      return next;
+    });
+    setValue('objects', cleanedObjects.length ? cleanedObjects : [{}]);
+    setValue('property_type', typeId);
   };
+
+  // Инициализация типа по умолчанию при открытии
+  useEffect(() => {
+    const initialType = watch('property_type') || 'vehicle';
+    handlePropertyTypeChange(initialType);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Сбрасываем форму при открытии/закрытии модалки и блокируем скролл
   useEffect(() => {
@@ -261,25 +288,24 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
 
         <div className="step-content">
           <form onSubmit={handleSubmit(onSubmit)}>
-            {/* Поле типа имущества */}
+            {/* Выбор типа имущества кнопками */}
             <div className="form-group">
               <label className="form-label">
                 Тип имущества <span className="required">*</span>
               </label>
-              <select
-                {...register('property_type', { 
-                  required: 'Выберите тип имущества',
-                  onChange: (e) => handlePropertyTypeChange(e.target.value)
-                })}
-                className={`form-select ${errors.property_type ? 'input-error' : ''}`}
-              >
-                <option value="">Выберите тип имущества</option>
+              <div className="type-toggle">
                 {PROPERTY_TYPES.map((type) => (
-                  <option key={type.id} value={type.id}>
+                  <button
+                    key={type.id}
+                    type="button"
+                    className={`type-btn ${selectedPropertyType === type.id ? 'active' : ''}`}
+                    onClick={() => handlePropertyTypeChange(type.id)}
+                  >
                     {type.name}
-                  </option>
+                  </button>
                 ))}
-              </select>
+              </div>
+              <input type="hidden" {...register('property_type', { required: 'Выберите тип имущества' })} value={selectedPropertyType} readOnly />
               {errors.property_type && (
                 <p className="form-error-inline">{errors.property_type.message}</p>
               )}
