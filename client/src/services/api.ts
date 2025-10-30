@@ -148,8 +148,6 @@ export const inspectionsApi = {
                 id: Date.now(),
                 internal_number: `INS-${Date.now()}`,
                 status: 'В работе',
-                created_at: new Date().toISOString(),
-                photos_count: 0,
                 ...data
               }
             }

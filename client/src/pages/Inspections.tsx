@@ -387,34 +387,14 @@ const Inspections: React.FC = () => {
   };
 
 
-  const normalizePropertyType = (type: string) => {
-    switch (type) {
-      case 'vehicle':
-        return 'Автотранспорт';
-      case 'real_estate':
-        return 'Недвижимость';
-      case 'equipment':
-        return 'Оборудование';
-      case 'other':
-        return 'Прочее';
-      default:
-        return type;
-    }
-  };
-
   const getPropertyTypeIcon = (type: string) => {
-    const t = normalizePropertyType(type);
-    switch (t) {
+    switch (type) {
       case 'Автотранспорт':
         return <Car size={16} />;
       case 'Коммерческая':
         return <Building size={16} />;
       case 'Гараж':
         return <Home size={16} />;
-      case 'Недвижимость':
-        return <Building size={16} />;
-      case 'Оборудование':
-        return <Wrench size={16} />;
       default:
         return <Wrench size={16} />;
     }
@@ -609,7 +589,7 @@ const Inspections: React.FC = () => {
                         <span className="property-type-icon">
                           {getPropertyTypeIcon(inspection.property_type)}
                         </span>
-                        <span className="property-type-text">{normalizePropertyType(inspection.property_type)}</span>
+                        <span className="property-type-text">{inspection.property_type}</span>
                       </div>
                     </td>
                     <td>

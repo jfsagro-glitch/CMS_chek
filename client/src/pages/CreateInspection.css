@@ -19,8 +19,8 @@
   background: var(--bg-primary);
   border-radius: 12px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-  width: 100%;
-  max-width: 920px;
+  width: 95vw;
+  max-width: 960px;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
@@ -103,20 +103,19 @@
   margin-bottom: 32px;
 }
 
-/* Кнопки выбора типа имущества */
+/* Кнопки переключения типа имущества */
 .type-toggle {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 8px;
 }
 
 .type-btn {
-  padding: 8px 14px;
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background: white;
+  background: var(--bg-secondary);
   color: var(--text-primary);
+  padding: 10px 12px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -126,9 +125,9 @@
 }
 
 .type-btn.active {
-  background: var(--primary-color);
-  color: #fff;
+  background: rgba(25,118,210,0.08);
   border-color: var(--primary-color);
+  color: var(--text-primary);
 }
 
 .property-type-card {

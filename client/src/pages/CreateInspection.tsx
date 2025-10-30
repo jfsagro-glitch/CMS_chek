@@ -56,7 +56,7 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
     setValue,
   } = useForm<InspectionFormData>({
     defaultValues: {
-      property_type: 'vehicle',
+      property_type: '',
       objects: [{}],
     },
   });
@@ -66,37 +66,15 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
     setSelectedPropertyType(typeId);
     const attributes = getPropertyTypeAttributes(typeId);
     setPropertyAttributes(attributes);
-    
-    // При смене типа очищаем несоответствующие поля объектов и оставляем только релевантные
-    const currentObjects = (watch('objects') || []) as any[];
-    const cleanedObjects = currentObjects.map(obj => {
-      const next: any = {};
-      if (typeId === 'vehicle') {
-        next.vin = obj.vin || '';
-        next.license_plate = obj.license_plate || '';
-        next.make_id = obj.make_id || '';
-        next.model_id = obj.model_id || '';
-        next.year = obj.year || undefined;
-        next.color = obj.color || '';
-      } else {
-        next.name = obj.name || '';
-        // переносим только атрибуты текущего типа
-        attributes.forEach(attr => {
-          next[attr.key] = obj[attr.key] ?? '';
-        });
-      }
-      return next;
-    });
-    setValue('objects', cleanedObjects.length ? cleanedObjects : [{}]);
     setValue('property_type', typeId);
+    
+    // Сбрасываем объекты и подготавливаем структуру под выбранный тип
+    if (typeId === 'vehicle') {
+      setValue('objects', [{ make_id: '', model_id: '' }]);
+    } else {
+      setValue('objects', [{}]);
+    }
   };
-
-  // Инициализация типа по умолчанию при открытии
-  useEffect(() => {
-    const initialType = watch('property_type') || 'vehicle';
-    handlePropertyTypeChange(initialType);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // Сбрасываем форму при открытии/закрытии модалки и блокируем скролл
   useEffect(() => {
@@ -288,7 +266,7 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
 
         <div className="step-content">
           <form onSubmit={handleSubmit(onSubmit)}>
-            {/* Выбор типа имущества кнопками */}
+            {/* Тип имущества - кнопки */}
             <div className="form-group">
               <label className="form-label">
                 Тип имущества <span className="required">*</span>
@@ -305,7 +283,8 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
                   </button>
                 ))}
               </div>
-              <input type="hidden" {...register('property_type', { required: 'Выберите тип имущества' })} value={selectedPropertyType} readOnly />
+              {/* скрытое поле для валидации */}
+              <input type="hidden" {...register('property_type', { required: 'Выберите тип имущества' })} />
               {errors.property_type && (
                 <p className="form-error-inline">{errors.property_type.message}</p>
               )}
