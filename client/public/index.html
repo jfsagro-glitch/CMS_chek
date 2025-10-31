@@ -93,17 +93,37 @@
         });
       }
       
-      // Force reload if needed
-      if (performance.navigation.type === 1) {
-        window.location.reload(true);
-      }
+      // Clear cache on version change (without force reload on hard refresh)
+      var currentVersion = '2025-10-21-20-00';
+      var lastVersion = localStorage.getItem('lastVersion');
       
-      // Nuclear option: clear everything
-      if (localStorage.getItem('lastVersion') !== '2025-10-21-20-00') {
+      if (lastVersion !== currentVersion) {
+        // Clear caches and storage
         localStorage.clear();
         sessionStorage.clear();
-        localStorage.setItem('lastVersion', '2025-10-21-20-00');
-        window.location.reload(true);
+        localStorage.setItem('lastVersion', currentVersion);
+        
+        // Only reload if not a hard refresh (Ctrl+F5)
+        // Hard refresh (performance.navigation.type === 1) already clears cache
+        if (typeof performance !== 'undefined' && performance.navigation) {
+          var navType = performance.navigation.type;
+          // 0 = navigation, 1 = reload, 2 = back_forward, 255 = reserved
+          // Only reload if it's a normal navigation or back/forward, not hard refresh
+          if (navType !== 1) {
+            window.location.reload();
+          }
+        } else if (typeof performance !== 'undefined' && performance.getEntriesByType) {
+          // Fallback for newer PerformanceNavigationTiming API
+          try {
+            var navTiming = performance.getEntriesByType('navigation')[0];
+            if (navTiming && navTiming.type !== 'reload') {
+              window.location.reload();
+            }
+          } catch (e) {
+            // If we can't determine, just clear without reload
+            console.log('Cache cleared, version updated');
+          }
+        }
       }
     </script>
   </head>
