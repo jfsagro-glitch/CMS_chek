@@ -6,8 +6,7 @@ import { toast } from 'react-hot-toast';
 import { inspectionsApi } from '../services/api';
 import { useInspections } from '../contexts/InspectionsContext';
 import { PROPERTY_TYPES, getPropertyTypeAttributes, PropertyAttribute } from '../config/propertyTypes';
-import { getVehicleMakeById, getVehicleModelById } from '../config/vehicleCatalog';
-import VehicleSelector from '../components/VehicleSelector';
+import AddVehicleModal from '../components/AddVehicleModal';
 import './CreateInspection.css';
 
 interface CreateInspectionProps {
@@ -45,6 +44,8 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedPropertyType, setSelectedPropertyType] = useState<string>('');
   const [propertyAttributes, setPropertyAttributes] = useState<PropertyAttribute[]>([]);
+  const [isAddVehicleModalOpen, setIsAddVehicleModalOpen] = useState(false);
+  const [currentObjectIndex, setCurrentObjectIndex] = useState(0); // Индекс объекта, для которого добавляем марку/модель
   
   console.log('CreateInspection rendered, isOpen:', isOpen);
   
@@ -71,10 +72,24 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
     
     // Сбрасываем объекты и подготавливаем структуру под выбранный тип
     if (typeId === 'vehicle') {
-      setValue('objects', [{ make_id: '', model_id: '' }]);
+      setValue('objects', [{ make: '', model: '' }]);
     } else {
       setValue('objects', [{}]);
     }
+  };
+
+  // Обработчик открытия модалки добавления марки/модели
+  const handleOpenAddVehicleModal = (objectIndex: number) => {
+    setCurrentObjectIndex(objectIndex);
+    setIsAddVehicleModalOpen(true);
+  };
+
+  // Обработчик добавления марки и модели
+  const handleVehicleAdded = (makeId: string, makeName: string, modelId: string, modelName: string) => {
+    setValue(`objects.${currentObjectIndex}.make_id`, makeId);
+    setValue(`objects.${currentObjectIndex}.make`, makeName);
+    setValue(`objects.${currentObjectIndex}.model_id`, modelId);
+    setValue(`objects.${currentObjectIndex}.model`, modelName);
   };
 
   // Сбрасываем форму при открытии/закрытии модалки и блокируем скролл
@@ -121,7 +136,7 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
     if (data.property_type === 'vehicle') {
       // Для транспортных средств проверяем марку, модель и VIN/госномер
       validObjects = data.objects.filter(obj => 
-        (obj.make_id || obj.make) && (obj.model_id || obj.model) && (obj.vin || obj.license_plate)
+        obj.make && obj.model && (obj.vin || obj.license_plate)
       );
       if (validObjects.length === 0) {
         errors.push('Добавьте хотя бы один объект с маркой, моделью и VIN/госномером');
@@ -161,29 +176,15 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
     try {
       console.log('Отправляем запрос на создание осмотра...');
       
-      // Фильтруем и обогащаем объекты данными (марка/модель из ID)
-      const filteredObjects = data.objects
-        .map(obj => {
-          // Если есть make_id и model_id, получаем их названия
-          if (selectedPropertyType === 'vehicle' && obj.make_id && obj.model_id) {
-            const make = getVehicleMakeById(obj.make_id);
-            const model = make ? getVehicleModelById(obj.make_id, obj.model_id) : null;
-            return {
-              ...obj,
-              make: make?.name || obj.make_id,
-              model: model?.name || obj.model_id,
-            };
-          }
-          return obj;
-        })
-        .filter(obj => {
-          // Для транспорта проверяем марку, модель и VIN/госномер
-          if (selectedPropertyType === 'vehicle') {
-            return (obj.make_id || obj.make) && (obj.model_id || obj.model) && (obj.vin || obj.license_plate);
-          }
-          // Для других типов проверяем наименование
-          return obj.name && obj.name.trim().length > 0;
-        });
+      // Фильтруем объекты
+      const filteredObjects = data.objects.filter(obj => {
+        // Для транспорта проверяем марку, модель и VIN/госномер
+        if (selectedPropertyType === 'vehicle') {
+          return obj.make && obj.model && (obj.vin || obj.license_plate);
+        }
+        // Для других типов проверяем наименование
+        return obj.name && obj.name.trim().length > 0;
+      });
 
       const submissionData = {
         ...data,
@@ -266,7 +267,15 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
   // Если модалка закрыта, не рендерим ничего
   if (!isOpen) {
     console.log('Modal not open, returning null');
-    return null;
+    return (
+      <>
+        <AddVehicleModal
+          isOpen={isAddVehicleModalOpen}
+          onClose={() => setIsAddVehicleModalOpen(false)}
+          onAdd={handleVehicleAdded}
+        />
+      </>
+    );
   }
   
   console.log('Modal is open, rendering with Portal');
@@ -280,7 +289,15 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
   const portalRoot = document.body;
   if (!portalRoot) {
     console.error('Portal root not found!');
-    return null;
+    return (
+      <>
+        <AddVehicleModal
+          isOpen={isAddVehicleModalOpen}
+          onClose={() => setIsAddVehicleModalOpen(false)}
+          onAdd={handleVehicleAdded}
+        />
+      </>
+    );
   }
 
   // Фильтруем дублирующиеся поля для транспорта
@@ -288,7 +305,9 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
     ? propertyAttributes.filter((attr) => !['vin_number', 'license_plate', 'year'].includes(attr.key))
     : propertyAttributes;
 
-  return createPortal(
+  return (
+    <>
+      {createPortal(
     <div 
       className="create-inspection-page"
       onClick={handleBackdropClick}
@@ -453,22 +472,53 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
                               placeholder="А123БВ777"
                             />
                           </div>
-                          <div className="form-group full-width">
-                            <VehicleSelector
-                              selectedMake={watch(`objects.${index}.make_id`) || ''}
-                              selectedModel={watch(`objects.${index}.model_id`) || ''}
-                              onMakeChange={(makeId) => {
-                                setValue(`objects.${index}.make_id`, makeId);
+                          <div className="form-group">
+                            <label className="form-label">
+                              Марка <span className="required">*</span>
+                            </label>
+                            <div className="make-model-input-group">
+                              <input
+                                type="text"
+                                {...register(`objects.${index}.make`, { required: 'Введите марку' })}
+                                className={`form-input ${errors.objects?.[index]?.make ? 'input-error' : ''}`}
+                                placeholder="Введите марку"
+                                value={watch(`objects.${index}.make`) || ''}
+                                onChange={(e) => {
+                                  setValue(`objects.${index}.make`, e.target.value);
+                                  setValue(`objects.${index}.make_id`, '');
+                                }}
+                              />
+                              <button
+                                type="button"
+                                className="btn btn-outline btn-sm"
+                                onClick={() => handleOpenAddVehicleModal(index)}
+                                title="Добавить новую марку и модель"
+                              >
+                                +
+                              </button>
+                            </div>
+                            {errors.objects?.[index]?.make && (
+                              <p className="form-error-inline">{errors.objects[index]?.make?.message as string}</p>
+                            )}
+                          </div>
+                          <div className="form-group">
+                            <label className="form-label">
+                              Модель <span className="required">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              {...register(`objects.${index}.model`, { required: 'Введите модель' })}
+                              className={`form-input ${errors.objects?.[index]?.model ? 'input-error' : ''}`}
+                              placeholder="Введите модель"
+                              value={watch(`objects.${index}.model`) || ''}
+                              onChange={(e) => {
+                                setValue(`objects.${index}.model`, e.target.value);
                                 setValue(`objects.${index}.model_id`, '');
                               }}
-                              onModelChange={(modelId) => {
-                                setValue(`objects.${index}.model_id`, modelId);
-                              }}
-                              errors={{
-                                make: errors.objects?.[index]?.make_id?.message as string,
-                                model: errors.objects?.[index]?.model_id?.message as string
-                              }}
                             />
+                            {errors.objects?.[index]?.model && (
+                              <p className="form-error-inline">{errors.objects[index]?.model?.message as string}</p>
+                            )}
                           </div>
                           <div className="form-group">
                             <label className="form-label">Год</label>
@@ -675,8 +725,15 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
           </form>
         </div>
       </div>
-    </div>,
-    document.body
+        </div>,
+        document.body
+      )}
+      <AddVehicleModal
+        isOpen={isAddVehicleModalOpen}
+        onClose={() => setIsAddVehicleModalOpen(false)}
+        onAdd={handleVehicleAdded}
+      />
+    </>
   );
 };
 

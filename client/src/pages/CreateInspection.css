@@ -393,6 +393,21 @@
   margin-bottom: 6px;
 }
 
+.make-model-input-group {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.make-model-input-group .form-input {
+  flex: 1;
+}
+
+.make-model-input-group .btn-outline {
+  min-width: 40px;
+  flex-shrink: 0;
+}
+
 .object-characteristics .form-input,
 .object-characteristics .form-select {
   font-size: 14px;
