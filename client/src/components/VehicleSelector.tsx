@@ -42,9 +42,9 @@ const VehicleSelector: React.FC<VehicleSelectorProps> = ({
   const [filteredMakes, setFilteredMakes] = useState<VehicleMake[]>(VEHICLE_MAKES);
   const [filteredModels, setFilteredModels] = useState<VehicleModel[]>([]);
 
-  // Фильтрация марок
+  // Инициализация списка марок
   useEffect(() => {
-    setFilteredMakes(VEHICLE_MAKES);
+    setFilteredMakes([...VEHICLE_MAKES]);
   }, []);
 
   // Фильтрация моделей
@@ -82,6 +82,8 @@ const VehicleSelector: React.FC<VehicleSelectorProps> = ({
         country: newMakeCountry.trim() || undefined,
         models: []
       });
+      // Обновляем список марок
+      setFilteredMakes([...VEHICLE_MAKES]);
       onMakeChange(newMake.id);
       setShowAddMake(false);
       setNewMakeName('');
@@ -96,6 +98,8 @@ const VehicleSelector: React.FC<VehicleSelectorProps> = ({
         bodyTypes: newModelBodyTypes.length > 0 ? newModelBodyTypes : undefined
       });
       if (newModel) {
+        // Обновляем список моделей
+        setFilteredModels(getVehicleModelsByMakeId(selectedMake));
         onModelChange(newModel.id);
         setShowAddModel(false);
         setNewModelName('');
@@ -133,6 +137,19 @@ const VehicleSelector: React.FC<VehicleSelectorProps> = ({
         </select>
         {errors?.make && (
           <p className="form-error-inline">{errors.make}</p>
+        )}
+
+        {/* Кнопка для добавления марки вручную */}
+        {!showAddMake && (
+          <div className="helper-actions">
+            <button
+              type="button"
+              className="btn btn-outline btn-sm"
+              onClick={() => setShowAddMake(true)}
+            >
+              + Добавить марку вручную
+            </button>
+          </div>
         )}
 
         {/* Форма добавления новой марки */}
@@ -204,6 +221,19 @@ const VehicleSelector: React.FC<VehicleSelectorProps> = ({
           </select>
           {errors?.model && (
             <p className="form-error-inline">{errors.model}</p>
+          )}
+
+          {/* Кнопка для добавления модели вручную */}
+          {!showAddModel && (
+            <div className="helper-actions">
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={() => setShowAddModel(true)}
+              >
+                + Добавить модель вручную
+              </button>
+            </div>
           )}
 
           {/* Форма добавления новой модели */}

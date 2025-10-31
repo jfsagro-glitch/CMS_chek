@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast';
 import { inspectionsApi } from '../services/api';
 import { useInspections } from '../contexts/InspectionsContext';
 import { PROPERTY_TYPES, getPropertyTypeAttributes, PropertyAttribute } from '../config/propertyTypes';
+import { getVehicleMakeById, getVehicleModelById } from '../config/vehicleCatalog';
 import VehicleSelector from '../components/VehicleSelector';
 import './CreateInspection.css';
 
@@ -160,10 +161,29 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
     try {
       console.log('Отправляем запрос на создание осмотра...');
       
-      // Фильтруем пустые объекты
-      const filteredObjects = data.objects.filter(obj => 
-        obj.make && obj.model && (obj.vin || obj.license_plate)
-      );
+      // Фильтруем и обогащаем объекты данными (марка/модель из ID)
+      const filteredObjects = data.objects
+        .map(obj => {
+          // Если есть make_id и model_id, получаем их названия
+          if (selectedPropertyType === 'vehicle' && obj.make_id && obj.model_id) {
+            const make = getVehicleMakeById(obj.make_id);
+            const model = make ? getVehicleModelById(obj.make_id, obj.model_id) : null;
+            return {
+              ...obj,
+              make: make?.name || obj.make_id,
+              model: model?.name || obj.model_id,
+            };
+          }
+          return obj;
+        })
+        .filter(obj => {
+          // Для транспорта проверяем марку, модель и VIN/госномер
+          if (selectedPropertyType === 'vehicle') {
+            return (obj.make_id || obj.make) && (obj.model_id || obj.model) && (obj.vin || obj.license_plate);
+          }
+          // Для других типов проверяем наименование
+          return obj.name && obj.name.trim().length > 0;
+        });
 
       const submissionData = {
         ...data,
@@ -177,8 +197,26 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
       if (response.data) {
         toast.success(response.data.message || 'Осмотр успешно создан!');
         
-        // Добавляем новый осмотр в контекст
-        addNewInspection(response.data.inspection);
+        // Добавляем новый осмотр в контекст (гарантируем created_at/updated_at и все необходимые поля)
+        const srvInspection = response.data.inspection || {};
+        const now = new Date().toISOString();
+        const enrichedInspection = {
+          ...srvInspection,
+          id: srvInspection.id || Date.now(), // Гарантируем наличие ID
+          created_at: srvInspection.created_at || now,
+          updated_at: srvInspection.updated_at || now,
+          inspector_name: data.inspector_name,
+          recipient_name: data.inspector_name, // Используем inspector_name как recipient_name для отображения
+          status: srvInspection.status || 'В работе',
+          address: data.address,
+          property_type: data.property_type,
+          objects_count: filteredObjects.length || 0,
+          photos_count: 0,
+          created_by_name: 'Текущий пользователь',
+          internal_number: srvInspection.internal_number || `INS-${String(Date.now()).slice(-6)}`,
+        };
+        console.log('Добавляем осмотр с датой:', enrichedInspection.created_at);
+        addNewInspection(enrichedInspection);
         
         // Обновляем счетчик осмотров
         updateInspectionsCount();
@@ -187,9 +225,9 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
         onClose();
         
         // Перенаправляем на детальную страницу осмотра (опционально)
-        if (response.data.inspection?.id) {
+        if (enrichedInspection?.id) {
           setTimeout(() => {
-            navigate(`/inspections/${response.data.inspection.id}`);
+            navigate(`/inspections/${enrichedInspection.id}`);
           }, 1000);
         } else {
           // Если нет ID, переходим на список осмотров
