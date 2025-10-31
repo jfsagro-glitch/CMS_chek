@@ -548,6 +548,15 @@ const InspectionDetail: React.FC = () => {
     // Сначала проверяем новые осмотры из контекста
     const contextInspection = contextInspections.find(ins => ins.id === inspectionId);
     if (contextInspection) {
+      // Преобразуем объекты из контекста, добавляя id для каждого
+      const objects = (contextInspection.objects || []).map((obj: any, index: number) => ({
+        ...obj,
+        id: obj.id || index + 1,
+        category: contextInspection.property_type,
+        type: contextInspection.property_type === 'vehicle' ? 'транспорт' : (obj.type || 'не указан'),
+        photos_count: 0
+      }));
+
       // Преобразуем данные из контекста в формат детального осмотра
       return {
         ...contextInspection,
@@ -557,12 +566,12 @@ const InspectionDetail: React.FC = () => {
         latitude: 55.751244,
         longitude: 37.618423,
         completed_at: contextInspection.status === 'Готов' ? contextInspection.created_at : undefined,
-        comment: 'Осмотр создан через систему',
-        objects: [
+        comment: contextInspection.comment || contextInspection.comments || 'Осмотр создан через систему',
+        objects: objects.length > 0 ? objects : [
           {
             id: 1,
             category: contextInspection.property_type,
-            type: contextInspection.object_type || 'не указан',
+            type: contextInspection.property_type === 'vehicle' ? 'транспорт' : 'не указан',
             make: contextInspection.object_description?.split(' ')[0] || '',
             model: contextInspection.object_description?.split(' ').slice(1).join(' ') || '',
             photos_count: contextInspection.photos_count || 0
@@ -788,29 +797,102 @@ const InspectionDetail: React.FC = () => {
             {objects.map((object: any) => (
               <div key={object.id} className="object-card">
                 <div className="object-header">
-                  <h3>{object.make} {object.model}</h3>
-                  <span className="object-category">{object.category}</span>
+                  <h3>
+                    {inspectionData.property_type === 'vehicle' 
+                      ? `${object.make || ''} ${object.model || ''}`.trim() || 'Транспортное средство'
+                      : object.name || 'Объект осмотра'
+                    }
+                  </h3>
+                  <span className="object-category">{object.category || inspectionData.property_type}</span>
                 </div>
                 
                 <div className="object-details">
-                  {object.registration_number && (
-                    <div className="detail-item">
-                      <label>Рег. номер:</label>
-                      <span>{object.registration_number}</span>
-                    </div>
+                  {/* Для транспорта показываем полные характеристики */}
+                  {inspectionData.property_type === 'vehicle' && (
+                    <>
+                      {object.make && (
+                        <div className="detail-item">
+                          <label>Марка:</label>
+                          <span>{object.make}</span>
+                        </div>
+                      )}
+                      {object.model && (
+                        <div className="detail-item">
+                          <label>Модель:</label>
+                          <span>{object.model}</span>
+                        </div>
+                      )}
+                      {object.vin && (
+                        <div className="detail-item">
+                          <label>VIN:</label>
+                          <span>{object.vin}</span>
+                        </div>
+                      )}
+                      {(object.license_plate || object.registration_number) && (
+                        <div className="detail-item">
+                          <label>Госномер:</label>
+                          <span>{object.license_plate || object.registration_number}</span>
+                        </div>
+                      )}
+                      {object.year && (
+                        <div className="detail-item">
+                          <label>Год:</label>
+                          <span>{object.year}</span>
+                        </div>
+                      )}
+                      {object.color && (
+                        <div className="detail-item">
+                          <label>Цвет:</label>
+                          <span>{object.color}</span>
+                        </div>
+                      )}
+                      {/* Дополнительные динамические атрибуты транспорта */}
+                      {Object.keys(object).filter(key => 
+                        !['id', 'make', 'model', 'vin', 'license_plate', 'registration_number', 'year', 'color', 'type', 'category', 'photos_count', 'make_id', 'model_id'].includes(key)
+                      ).map(key => {
+                        const value = object[key];
+                        if (value === null || value === undefined || value === '') return null;
+                        return (
+                          <div key={key} className="detail-item">
+                            <label>{key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}:</label>
+                            <span>{String(value)}</span>
+                          </div>
+                        );
+                      })}
+                    </>
                   )}
                   
-                  {object.vin && (
-                    <div className="detail-item">
-                      <label>VIN:</label>
-                      <span>{object.vin}</span>
-                    </div>
+                  {/* Для других типов имущества */}
+                  {inspectionData.property_type !== 'vehicle' && (
+                    <>
+                      {object.name && (
+                        <div className="detail-item">
+                          <label>Наименование:</label>
+                          <span>{object.name}</span>
+                        </div>
+                      )}
+                      {/* Все динамические атрибуты для недвижимости, оборудования и т.д. */}
+                      {Object.keys(object).filter(key => 
+                        !['id', 'name', 'type', 'category', 'photos_count', 'make', 'model'].includes(key)
+                      ).map(key => {
+                        const value = object[key];
+                        if (value === null || value === undefined || value === '') return null;
+                        return (
+                          <div key={key} className="detail-item">
+                            <label>{key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}:</label>
+                            <span>{String(value)}</span>
+                          </div>
+                        );
+                      })}
+                    </>
                   )}
                   
-                  <div className="detail-item">
-                    <label>Тип:</label>
-                    <span>{object.type}</span>
-                  </div>
+                  {object.type && (
+                    <div className="detail-item">
+                      <label>Тип:</label>
+                      <span>{object.type === 'не указан' ? '—' : object.type}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Фотографии объекта */}
