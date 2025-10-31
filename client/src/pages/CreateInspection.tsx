@@ -211,7 +211,6 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
           status: srvInspection.status || 'В работе',
           address: data.address,
           property_type: data.property_type,
-          objects: filteredObjects, // Сохраняем объекты с характеристиками
           objects_count: filteredObjects.length || 0,
           photos_count: 0,
           created_by_name: 'Текущий пользователь',
