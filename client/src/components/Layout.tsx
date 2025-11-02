@@ -93,6 +93,13 @@ const Layout: React.FC = () => {
             ⚙️ Настройки
           </button>
           
+          <button
+            className="nav-item"
+            onClick={() => window.open('https://cmsauto.ru/#/registry', '_blank')}
+          >
+            🚗 CMS AUTO
+          </button>
+          
           {canGoBack && (
             <button
               className="nav-item back-button"
