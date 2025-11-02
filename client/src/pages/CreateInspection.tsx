@@ -207,6 +207,8 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
           created_at: srvInspection.created_at || now,
           updated_at: srvInspection.updated_at || now,
           inspector_name: data.inspector_name,
+          inspector_phone: data.inspector_phone, // Сохраняем телефон
+          inspector_email: data.inspector_email, // Сохраняем email
           recipient_name: data.inspector_name, // Используем inspector_name как recipient_name для отображения
           status: srvInspection.status || 'В работе',
           address: data.address,
@@ -216,6 +218,8 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
           created_by_name: 'Текущий пользователь',
           internal_number: srvInspection.internal_number || `INS-${String(Date.now()).slice(-6)}`,
           objects: filteredObjects, // Сохраняем массив объектов
+          comment: data.comments || '', // Сохраняем комментарий
+          coordinates: data.coordinates || { lat: 0, lng: 0 }, // Сохраняем координаты
         };
         console.log('Добавляем осмотр с датой:', enrichedInspection.created_at);
         addNewInspection(enrichedInspection);

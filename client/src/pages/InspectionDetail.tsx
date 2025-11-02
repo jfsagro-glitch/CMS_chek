@@ -578,13 +578,13 @@ const InspectionDetail: React.FC = () => {
       // Преобразуем данные из контекста в формат детального осмотра
       return {
         ...contextInspection,
-        inspector_phone: '+79991234567',
-        inspector_email: 'inspector@example.com',
-        recipient_name: contextInspection.recipient_name || 'Получатель не указан',
-        latitude: 55.751244,
-        longitude: 37.618423,
+        inspector_phone: contextInspection.inspector_phone || contextInspection.inspectorPhone || '+79991234567',
+        inspector_email: contextInspection.inspector_email || contextInspection.inspectorEmail || 'inspector@example.com',
+        recipient_name: contextInspection.recipient_name || contextInspection.recipientName || 'Получатель не указан',
+        latitude: contextInspection.latitude || contextInspection.coordinates?.lat || 55.751244,
+        longitude: contextInspection.longitude || contextInspection.coordinates?.lng || 37.618423,
         completed_at: contextInspection.status === 'Готов' ? contextInspection.created_at : undefined,
-        comment: 'Осмотр создан через систему',
+        comment: contextInspection.comment || contextInspection.comments || 'Осмотр создан через систему',
         objects: inspectionObjects,
         status_history: [
           {
