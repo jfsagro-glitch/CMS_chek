@@ -1,7 +1,8 @@
 .logo-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   padding: 16px;
   text-decoration: none;
   cursor: pointer;
@@ -17,6 +18,10 @@
 
 .sidebar.closed .logo-text {
   display: none;
+}
+
+.sidebar.closed .logo-container {
+  flex-direction: column;
 }
 
 .sidebar.closed .logo-icon {
@@ -87,12 +92,14 @@
 }
 
 .logo-text {
-  font-size: 20px;
+  font-size: 14px;
   font-weight: bold;
   color: var(--text-primary);
   white-space: nowrap;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  text-align: center;
+  line-height: 1.2;
 }
 
 @keyframes logoPulse {
