@@ -9,13 +9,17 @@ const isSecure = emailPort === 465 ||
                  emailHost.includes('mail.ru') || 
                  emailHost.includes('yandex.ru');
 
+// Поддержка пароля из User Secrets (например, Azure)
+// Если EMAIL_PASS не задан, пытаемся взять из секрета с именем "bk"
+const emailPassword = process.env.EMAIL_PASS || process.env.bk;
+
 const transporter = nodemailer.createTransport({
   host: emailHost,
   port: emailPort,
   secure: isSecure, // true для порта 465, false для 587
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+    pass: emailPassword
   }
 });
 
@@ -59,8 +63,11 @@ const sendSMS = async (phone, message) => {
 // Отправка email
 const sendEmail = async (to, subject, text, html = null) => {
   try {
-    if (!process.env.EMAIL_USER) {
-      console.log('Email не настроен. Сообщение:', text);
+    const emailUser = process.env.EMAIL_USER;
+    const emailPassword = process.env.EMAIL_PASS || process.env.bk;
+    
+    if (!emailUser || !emailPassword) {
+      console.log('Email не настроен. Проверьте EMAIL_USER и EMAIL_PASS (или секрет "bk"). Сообщение:', text);
       return;
     }
 

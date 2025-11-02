@@ -65,6 +65,27 @@ EMAIL_USER=your-email@bk.ru
 EMAIL_PASS=your-app-password
 ```
 
+**Поддержка User Secrets (Azure):**
+
+Система автоматически поддерживает использование пароля из User Secrets. Если переменная `EMAIL_PASS` не задана, система попытается использовать секрет с именем `bk`:
+
+```env
+EMAIL_HOST=smtp.mail.ru
+EMAIL_PORT=465
+EMAIL_USER=cmsauto@bk.ru
+bk=<пароль-из-user-secrets>
+```
+
+**Пример для cmsauto@bk.ru:**
+```env
+EMAIL_HOST=smtp.mail.ru
+EMAIL_PORT=465
+EMAIL_USER=cmsauto@bk.ru
+EMAIL_PASS=<пароль-от-почты>
+# Или используйте секрет:
+bk=<пароль-из-user-secrets>
+```
+
 ### Шаг 4: Настройка Yandex Mail
 
 ```env

@@ -23,13 +23,26 @@ EMAIL_PASS=ваш-пароль-приложения
 5. Создайте новый пароль для "Почтовая программа"
 6. Скопируйте созданный пароль → используйте как `EMAIL_PASS`
 
-**Пример для bk.ru:**
+**Пример для cmsauto@bk.ru:**
 ```env
 EMAIL_HOST=smtp.mail.ru
 EMAIL_PORT=465
-EMAIL_USER=your-email@bk.ru
+EMAIL_USER=cmsauto@bk.ru
 EMAIL_PASS=your-app-password
 ```
+
+**С использованием User Secrets (Azure):**
+
+Если используете Azure User Secrets, можно использовать секрет с именем `bk`:
+
+```env
+EMAIL_HOST=smtp.mail.ru
+EMAIL_PORT=465
+EMAIL_USER=cmsauto@bk.ru
+bk=<пароль-из-user-secrets>
+```
+
+Система автоматически использует секрет `bk` как пароль, если `EMAIL_PASS` не задан.
 
 ### Альтернатива: Gmail:
 
