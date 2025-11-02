@@ -10,7 +10,7 @@ import './Layout.css';
 
 const Layout: React.FC = () => {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme, getNextTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const { isCreateModalOpen, openCreateModal, closeCreateModal } = useModal();
   
   console.log('Layout rendered, isCreateModalOpen:', isCreateModalOpen);
@@ -21,19 +21,6 @@ const Layout: React.FC = () => {
   const handleLogout = () => {
     logout();
     navigate('/login');
-  };
-
-  const getThemeIcon = () => {
-    switch (theme) {
-      case 'light': return '☀️';
-      case 'dark': return '🌙';
-      case 'windows97': return '🪟';
-      case 'windowsXP': return '🎯';
-      case 'ios': return '📱';
-      case 'matrix': return '🔰';
-      case 'nokia3110': return '📟';
-      default: return '🎨';
-    }
   };
 
   const canGoBack = location.pathname !== '/' && 
@@ -116,10 +103,22 @@ const Layout: React.FC = () => {
           <div className="user-info">
             <span>👤 {user?.fullName}</span>
           </div>
-          <button className="theme-toggle" onClick={toggleTheme}>
-            <span className="theme-icon">{getThemeIcon()}</span>
-            <span className="theme-text">{getNextTheme().toUpperCase()}</span>
-          </button>
+          <div className="theme-selector">
+            <label className="theme-label">Тема:</label>
+            <select 
+              className="theme-select"
+              value={theme}
+              onChange={(e) => setTheme(e.target.value as any)}
+            >
+              <option value="light">Светлая</option>
+              <option value="dark">Тёмная</option>
+              <option value="windows97">Windows 97</option>
+              <option value="windowsXP">Windows XP</option>
+              <option value="ios">iOS</option>
+              <option value="matrix">Matrix</option>
+              <option value="nokia3110">Nokia 3110</option>
+            </select>
+          </div>
           <button className="logout-button" onClick={handleLogout}>
             🚪 Выход
           </button>
