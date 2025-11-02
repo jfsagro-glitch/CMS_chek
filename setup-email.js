@@ -15,11 +15,12 @@ if (fs.existsSync(envPath)) {
 }
 
 // Настройки для cmsauto@bk.ru
+// Пароль берется из User Secrets (секрет "bk") или из EMAIL_PASS
 const emailSettings = {
   'EMAIL_HOST': 'smtp.mail.ru',
   'EMAIL_PORT': '465',
   'EMAIL_USER': 'cmsauto@bk.ru',
-  'EMAIL_PASS': 'YOUR_PASSWORD_HERE',
+  'EMAIL_PASS': process.env.bk || process.env.EMAIL_PASS || '',
   'CLIENT_URL': 'https://jfsagro-glitch.github.io/CMS_chek'
 };
 
@@ -35,9 +36,26 @@ function updateEnvVar(key, value) {
 
 // Обновляем настройки email
 console.log('Настраиваю переменные окружения для email:\n');
+const passwordValue = emailSettings['EMAIL_PASS'];
+const hasPassword = passwordValue && passwordValue.length > 0;
+
 for (const [key, value] of Object.entries(emailSettings)) {
-  updateEnvVar(key, value);
-  console.log(`  ✓ ${key}=${value === 'YOUR_PASSWORD_HERE' ? '***[ТРЕБУЕТСЯ НАСТРОЙКА]***' : value}`);
+  if (key === 'EMAIL_PASS' && !hasPassword) {
+    // Если пароль не найден в секретах, оставляем комментарий о использовании секрета bk
+    updateEnvVar(key, '');
+    // Добавляем комментарий вместо пароля
+    if (!envContent.includes('# Пароль берется из User Secrets')) {
+      envContent = envContent.replace(/^EMAIL_PASS=.*$/m, '# Пароль берется из User Secrets (секрет "bk")\n# EMAIL_PASS=\n# Или используйте секрет напрямую: bk=<пароль>');
+    }
+    console.log(`  ✓ ${key}=***[ИСПОЛЬЗУЕТСЯ ИЗ СЕКРЕТА "bk"]***`);
+  } else {
+    updateEnvVar(key, value);
+    if (key === 'EMAIL_PASS') {
+      console.log(`  ✓ ${key}=***[НАЙДЕН В СЕКРЕТАХ]***`);
+    } else {
+      console.log(`  ✓ ${key}=${value}`);
+    }
+  }
 }
 
 // Добавляем базовые настройки если файл новый
@@ -86,7 +104,13 @@ NODE_ENV=development
 fs.writeFileSync(envPath, envContent, 'utf8');
 
 console.log('\n✅ Файл .env настроен!\n');
-console.log('⚠️  ВАЖНО: Не забудьте заменить YOUR_PASSWORD_HERE на реальный пароль от почты cmsauto@bk.ru');
-console.log('   Получить пароль: https://e.mail.ru/settings/security -> Пароли для внешних приложений\n');
+
+if (!hasPassword) {
+  console.log('ℹ️  Пароль будет использоваться из User Secrets (секрет "bk")');
+  console.log('   Если секрет "bk" не настроен, настройте его в Azure/Railway/Render\n');
+} else {
+  console.log('✅ Пароль найден и настроен!\n');
+}
+
 console.log('📖 Подробная инструкция: см. MAILRU_SETUP.md\n');
 
