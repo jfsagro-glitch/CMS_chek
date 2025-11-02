@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Database, Settings } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { useModal } from '../contexts/ModalContext';
@@ -94,10 +95,14 @@ const Layout: React.FC = () => {
           </button>
           
           <button
-            className="nav-item"
+            className="nav-item nav-item-with-icons"
             onClick={() => window.open('https://cmsauto.ru/#/registry', '_blank')}
           >
-            🚗 CMS AUTO
+            <span className="nav-icon-group">
+              <Database size={16} />
+              <Settings size={16} />
+            </span>
+            <span>CMS AUTO</span>
           </button>
           
           {canGoBack && (
