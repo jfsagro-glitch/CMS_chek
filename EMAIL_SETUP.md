@@ -74,9 +74,9 @@ EMAIL_USER=your-email@yandex.ru
 EMAIL_PASS=your-password
 ```
 
-**Важно:** В `utils/notifications.js` для Yandex нужно изменить `secure: true` и `port: 465`.
+**Важно:** В `utils/notifications.js` для Yandex автоматически используется `secure: true` и `port: 465`.
 
-### Шаг 4: Настройка переменных окружения
+### Шаг 5: Настройка переменных окружения
 
 #### Для локальной разработки:
 
