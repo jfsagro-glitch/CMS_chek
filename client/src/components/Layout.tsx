@@ -37,6 +37,7 @@ const Layout: React.FC = () => {
           <button 
             className="sidebar-toggle"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            title={isSidebarOpen ? 'Свернуть' : 'Развернуть'}
           >
             {isSidebarOpen ? '◀' : '▶'}
           </button>

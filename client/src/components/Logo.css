@@ -11,17 +11,7 @@
 
 /* Уменьшение логотипа в свернутом тулбаре */
 .sidebar.closed .logo-container {
-  padding: 8px;
-  gap: 0;
-  justify-content: center;
-}
-
-.sidebar.closed .logo-text {
   display: none;
-}
-
-.sidebar.closed .logo-container {
-  flex-direction: column;
 }
 
 .sidebar.closed .logo-icon {
