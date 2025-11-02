@@ -17,6 +17,12 @@
 
 .sidebar.closed {
   width: 80px;
+  position: relative;
+}
+
+.sidebar.closed .sidebar-header {
+  justify-content: center;
+  padding: 8px;
 }
 
 .sidebar-header {
@@ -28,12 +34,38 @@
 }
 
 .sidebar-toggle {
-  background: none;
+  background: var(--bg-primary);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 8px;
   border-radius: 4px;
+  min-width: 32px;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.sidebar-toggle:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--accent-primary);
+}
+
+.sidebar.closed .sidebar-toggle {
+  position: absolute;
+  top: 50%;
+  right: -16px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background: var(--bg-secondary);
 }
 
 .sidebar-nav {

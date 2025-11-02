@@ -5,6 +5,34 @@
   padding: 16px;
   text-decoration: none;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Уменьшение логотипа в свернутом тулбаре */
+.sidebar.closed .logo-container {
+  padding: 8px;
+  gap: 0;
+  justify-content: center;
+}
+
+.sidebar.closed .logo-text {
+  display: none;
+}
+
+.sidebar.closed .logo-icon {
+  width: 32px;
+  height: 32px;
+  animation: none;
+}
+
+.sidebar.closed .logo-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.sidebar.closed .logo-pulse::before,
+.sidebar.closed .logo-pulse::after {
+  display: none;
 }
 
 .logo-pulse {
