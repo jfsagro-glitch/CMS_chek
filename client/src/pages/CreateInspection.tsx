@@ -215,6 +215,7 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
           photos_count: 0,
           created_by_name: 'Текущий пользователь',
           internal_number: srvInspection.internal_number || `INS-${String(Date.now()).slice(-6)}`,
+          objects: filteredObjects, // Сохраняем массив объектов
         };
         console.log('Добавляем осмотр с датой:', enrichedInspection.created_at);
         addNewInspection(enrichedInspection);

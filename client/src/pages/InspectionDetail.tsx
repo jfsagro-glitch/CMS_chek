@@ -12,9 +12,7 @@ import {
   AlertCircle,
   FileText
 } from 'lucide-react';
-import { inspectionsApi } from '../services/api';
 import { useInspections } from '../contexts/InspectionsContext';
-import { getPropertyTypeAttributes } from '../config/propertyTypes';
 import toast from 'react-hot-toast';
 import './InspectionDetail.css';
 
@@ -549,25 +547,45 @@ const InspectionDetail: React.FC = () => {
     // Сначала проверяем новые осмотры из контекста
     const contextInspection = contextInspections.find(ins => ins.id === inspectionId);
     if (contextInspection) {
-      // Преобразуем данные из контекста в формат детального осмотра
-      // Сохраняем все объекты осмотра с их полными характеристиками
-      const inspectionObjects = contextInspection.objects || [];
+      // Получаем объекты из осмотра (если есть массив objects)
+      let inspectionObjects: any[] = [];
+      if (contextInspection.objects && Array.isArray(contextInspection.objects) && contextInspection.objects.length > 0) {
+        inspectionObjects = contextInspection.objects.map((obj: any, index: number) => ({
+          id: index + 1,
+          category: contextInspection.property_type,
+          type: obj.type || 'не указан',
+          make: obj.make || '',
+          model: obj.model || '',
+          vin: obj.vin || '',
+          registration_number: obj.license_plate || '',
+          year: obj.year,
+          color: obj.color,
+          photos_count: 0
+        }));
+      } else {
+        // Fallback: пытаемся извлечь из object_description
+        const parts = (contextInspection.object_description || '').split(' ');
+        inspectionObjects = [{
+          id: 1,
+          category: contextInspection.property_type,
+          type: contextInspection.object_type || 'не указан',
+          make: parts[0] || '',
+          model: parts.slice(1).join(' ') || '',
+          photos_count: contextInspection.photos_count || 0
+        }];
+      }
       
+      // Преобразуем данные из контекста в формат детального осмотра
       return {
         ...contextInspection,
-        inspector_phone: contextInspection.inspector_phone || '+79991234567',
-        inspector_email: contextInspection.inspector_email || 'inspector@example.com',
+        inspector_phone: '+79991234567',
+        inspector_email: 'inspector@example.com',
         recipient_name: contextInspection.recipient_name || 'Получатель не указан',
-        latitude: contextInspection.coordinates?.lat || 55.751244,
-        longitude: contextInspection.coordinates?.lng || 37.618423,
+        latitude: 55.751244,
+        longitude: 37.618423,
         completed_at: contextInspection.status === 'Готов' ? contextInspection.created_at : undefined,
-        comment: contextInspection.comments || contextInspection.comment || 'Осмотр создан через систему',
-        objects: inspectionObjects.map((obj: any, index: number) => ({
-          id: obj.id || index + 1,
-          ...obj, // Сохраняем все поля объекта
-          category: contextInspection.property_type,
-          photos_count: obj.photos_count || 0
-        })),
+        comment: 'Осмотр создан через систему',
+        objects: inspectionObjects,
         status_history: [
           {
             id: 1,
@@ -580,7 +598,7 @@ const InspectionDetail: React.FC = () => {
             id: 2,
             status: contextInspection.status,
             comment: `Статус изменен на ${contextInspection.status}`,
-            created_at: contextInspection.created_at,
+            created_at: contextInspection.updated_at || contextInspection.created_at,
             created_by: contextInspection.inspector_name || 'Система'
           }] : [])
         ]
@@ -596,9 +614,28 @@ const InspectionDetail: React.FC = () => {
   const error = null;
 
   const updateStatusMutation = useMutation({
-    mutationFn: ({ status, comment }: { status: string; comment?: string }) =>
-      inspectionsApi.updateStatus(Number(id), status, comment),
-    onSuccess: () => {
+    mutationFn: ({ status, comment }: { status: string; comment?: string }) => {
+      // В демо-режиме просто возвращаем успех
+      return Promise.resolve({ 
+        data: { 
+          inspection: { 
+            ...inspection, 
+            status,
+            updated_at: new Date().toISOString()
+          } 
+        } 
+      });
+    },
+    onSuccess: (data, variables) => {
+      // Обновляем статус в контексте
+      const inspectionId = Number(id);
+      const contextInspection = contextInspections.find(ins => ins.id === inspectionId);
+      if (contextInspection) {
+        // Обновляем статус в локальном состоянии
+        contextInspection.status = variables.status;
+        contextInspection.updated_at = new Date().toISOString();
+      }
+      
       queryClient.invalidateQueries({ queryKey: ['inspection', id] });
       queryClient.invalidateQueries({ queryKey: ['inspections'] });
       setShowStatusModal(false);
@@ -679,42 +716,6 @@ const InspectionDetail: React.FC = () => {
   const objects = inspection.objects || [];
   const photos: any[] = [];
   const statusHistory = inspection.status_history || [];
-  // Определяем ID типа имущества из различных возможных значений
-  const propertyTypeId = inspectionData.property_type === 'Транспортное средство' || 
-                          inspectionData.property_type === 'vehicle' ||
-                          inspectionData.property_type === 'Автотранспорт' ? 'vehicle' : 
-                          inspectionData.property_type === 'Недвижимость' || 
-                          inspectionData.property_type === 'real_estate' ? 'real_estate' :
-                          inspectionData.property_type === 'Оборудование' || 
-                          inspectionData.property_type === 'equipment' ? 'equipment' : 'other';
-  
-  // Получаем атрибуты для типа имущества
-  const propertyAttributes = getPropertyTypeAttributes(propertyTypeId);
-  
-  // Функция для получения метки атрибута
-  const getAttributeLabel = (key: string): string => {
-    const attr = propertyAttributes.find(a => a.key === key);
-    if (attr) return attr.label;
-    
-    // Стандартные метки для транспорта
-    const labels: { [key: string]: string } = {
-      make: 'Марка',
-      model: 'Модель',
-      year: 'Год',
-      color: 'Цвет',
-      vin: 'VIN',
-      license_plate: 'Госномер',
-      name: 'Наименование'
-    };
-    return labels[key] || key;
-  };
-  
-  // Функция для отображения значения
-  const formatAttributeValue = (value: any): string => {
-    if (value === null || value === undefined || value === '') return '';
-    if (typeof value === 'boolean') return value ? 'Да' : 'Нет';
-    return String(value);
-  };
 
   return (
     <div className="inspection-detail">
@@ -821,47 +822,22 @@ const InspectionDetail: React.FC = () => {
         <div className="objects-section">
           <h2>Объекты осмотра ({objects.length})</h2>
           <div className="objects-list">
-            {objects.map((object: any, objIndex: number) => {
-              // Определяем название объекта
-              const objectTitle = propertyTypeId === 'vehicle' 
-                ? `${object.make || ''} ${object.model || ''}`.trim() || 'Транспортное средство'
-                : object.name || 'Объект осмотра';
-              
-              // Получаем все поля объекта, исключая служебные
-              const excludeKeys = ['id', 'photos_count', 'inspection_id', 'category'];
-              const objectAttributes = Object.keys(object)
-                .filter(key => !excludeKeys.includes(key) && object[key] !== null && object[key] !== undefined && object[key] !== '')
-                .sort(); // Сортируем для единообразного отображения
-              
-              return (
-              <div key={object.id || objIndex} className="object-card">
+            {objects.map((object: any) => (
+              <div key={object.id} className="object-card">
                 <div className="object-header">
-                  <h3>{objectTitle}</h3>
-                  <span className="object-category">{object.category || inspectionData.property_type}</span>
+                  <h3>{object.make} {object.model}</h3>
+                  <span className="object-category">{object.category}</span>
                 </div>
                 
-                <div className="object-details">
-                  <h4 className="characteristics-title">Характеристики объекта</h4>
-                  <div className="characteristics-grid">
-                    {objectAttributes.map((key) => {
-                      const value = object[key];
-                      const label = getAttributeLabel(key);
-                      const formattedValue = formatAttributeValue(value);
-                      
-                      if (!formattedValue) return null;
-                      
-                      return (
-                        <div key={key} className="characteristic-item">
-                          <label className="characteristic-label">{label}:</label>
-                          <span className="characteristic-value">{formattedValue}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  
-                  {objectAttributes.length === 0 && (
-                    <p className="no-characteristics">Характеристики не указаны</p>
-                  )}
+                <div className="object-characteristics-line">
+                  {[
+                    object.make && object.model && `${object.make} ${object.model}`,
+                    object.registration_number && `Госномер: ${object.registration_number}`,
+                    object.vin && `VIN: ${object.vin}`,
+                    object.type && object.type !== 'не указан' && `Тип: ${object.type}`,
+                    object.year && `Год: ${object.year}`,
+                    object.color && `Цвет: ${object.color}`
+                  ].filter(Boolean).join(' • ')}
                 </div>
 
                 {/* Фотографии объекта */}
@@ -888,8 +864,7 @@ const InspectionDetail: React.FC = () => {
                   )}
                 </div>
               </div>
-            );
-            })}
+            ))}
           </div>
         </div>
 
