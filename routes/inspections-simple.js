@@ -158,16 +158,17 @@ router.post('/', authenticateToken, async (req, res) => {
   try {
     console.log('Получен запрос на создание осмотра:', req.body);
     
+    // Поддерживаем оба формата (snake_case и camelCase) для совместимости
     const {
-      propertyType,
+      propertyType = req.body.property_type,
       address,
-      latitude,
-      longitude,
-      inspectorName,
-      inspectorPhone,
-      inspectorEmail,
-      internalNumber,
-      comment,
+      latitude = req.body.coordinates?.lat,
+      longitude = req.body.coordinates?.lng,
+      inspectorName = req.body.inspector_name,
+      inspectorPhone = req.body.inspector_phone,
+      inspectorEmail = req.body.inspector_email,
+      internalNumber = req.body.internal_number,
+      comment = req.body.comments || req.body.comment,
       objects
     } = req.body;
 
@@ -248,7 +249,9 @@ router.post('/', authenticateToken, async (req, res) => {
         </p>
       `;
       
-      sendEmail(inspectorEmail, emailSubject, emailHtml)
+      const emailText = `Новый осмотр №${newInspection.internal_number}\n\nЗдравствуйте, ${inspectorName}!\nВам назначен осмотр №${newInspection.internal_number}\n\nДетали осмотра:\n- Адрес: ${address}\n- Тип имущества: ${propertyType}\n- Количество объектов: ${objects?.length || 0}\n${comment ? `- Комментарий: ${comment}\n` : ''}\nДля выполнения осмотра перейдите по ссылке: ${inspectionLink}`;
+      
+      sendEmail(inspectorEmail, emailSubject, emailText, emailHtml)
         .then(() => console.log(`Email отправлен: ${inspectorEmail}`))
         .catch(err => console.error('Ошибка Email:', err.message));
     }

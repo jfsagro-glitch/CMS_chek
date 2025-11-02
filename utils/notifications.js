@@ -2,10 +2,17 @@ const nodemailer = require('nodemailer');
 const twilio = require('twilio');
 
 // Настройка email
+// Определяем, нужен ли SSL на основе порта или хоста
+const emailPort = parseInt(process.env.EMAIL_PORT || '587');
+const emailHost = process.env.EMAIL_HOST || '';
+const isSecure = emailPort === 465 || 
+                 emailHost.includes('mail.ru') || 
+                 emailHost.includes('yandex.ru');
+
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: false,
+  host: emailHost,
+  port: emailPort,
+  secure: isSecure, // true для порта 465, false для 587
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
