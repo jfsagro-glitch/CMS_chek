@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Database } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -12,21 +12,29 @@ const Layout: React.FC = () => {
   const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
   const { isCreateModalOpen, openCreateModal, closeCreateModal } = useModal();
-  
-  console.log('Layout rendered, isCreateModalOpen:', isCreateModalOpen);
   const navigate = useNavigate();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     logout();
     navigate('/login');
-  };
+  }, [logout, navigate]);
 
-  const canGoBack = location.pathname !== '/' && 
-                   location.pathname !== '/inspections' && 
-                   location.pathname !== '/login' && 
-                   location.pathname !== '/register';
+  const canGoBack = useMemo(() => {
+    return location.pathname !== '/' && 
+           location.pathname !== '/inspections' && 
+           location.pathname !== '/login' && 
+           location.pathname !== '/register';
+  }, [location.pathname]);
+
+  const toggleSidebar = useCallback(() => {
+    setIsSidebarOpen(prev => !prev);
+  }, []);
+
+  const handleThemeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setTheme(e.target.value as any);
+  }, [setTheme]);
 
   return (
     <div className={`layout theme-${theme}`}>
@@ -36,7 +44,7 @@ const Layout: React.FC = () => {
           <Logo />
           <button 
             className="sidebar-toggle"
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            onClick={toggleSidebar}
             title={isSidebarOpen ? 'Свернуть' : 'Развернуть'}
           >
             {isSidebarOpen ? '◀' : '▶'}
@@ -53,10 +61,7 @@ const Layout: React.FC = () => {
           
           <button
             className="nav-item"
-            onClick={() => {
-              console.log('Button clicked, opening modal...');
-              openCreateModal();
-            }}
+            onClick={openCreateModal}
           >
             ➕ Новый осмотр
           </button>
@@ -109,7 +114,7 @@ const Layout: React.FC = () => {
             <select 
               className="theme-select"
               value={theme}
-              onChange={(e) => setTheme(e.target.value as any)}
+              onChange={handleThemeChange}
             >
               <option value="light">Светлая</option>
               <option value="dark">Тёмная</option>

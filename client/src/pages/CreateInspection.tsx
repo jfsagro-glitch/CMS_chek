@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -47,8 +47,6 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
   const [isAddVehicleModalOpen, setIsAddVehicleModalOpen] = useState(false);
   const [currentObjectIndex, setCurrentObjectIndex] = useState(0); // Индекс объекта, для которого добавляем марку/модель
   
-  console.log('CreateInspection rendered, isOpen:', isOpen);
-  
   const {
     register,
     handleSubmit,
@@ -64,7 +62,7 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
   });
 
   // Обработчик изменения типа имущества
-  const handlePropertyTypeChange = (typeId: string) => {
+  const handlePropertyTypeChange = useCallback((typeId: string) => {
     setSelectedPropertyType(typeId);
     const attributes = getPropertyTypeAttributes(typeId);
     setPropertyAttributes(attributes);
@@ -76,21 +74,21 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
     } else {
       setValue('objects', [{}]);
     }
-  };
+  }, [setValue]);
 
   // Обработчик открытия модалки добавления марки/модели
-  const handleOpenAddVehicleModal = (objectIndex: number) => {
+  const handleOpenAddVehicleModal = useCallback((objectIndex: number) => {
     setCurrentObjectIndex(objectIndex);
     setIsAddVehicleModalOpen(true);
-  };
+  }, []);
 
   // Обработчик добавления марки и модели
-  const handleVehicleAdded = (makeId: string, makeName: string, modelId: string, modelName: string) => {
+  const handleVehicleAdded = useCallback((makeId: string, makeName: string, modelId: string, modelName: string) => {
     setValue(`objects.${currentObjectIndex}.make_id`, makeId);
     setValue(`objects.${currentObjectIndex}.make`, makeName);
     setValue(`objects.${currentObjectIndex}.model_id`, modelId);
     setValue(`objects.${currentObjectIndex}.model`, modelName);
-  };
+  }, [currentObjectIndex, setValue]);
 
   // Сбрасываем форму при открытии/закрытии модалки и блокируем скролл
   useEffect(() => {
@@ -162,7 +160,6 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
   const onSubmit = async (data: InspectionFormData) => {
     if (isSubmitting) return;
     
-    console.log('Начинаем создание осмотра:', data);
     setIsSubmitting(true);
 
     // Проверяем валидность формы
@@ -174,8 +171,6 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
     }
 
     try {
-      console.log('Отправляем запрос на создание осмотра...');
-      
       // Фильтруем объекты
       const filteredObjects = data.objects.filter(obj => {
         // Для транспорта проверяем марку, модель и VIN/госномер
@@ -193,7 +188,6 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
       };
 
       const response = await inspectionsApi.createInspection(submissionData) as any;
-      console.log('Ответ от сервера:', response);
 
       if (response.data) {
         toast.success(response.data.message || 'Осмотр успешно создан!');
@@ -221,7 +215,6 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
           comment: data.comments || '', // Сохраняем комментарий
           coordinates: data.coordinates || { lat: 0, lng: 0 }, // Сохраняем координаты
         };
-        console.log('Добавляем осмотр с датой:', enrichedInspection.created_at);
         addNewInspection(enrichedInspection);
         
         // Обновляем счетчик осмотров
@@ -251,27 +244,33 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
   };
 
   // Добавление нового объекта
-  const addObject = () => {
+  const addObject = useCallback(() => {
     const currentObjects = watch('objects') || [];
     if (currentObjects.length < 150) {
       setValue('objects', [...currentObjects, { make: '', model: '' }]);
     } else {
       toast.error('Достигнуто максимальное количество объектов (150)');
     }
-  };
+  }, [watch, setValue]);
 
   // Удаление объекта
-  const removeObject = (index: number) => {
+  const removeObject = useCallback((index: number) => {
     const currentObjects = watch('objects') || [];
     if (currentObjects.length > 1) {
       const newObjects = currentObjects.filter((_, i) => i !== index);
       setValue('objects', newObjects);
     }
-  };
+  }, [watch, setValue]);
+
+  // Фильтруем дублирующиеся поля для транспорта
+  const filteredVehicleAttributes = useMemo(() => {
+    return selectedPropertyType === 'vehicle'
+      ? propertyAttributes.filter((attr) => !['vin_number', 'license_plate', 'year'].includes(attr.key))
+      : propertyAttributes;
+  }, [selectedPropertyType, propertyAttributes]);
 
   // Если модалка закрыта, не рендерим ничего
   if (!isOpen) {
-    console.log('Modal not open, returning null');
     return (
       <>
         <AddVehicleModal
@@ -282,8 +281,6 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
       </>
     );
   }
-  
-  console.log('Modal is open, rendering with Portal');
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget && !isSubmitting) {
@@ -293,22 +290,8 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
 
   const portalRoot = document.body;
   if (!portalRoot) {
-    console.error('Portal root not found!');
-    return (
-      <>
-        <AddVehicleModal
-          isOpen={isAddVehicleModalOpen}
-          onClose={() => setIsAddVehicleModalOpen(false)}
-          onAdd={handleVehicleAdded}
-        />
-      </>
-    );
+    return null;
   }
-
-  // Фильтруем дублирующиеся поля для транспорта
-  const filteredVehicleAttributes = selectedPropertyType === 'vehicle'
-    ? propertyAttributes.filter((attr) => !['vin_number', 'license_plate', 'year'].includes(attr.key))
-    : propertyAttributes;
 
   return (
     <>

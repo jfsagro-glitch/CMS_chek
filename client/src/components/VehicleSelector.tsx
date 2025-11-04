@@ -4,8 +4,6 @@ import {
   getVehicleModelsByMakeId, 
   addVehicleMake, 
   addVehicleModel,
-  searchVehicleMakes,
-  searchVehicleModels,
   BODY_TYPES,
   VehicleMake,
   VehicleModel

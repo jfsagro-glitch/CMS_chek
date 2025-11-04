@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { addVehicleMake, addVehicleModel } from '../config/vehicleCatalog';
 import './AddVehicleModal.css';
@@ -16,7 +16,16 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onAd
   const [step, setStep] = useState<'make' | 'model'>('make'); // Сначала добавляем марку, потом модель
   const [createdMakeId, setCreatedMakeId] = useState<string>(''); // Сохраняем ID созданной марки
 
-  const handleAddMake = () => {
+  const handleClose = useCallback(() => {
+    setMakeName('');
+    setMakeCountry('');
+    setModelName('');
+    setStep('make');
+    setCreatedMakeId('');
+    onClose();
+  }, [onClose]);
+
+  const handleAddMake = useCallback(() => {
     if (!makeName.trim()) {
       return;
     }
@@ -32,9 +41,9 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onAd
 
     // Переходим к добавлению модели
     setStep('model');
-  };
+  }, [makeName, makeCountry]);
 
-  const handleAddModel = () => {
+  const handleAddModel = useCallback(() => {
     if (!modelName.trim() || !createdMakeId) {
       return;
     }
@@ -49,16 +58,7 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onAd
       onAdd(createdMakeId, makeName.trim(), newModel.id, newModel.name);
       handleClose();
     }
-  };
-
-  const handleClose = () => {
-    setMakeName('');
-    setMakeCountry('');
-    setModelName('');
-    setStep('make');
-    setCreatedMakeId('');
-    onClose();
-  };
+  }, [modelName, createdMakeId, makeName, onAdd, handleClose]);
 
   if (!isOpen) return null;
 
