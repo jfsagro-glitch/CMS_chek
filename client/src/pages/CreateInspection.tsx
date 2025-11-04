@@ -596,7 +596,6 @@ const CreateInspection: React.FC<CreateInspectionProps> = ({ isOpen, onClose }) 
                       {/* Динамические атрибуты в зависимости от типа имущества */}
                       {selectedPropertyType && selectedPropertyType !== 'vehicle' && propertyAttributes.length > 0 && (
                         <div className="dynamic-attributes">
-                          <h5 className="attributes-title">Характеристики объекта</h5>
                           <div className="attributes-grid">
                             {propertyAttributes.map((attr) => (
                               <div key={attr.key} className="form-group">

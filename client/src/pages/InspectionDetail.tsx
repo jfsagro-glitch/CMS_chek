@@ -40,12 +40,32 @@ const InspectionDetail: React.FC = () => {
           id: index + 1,
           category: contextInspection.property_type,
           type: obj.type || 'не указан',
+          // Поля для транспорта
           make: obj.make || '',
           model: obj.model || '',
           vin: obj.vin || '',
           registration_number: obj.license_plate || '',
           year: obj.year,
           color: obj.color,
+          // Поля для недвижимости
+          name: obj.name || '',
+          cadastral_number: obj.cadastral_number || '',
+          area: obj.area,
+          floor: obj.floor,
+          building_type: obj.building_type || '',
+          construction_year: obj.construction_year,
+          // Поля для оборудования
+          serial_number: obj.serial_number || '',
+          manufacturer: obj.manufacturer || '',
+          equipment_type: obj.equipment_type || '',
+          purchase_date: obj.purchase_date || '',
+          warranty_until: obj.warranty_until || '',
+          // Поля для прочего
+          description: obj.description || '',
+          condition: obj.condition || '',
+          estimated_value: obj.estimated_value,
+          // Все остальные поля сохраняем
+          ...obj,
           photos_count: 0
         }));
       } else {
@@ -308,21 +328,39 @@ const InspectionDetail: React.FC = () => {
         <div className="objects-section">
           <h2>Объекты осмотра ({objects.length})</h2>
           <div className="objects-list">
-            {objects.map((object: any) => (
+            {objects.map((object: any) => {
+              // Определяем тип объекта по наличию полей
+              const isVehicle = object.make || object.model || object.vin || object.registration_number;
+              
+              return (
               <div key={object.id} className="object-card">
                 <div className="object-header">
-                  <h3>{object.make} {object.model}</h3>
+                  <h3>{object.name || (object.make && object.model ? `${object.make} ${object.model}` : 'Объект')}</h3>
                   <span className="object-category">{object.category}</span>
                 </div>
                 
                 <div className="object-characteristics-line">
-                  {[
+                  {isVehicle ? [
                     object.make && object.model && `${object.make} ${object.model}`,
                     object.registration_number && `Госномер: ${object.registration_number}`,
                     object.vin && `VIN: ${object.vin}`,
                     object.type && object.type !== 'не указан' && `Тип: ${object.type}`,
                     object.year && `Год: ${object.year}`,
                     object.color && `Цвет: ${object.color}`
+                  ].filter(Boolean).join(' • ') : [
+                    object.name && `Наименование: ${object.name}`,
+                    object.cadastral_number && `Кадастровый номер: ${object.cadastral_number}`,
+                    object.area && `Площадь: ${object.area} м²`,
+                    object.floor !== undefined && object.floor !== null && `Этаж: ${object.floor}`,
+                    object.building_type && `Тип здания: ${object.building_type}`,
+                    object.construction_year && `Год постройки: ${object.construction_year}`,
+                    object.serial_number && `Серийный номер: ${object.serial_number}`,
+                    object.model && `Модель: ${object.model}`,
+                    object.manufacturer && `Производитель: ${object.manufacturer}`,
+                    object.equipment_type && `Тип оборудования: ${object.equipment_type}`,
+                    object.description && `Описание: ${object.description}`,
+                    object.condition && `Состояние: ${object.condition}`,
+                    object.estimated_value && `Оценочная стоимость: ${object.estimated_value} руб.`
                   ].filter(Boolean).join(' • ')}
                 </div>
 
@@ -350,7 +388,8 @@ const InspectionDetail: React.FC = () => {
                   )}
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         </div>
 
